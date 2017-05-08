@@ -1,0 +1,31 @@
+
+- name: check if ucsmsdk is installed
+  shell: python -c "import ucsmsdk"
+  register: output
+  ignore_errors: yes
+  changed_when: False
+
+- name: install ucsmsdk
+  pip:
+    name: ucsmsdk
+  when: output.rc != 0
+
+- name: check if ucsm_apis is installed
+  shell: python -c "import ucsm_apis"
+  register: output
+  ignore_errors: yes
+  changed_when: False
+
+- name: clone ucsm_apis
+  git:
+    repo: 'https://github.com/CiscoUcs/ucsm_apis.git'
+    dest: "{{ ucsm_apis_location }}"
+  when: output.rc != 0
+
+- name: install ucsm_apis
+  shell: |
+    cd {{ ucsm_apis_location }}
+    sudo make install
+    cd -
+    exit 0
+  when: output.rc != 0
