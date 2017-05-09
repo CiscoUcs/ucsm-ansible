@@ -5,31 +5,27 @@ from ansible.module_utils.basic import *
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_auth_domain_realm
-short_description: configures auth domain realm on a cisco ucs server
+module: cisco_ucs_native_auth
+short_description: configures native auth on a cisco ucs server
 version_added: 0.9.0.0
 description:
-   -  configures authentication domain realm on a cisco ucs server
+   -  configures native authentication on a cisco ucs server
 Input Params:
-    domain_name:
-        description: auth domain name
-        required: True
-    realm:
-        description: realm
+    def_role_policy:
+        description: def_role_policy
+        required: False
+        choices: ['assign-default-role', 'no-login']
+        default: "no-login"
+    def_login:
+        description: def_login
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
         default: "local"
-    use2_factor:
-        description: two factor authentication
+    con_login:
+        description: con_login
         required: False
-        choices: ['yes', 'no']
-        default: "no"
-    provider_group:
-        description: provider group name
-        required: False
-    name:
-        description: name
-        required: False
+        choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
+        default: "local"
     descr:
         description: description
         required: False
@@ -41,13 +37,11 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_auth_domain_realm:
-    domain_name: "testdomain"
-    realm: "radius"
-    use2_factor: "yes"
-    provider_group: "test_radius_provider_group"
-    name: None
-    descr: None
+  cisco_ucs_native_auth:
+    def_role_policy: "assign-default-role"
+    def_login: "local"
+    con_login: "local"
+    descr: "description"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"
@@ -56,15 +50,15 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
-                domain_name=dict(required=True, type='str'),
-                realm=dict(type='str',
-                           choices=['ldap', 'local', 'none', 'radius',
-                                    'tacacs'],
-                           default="local"),
-                use2_factor=dict(type='str', choices=['yes', 'no'],
-                                 default="no"),
-                provider_group=dict(type='str'),
-                name=dict(type='str'),
+                def_role_policy=dict(type='str',
+                        choices=['assign-default-role', 'no-login'],
+                        default="no-login"),
+                def_login=dict(type='str',
+                        choices=['ldap', 'local', 'none', 'radius', 'tacacs'],
+                        default="local"),
+                con_login=dict(type='str',
+                        choices=['ldap', 'local', 'none', 'radius', 'tacacs'],
+                        default="local"),
                 descr=dict(type='str'),
     )
 
@@ -103,17 +97,17 @@ def _get_mo_params(params):
     return args
 
 
-def setup_auth_domain_realm(server, module):
-    from ucsm_apis.admin.auth import auth_domain_realm_configure
-    from ucsm_apis.admin.auth import auth_domain_realm_exists
+def setup_native_auth(server, module):
+    from ucsm_apis.admin.auth import native_auth_configure
+    from ucsm_apis.admin.auth import native_auth_exists
 
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
-    exists, mo = auth_domain_realm_exists(handle=server, **args_mo)
+    exists, mo = native_auth_exists(handle=server, **args_mo)
 
     if module.check_mode or exists:
         return not exists
-    auth_domain_realm_configure(handle=server, **args_mo)
+    native_auth_configure(handle=server, **args_mo)
 
     return True
 
@@ -123,7 +117,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_auth_domain_realm(server, module)
+        result["changed"] = setup_native_auth(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)
