@@ -34,10 +34,10 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_auth_domain:
-    name:
-    refresh_period:
-    session_timeout:
-    descr:
+    name: "testauthdomain"
+    refresh_period: "600"
+    session_timeout: "7200"
+    descr: "description"
     state: "present"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
