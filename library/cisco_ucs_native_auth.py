@@ -15,17 +15,14 @@ Input Params:
         description: def_role_policy
         required: False
         choices: ['assign-default-role', 'no-login']
-        default: "no-login"
     def_login:
         description: def_login
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
-        default: "local"
     con_login:
         description: con_login
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
-        default: "local"
     descr:
         description: description
         required: False
@@ -51,14 +48,11 @@ EXAMPLES = '''
 def _argument_mo():
     return dict(
                 def_role_policy=dict(type='str',
-                        choices=['assign-default-role', 'no-login'],
-                        default="no-login"),
+                        choices=['assign-default-role', 'no-login']),
                 def_login=dict(type='str',
-                        choices=['ldap', 'local', 'none', 'radius', 'tacacs'],
-                        default="local"),
+                        choices=['ldap', 'local', 'none', 'radius', 'tacacs']),
                 con_login=dict(type='str',
-                        choices=['ldap', 'local', 'none', 'radius', 'tacacs'],
-                        default="local"),
+                        choices=['ldap', 'local', 'none', 'radius', 'tacacs']),
                 descr=dict(type='str'),
     )
 
