@@ -29,9 +29,9 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_user_role:
-    user_name:
-    name:
-    descr:
+    user_name: "testuser"
+    name: "testrole"
+    descr: "description"
     state: "present"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"

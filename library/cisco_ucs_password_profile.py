@@ -61,16 +61,15 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_password_profile:
-    min_passphrase_len:
-    policy_owner:
-    change_during_interval:
-    change_interval:
-    no_change_interval:
-    history_count:
-    change_count:
-    expiration_warn_time:
-    descr:
-    state: "present"
+    min_passphrase_len: "8"
+    policy_owner: "local"
+    change_during_interval: "enable"
+    change_interval: "120"
+    no_change_interval: "240"
+    history_count: "3"
+    change_count: "2"
+    expiration_warn_time: None
+    descr: "description"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"

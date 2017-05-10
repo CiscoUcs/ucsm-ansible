@@ -28,8 +28,8 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_password_strength:
-    policy_owner:
-    descr:
+    policy_owner: "local"
+    descr: "description"
     state: "present"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"

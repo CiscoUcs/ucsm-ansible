@@ -61,7 +61,7 @@ Input Params:
         description: email
         required: False
     descr:
-        description: ntp server description
+        description: description
         required: False
 
 requirements: ['ucsmsdk', 'ucsm_apis']
@@ -72,20 +72,20 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_user:
-    name:
-    pwd:
-    clear_pwd_history:
-    pwd_life_time:
-    account_status:
-    expires:
-    expiration:
-    enc_pwd_set:
-    enc_pwd:
-    first_name:
-    last_name:
-    phone:
-    email:
-    descr:
+    name: "testuser"
+    pwd: "password"
+    clear_pwd_history: "yes"
+    pwd_life_time: "no-password-expire"
+    account_status: "active"
+    expires: "no"
+    expiration: "never"
+    enc_pwd_set: "no"
+    enc_pwd: "encrypted_password"
+    first_name: "cisco"
+    last_name: "cisco"
+    phone: "123456789"
+    email: "testuser@cisco.com"
+    descr: "description"
     state: "present"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
