@@ -33,10 +33,10 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_locale_org:
-    locale_name:
-    name:
-    org_dn:
-    descr:
+    locale_name: "testlocale"
+    name: "test_locale_org"
+    org_dn: "org-root"
+    descr: "description"
     state: "present"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
