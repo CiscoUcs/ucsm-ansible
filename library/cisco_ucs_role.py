@@ -44,10 +44,10 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_role:
-    name:
-    priv:
-    policy_owner:
-    descr:
+    name: "testrole"
+    priv: "read-only, fault"
+    policy_owner: "local"
+    descr: "description"
     state: "present"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
@@ -59,7 +59,9 @@ def _argument_mo():
     return dict(
                 name=dict(required=True, type='str'),
                 priv=dict(type='str'),
-                policy_owner=dict(type='str', choices=['local', 'pending-policy', 'policy'], default="local"),
+                policy_owner=dict(type='str',
+                                choices=['local', 'pending-policy', 'policy'],
+                                default="local"),
                 descr=dict(type='str'),
     )
 
