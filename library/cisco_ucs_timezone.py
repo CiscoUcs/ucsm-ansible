@@ -40,12 +40,11 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_timezone:
-    timezone:
-    policy_owner:
-    admin_state:
-    port:
-    descr:
-    state: "present"
+    timezone: "Asia/Kolkata"
+    policy_owner: "local"
+    admin_state: "enabled"
+    port: "0"
+    descr: "description"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"
@@ -55,8 +54,12 @@ EXAMPLES = '''
 def _argument_mo():
     return dict(
                 timezone=dict(required=True, type='str'),
-                policy_owner=dict(type='str', choices=['local', 'pending-policy', 'policy'], default="local"),
-                admin_state=dict(type='str', choices=['disabled', 'enabled'], default="enabled"),
+                policy_owner=dict(type='str',
+                                choices=['local', 'pending-policy', 'policy'],
+                                default="local"),
+                admin_state=dict(type='str',
+                                 choices=['disabled', 'enabled'],
+                                 default="enabled"),
                 port=dict(type='str', default="0"),
                 descr=dict(type='str'),
     )
