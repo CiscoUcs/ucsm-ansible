@@ -1,4 +1,8 @@
+[![](https://ucspython.herokuapp.com/badge.svg)](https://ucspython.herokuapp.com)
+
 # ucsm-ansible
+
+* Apache License, Version 2.0 (the "License") 
 
 # install
 - ansible must be installed
@@ -30,3 +34,7 @@ cd ucsm-ansible
 sudo python uninstall.py
 ```
 
+# Community:
+
+* We are on Slack - slack requires registration, but the ucspython team is open invitation to
+  anyone to register [here](https://ucspython.herokuapp.com)
