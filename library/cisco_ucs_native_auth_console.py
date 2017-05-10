@@ -15,9 +15,11 @@ Input Params:
         description: realm
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
+        default: "local"
     provider_group:
         description: provider group name
         required: False
+        default: ""
     use2_factor:
         description: two factor authentication
         required: False
@@ -52,8 +54,10 @@ EXAMPLES = '''
 def _argument_mo():
     return dict(
                 realm=dict(type='str',
-                        choices=['ldap', 'local', 'none', 'radius', 'tacacs']),
-                provider_group=dict(type='str'),
+                           choices=['ldap', 'local', 'none', 'radius',
+                                    'tacacs'],
+                           default="local"),
+                provider_group=dict(type='str', default=""),
                 use2_factor=dict(type='str',
                                  choices=['yes', 'no'], default="no"),
                 name=dict(type='str'),

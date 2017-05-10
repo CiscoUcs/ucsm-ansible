@@ -15,15 +15,19 @@ Input Params:
         description: realm
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
-    session_timeout:
-        description: session timeout in seconds, by default "7200"
-        required: False
+        default: "local"
     refresh_period:
         description: refresh period in seconds, by default "600"
         required: False
+        default: "600"
+    session_timeout:
+        description: session timeout in seconds, by default "7200"
+        required: False
+        default: "7200"
     provider_group:
         description: provider group name
         required: False
+        default: ""
     use2_factor:
         description: two factor authentication
         required: False
@@ -45,8 +49,8 @@ EXAMPLES = '''
 - name:
   cisco_ucs_native_auth_default:
     realm: "radius"
-    session_timeout: "7200"
     refresh_period: "600"
+    session_timeout: "7200"
     provider_group: "radius_provider_group"
     use2_factor: "yes"
     name: None
@@ -60,10 +64,12 @@ EXAMPLES = '''
 def _argument_mo():
     return dict(
                 realm=dict(type='str',
-                        choices=['ldap', 'local', 'none', 'radius', 'tacacs']),
-                session_timeout=dict(type='str'),
-                refresh_period=dict(type='str'),
-                provider_group=dict(type='str'),
+                           choices=['ldap', 'local', 'none', 'radius',
+                                    'tacacs'],
+                           default="local"),
+                refresh_period=dict(type='str', default="600"),
+                session_timeout=dict(type='str', default="7200"),
+                provider_group=dict(type='str', default=""),
                 use2_factor=dict(type='str',
                                  choices=['yes', 'no'], default="no"),
                 name=dict(type='str'),

@@ -27,6 +27,7 @@ Input Params:
     provider_group:
         description: provider group name
         required: False
+        default: ""
     name:
         description: name
         required: False
@@ -63,7 +64,7 @@ def _argument_mo():
                            default="local"),
                 use2_factor=dict(type='str', choices=['yes', 'no'],
                                  default="no"),
-                provider_group=dict(type='str'),
+                provider_group=dict(type='str', default=""),
                 name=dict(type='str'),
                 descr=dict(type='str'),
     )
