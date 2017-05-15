@@ -11,6 +11,9 @@ version_added: 0.9.0.0
 description:
    -  configures callhome contact on a cisco ucs server
 Input Params:
+    contact:
+        description: contact name
+        required: True
     phone:
         description: phone number e.g. +91-1234567890
         required: True
@@ -35,9 +38,6 @@ Input Params:
     reply_to:
         description: to email address
         required: True
-    contact:
-        description: contact name
-        required: False
     urgency:
         description: alert priority
         required: False
@@ -52,17 +52,16 @@ author: "Rahul Gupta(ragupta4@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_callhome_contact:
-    phone:
-    email:
-    addr:
-    customer:
-    contract:
-    site:
-    r_from:
-    reply_to:
-    contact:
-    urgency:
-    state: "present"
+    contact: "username"
+    phone: "+91-1234567890"
+    email: "user@cisco.com"
+    addr: "user address"
+    customer: "1111"
+    contract: "2222"
+    site: "3333"
+    r_from: "from@cisco.com"
+    reply_to: "to@cisco.com"
+    urgency: "debug"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"
@@ -71,6 +70,7 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
+                contact=dict(required=True, type='str'),
                 phone=dict(required=True, type='str'),
                 email=dict(required=True, type='str'),
                 addr=dict(required=True, type='str'),
@@ -79,8 +79,10 @@ def _argument_mo():
                 site=dict(required=True, type='str'),
                 r_from=dict(required=True, type='str'),
                 reply_to=dict(required=True, type='str'),
-                contact=dict(type='str'),
-                urgency=dict(type='str', choices=['alert', 'critical', 'debug', 'emergency', 'error', 'info', 'notice', 'warning'], default="debug"),
+                urgency=dict(type='str',
+                        choices=['alert', 'critical', 'debug', 'emergency',
+                                 'error', 'info', 'notice', 'warning'],
+                        default="debug"),
     )
 
 
