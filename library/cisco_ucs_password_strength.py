@@ -90,11 +90,11 @@ def _get_mo_params(params):
 def setup_password_strength(server, module):
     from ucsm_apis.admin.user import password_strength_check
     from ucsm_apis.admin.user import password_strength_uncheck
-    from ucsm_apis.admin.user import password_strength_exists
+    from ucsm_apis.admin.user import password_strength_check_exists
 
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
-    exists, mo = password_strength_exists(handle=server, **args_mo)
+    exists, mo = password_strength_check_exists(handle=server, **args_mo)
 
     if ansible["state"] == "present":
         if module.check_mode or exists:

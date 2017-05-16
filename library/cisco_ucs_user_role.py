@@ -97,7 +97,7 @@ def setup_user_role(server, module):
 
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
-    exists, mo = user_role_exists(handle=server, **args_mo)
+    exists, mos = user_role_exists(handle=server, **args_mo)
 
     if ansible["state"] == "present":
         if module.check_mode or exists:
@@ -106,7 +106,7 @@ def setup_user_role(server, module):
     else:
         if module.check_mode or not exists:
             return exists
-        user_role_remove(server, args_mo['user_name'], mo.name)
+        user_role_remove(server, args_mo['user_name'], args_mo['name'])
 
     return True
 
