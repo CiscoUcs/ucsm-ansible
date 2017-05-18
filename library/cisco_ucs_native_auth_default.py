@@ -10,33 +10,40 @@ short_description: configures native auth default on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures native auth default on a cisco ucs server
-Input Params:
+options:
     realm:
+        version_added: 1.4(1i)
         description: realm
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
         default: "local"
     refresh_period:
+        version_added: 2.0(3a)
         description: refresh period in seconds, by default "600"
         required: False
         default: "600"
     session_timeout:
+        version_added: 2.0(3a)
         description: session timeout in seconds, by default "7200"
         required: False
         default: "7200"
     provider_group:
+        version_added: 1.4(1i)
         description: provider group name
         required: False
         default: ""
     use2_factor:
+        version_added: 2.2(1b)
         description: two factor authentication
         required: False
         choices: ['yes', 'no']
         default: "no"
     name:
+        version_added: 1.4(1i)
         description: name
         required: False
     descr:
+        version_added: 1.4(1i)
         description: description
         required: False
 

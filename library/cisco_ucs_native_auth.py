@@ -10,20 +10,24 @@ short_description: configures native auth on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures native authentication on a cisco ucs server
-Input Params:
+options:
     def_role_policy:
+        version_added: 1.1(1j)
         description: def_role_policy
         required: False
         choices: ['assign-default-role', 'no-login']
     def_login:
+        version_added: 1.0(1e)
         description: def_login
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
     con_login:
+        version_added: 1.0(1e)
         description: con_login
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
     descr:
+        version_added: 1.0(1e)
         description: description
         required: False
 

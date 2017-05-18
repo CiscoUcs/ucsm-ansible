@@ -10,19 +10,23 @@ short_description: configures auth domain on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures authentication domain on a cisco ucs server
-Input Params:
+options:
     name:
+        version_added: 1.4(1i)
         description: auth domain name
-        required: True
+        required: true
     refresh_period:
+        version_added: 2.0(3a)
         description: refresh period in seconds
         required: False
         default: "600"
     session_timeout:
+        version_added: 2.0(3a)
         description: timeout in seconds
         required: False
         default: "7200"
     descr:
+        version_added: 1.4(1i)
         description: description
         required: False
 

@@ -10,28 +10,33 @@ short_description: configures auth domain realm on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures authentication domain realm on a cisco ucs server
-Input Params:
+options:
     domain_name:
         description: auth domain name
-        required: True
+        required: true
     realm:
+        version_added: 1.4(1i)
         description: realm
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
         default: "local"
     use2_factor:
+        version_added: 2.2(1b)
         description: two factor authentication
         required: False
         choices: ['yes', 'no']
         default: "no"
     provider_group:
+        version_added: 1.4(1i)
         description: provider group name
         required: False
         default: ""
     name:
+        version_added: 1.4(1i)
         description: name
         required: False
     descr:
+        version_added: 1.4(1i)
         description: description
         required: False
 

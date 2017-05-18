@@ -10,25 +10,30 @@ short_description: configures native auth console on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures native auth console on a cisco ucs server
-Input Params:
+options:
     realm:
+        version_added: 1.4(1i)
         description: realm
         required: False
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
         default: "local"
     provider_group:
+        version_added: 1.4(1i)
         description: provider group name
         required: False
         default: ""
     use2_factor:
+        version_added: 2.2(1b)
         description: two factor authentication
         required: False
         choices: ['yes', 'no']
         default: "no"
     name:
+        version_added: 1.4(1i)
         description: name
         required: False
     descr:
+        version_added: 1.4(1i)
         description: description
         required: False
 
