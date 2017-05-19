@@ -114,7 +114,7 @@ def setup_dns(server, module):
     else:
         if module.check_mode or not exists:
             return exists
-        dns_server_remove(server, trap_id)
+        dns_server_remove(server, mo.name)
     return True
 
 
