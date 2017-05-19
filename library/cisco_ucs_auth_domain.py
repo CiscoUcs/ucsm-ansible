@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -11,27 +15,34 @@ version_added: 0.9.0.0
 description:
    -  configures authentication domain on a cisco ucs server
 options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
-        version_added: 1.4(1i)
+        version_added: "1.4(1i)"
         description: auth domain name
         required: true
     refresh_period:
-        version_added: 2.0(3a)
+        version_added: "2.0(3a)"
         description: refresh period in seconds
-        required: False
+        required: false
         default: "600"
     session_timeout:
-        version_added: 2.0(3a)
+        version_added: "2.0(3a)"
         description: timeout in seconds
-        required: False
+        required: false
         default: "7200"
     descr:
-        version_added: 1.4(1i)
+        version_added: "1.4(1i)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -12,43 +16,43 @@ description:
    -  configures native auth default on a cisco ucs server
 options:
     realm:
-        version_added: 1.4(1i)
+        version_added: "1.4(1i)"
         description: realm
-        required: False
+        required: false
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
         default: "local"
     refresh_period:
-        version_added: 2.0(3a)
+        version_added: "2.0(3a)"
         description: refresh period in seconds, by default "600"
-        required: False
+        required: false
         default: "600"
     session_timeout:
-        version_added: 2.0(3a)
+        version_added: "2.0(3a)"
         description: session timeout in seconds, by default "7200"
-        required: False
+        required: false
         default: "7200"
     provider_group:
-        version_added: 1.4(1i)
+        version_added: "1.4(1i)"
         description: provider group name
-        required: False
+        required: false
         default: ""
     use2_factor:
-        version_added: 2.2(1b)
+        version_added: "2.2(1b)"
         description: two factor authentication
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
     name:
-        version_added: 1.4(1i)
+        version_added: "1.4(1i)"
         description: name
-        required: False
+        required: false
     descr:
-        version_added: 1.4(1i)
+        version_added: "1.4(1i)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

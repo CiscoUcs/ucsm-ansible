@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -12,27 +16,27 @@ description:
    -  configures native authentication on a cisco ucs server
 options:
     def_role_policy:
-        version_added: 1.1(1j)
+        version_added: "1.1(1j)"
         description: def_role_policy
-        required: False
+        required: false
         choices: ['assign-default-role', 'no-login']
     def_login:
-        version_added: 1.0(1e)
+        version_added: "1.0(1e)"
         description: def_login
-        required: False
+        required: false
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
     con_login:
-        version_added: 1.0(1e)
+        version_added: "1.0(1e)"
         description: con_login
-        required: False
+        required: false
         choices: ['ldap', 'local', 'none', 'radius', 'tacacs']
     descr:
-        version_added: 1.0(1e)
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
