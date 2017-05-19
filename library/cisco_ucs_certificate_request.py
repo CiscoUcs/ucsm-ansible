@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -11,64 +15,85 @@ server
 version_added: 0.9.0.0
 description:
    -  configures certifcate request for a keyring on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
         description: key ring name
-        required: True
+        required: true
     ip:
+        version_added: "1.0(1e)"
         description: ipv4 ip address
-        required: False
+        required: false
         default: "0.0.0.0"
     ip_a:
+        version_added: "2.1(2a)"
         description: ipv4 ip address for fi 'a'
-        required: False
+        required: false
         default: "0.0.0.0"
     ip_b:
+        version_added: "2.1(2a)"
         description: ipv4 ip address for fi 'b'
-        required: False
+        required: false
         default: "0.0.0.0"
     ipv6:
+        version_added: "2.2(1b)"
         description: ipv6 ip address
-        required: False
+        required: false
         default: "::"
     ipv6_a:
+        version_added: "2.2(1b)"
         description: ipv6 ip address for fi 'a'
-        required: False
+        required: false
         default: "::"
     ipv6_b:
+        version_added: "2.2(1b)"
         description: ipv6 ip address for fi 'b'
-        required: False
+        required: false
         default: "::"
     dns:
+        version_added: "2.0(2m)"
         description: dns server ip address
-        required: False
+        required: false
     locality:
+        version_added: "2.0(2m)"
         description: locality
-        required: False
+        required: false
     state_name:
         description: state
-        required: False
+        required: false
     country:
+        version_added: "2.0(2m)"
         description: country
-        required: False
+        required: false
     org_name:
+        version_added: "2.0(2m)"
         description: organization name
-        required: False
+        required: false
     org_unit_name:
+        version_added: "2.0(2m)"
         description: organization unit name
-        required: False
+        required: false
     subj_name:
+        version_added: "1.0(1e)"
         description: subject
-        required: False
+        required: false
     email:
+        version_added: "2.0(2m)"
         description: email
-        required: False
+        required: false
     pwd:
+        version_added: "1.0(1e)"
         description: password
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

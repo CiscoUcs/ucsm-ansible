@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,24 +14,35 @@ short_description: configures trusted point  on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures trusted point  on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: trusted point name
-        required: True
+        required: true
     policy_owner:
+        version_added: "2.1(1a)"
         description: policy owner
-        required: False
+        required: false
         choices: ['local', 'pending-policy', 'policy']
         default: "local"
     cert_chain:
+        version_added: "1.0(1e)"
         description: chain of certificate
-        required: False
+        required: false
     descr:
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
