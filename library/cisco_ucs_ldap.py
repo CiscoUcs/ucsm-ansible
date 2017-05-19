@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,37 +14,44 @@ short_description: configures ldap on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures ldap on a cisco ucs server
-Input Params:
+options:
     timeout:
+        version_added: "1.0(1e)"
         description: timeout
-        required: False
+        required: false
         default: "30"
     attribute:
+        version_added: "1.0(1e)"
         description: attribute
-        required: False
+        required: false
         default: "CiscoAvPair"
     filter:
+        version_added: "1.0(1e)"
         description: filter
-        required: False
+        required: false
         default: "cn=$userid"
     retries:
+        version_added: "1.0(1e)"
         description: retries
-        required: False
+        required: false
         default: "1"
     policy_owner:
+        version_added: "2.1(1a)"
         description: policy_owner
-        required: False
+        required: false
         choices: ['local', 'pending-policy', 'policy']
         default: "local"
     basedn:
+        version_added: "1.0(1e)"
         description: basedn
-        required: False
+        required: false
     descr:
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

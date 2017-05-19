@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,57 +14,77 @@ short_description: configures ldap_provider on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures ldap_provider on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: ip address or hostname
-        required: True
+        required: true
     order:
+        version_added: "1.1(1j)"
         description: lowest-available or 0-16
-        required: False
+        required: false
         default: "lowest-available"
     rootdn:
+        version_added: "1.0(1e)"
         description: rootdn
-        required: False
+        required: false
     basedn:
+        version_added: "1.4(1i)"
         description: basedn
-        required: False
+        required: false
     port:
+        version_added: "1.0(1e)"
         description: port
-        required: False
+        required: false
         default: "389"
     enable_ssl:
+        version_added: "1.0(1e)"
         description: enable ssl
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
     filter:
+        version_added: "1.4(1i)"
         description: filter
-        required: False
+        required: false
     attribute:
+        version_added: "1.4(1i)"
         description: attribute
-        required: False
+        required: false
     key:
+        version_added: "1.0(1e)"
         description: key
-        required: False
+        required: false
     timeout:
+        version_added: "1.4(1i)"
         description: timeout
-        required: False
+        required: false
         default: "30"
     vendor:
+        version_added: "2.1(2a)"
         description: vendor
-        required: False
+        required: false
         choices: ['MS-AD', 'OpenLdap']
         default: "OpenLdap"
     retries:
+        version_added: "1.4(1i)"
         description: retries
-        required: False
+        required: false
         default: "1"
     descr:
+        version_added: "1.0(1e)"
         description: ntp server description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
