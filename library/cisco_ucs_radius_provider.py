@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,38 +14,53 @@ short_description: configures radius_provider on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures radius_provider on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: ip address or hostname
-        required: True
+        required: true
     order:
+        version_added: "1.1(1j)"
         description: lowest-available or 0-16
-        required: False
+        required: false
         default: "lowest-available"
     key:
+        version_added: "1.0(1e)"
         description: key
-        required: False
+        required: false
     auth_port:
+        version_added: "1.0(1e)"
         description: authorization port
-        required: False
+        required: false
         default: "1812"
     timeout:
+        version_added: "1.4(1i)"
         description: timeout
-        required: False
+        required: false
         default: "5"
     retries:
+        version_added: "1.4(1i)"
         description: retries
-        required: False
+        required: false
         default: "1"
     enc_key:
+        version_added: "1.0(1e)"
         description: encryption key
-        required: False
+        required: false
     descr:
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
