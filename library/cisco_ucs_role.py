@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,34 +14,49 @@ short_description: configures role on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures role on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: role name
-        required: True
+        required: true
     priv:
-        description: role privilege (comma separated string)
-        required: False
-        choices: ['aaa', 'admin', 'ext-lan-config', 'ext-lan-policy',
-        'ext-lan-qos', 'ext-lan-security', 'ext-san-config', 'ext-san-policy',
-        'ext-san-qos', 'ext-san-security', 'fault', 'ls-compute', 'ls-config',
-        'ls-config-policy', 'ls-ext-access', 'ls-network', 'ls-network-policy',
-        'ls-qos', 'ls-qos-policy', 'ls-security', 'ls-security-policy',
-        'ls-server', 'ls-server-oper', 'ls-server-policy', 'ls-storage',
-        'ls-storage-policy', 'operations', 'org-management', 'pn-equipment',
-        'pn-maintenance', 'pn-policy', 'pn-security', 'pod-config',
-        'pod-policy', 'pod-qos', 'pod-security', 'power-mgmt', 'read-only']
+        version_added: "1.0(1e)"
+        description: role privilege. single privilege or multiple comma
+         separated privileges. valid values are
+         C(aaa), C(admin), C(ext-lan-config), C(ext-lan-policy),
+         C(ext-lan-qos), C(ext-lan-security), C(ext-san-config),
+         C(ext-san-policy), C(ext-san-qos), C(ext-san-security), C(fault),
+         C(ls-compute), C(ls-config), C(ls-config-policy), C(ls-ext-access),
+         C(ls-network), C(ls-network-policy), C(ls-qos), C(ls-qos-policy),
+         C(ls-security), C(ls-security-policy), C(ls-server),
+         C(ls-server-oper), C(ls-server-policy), C(ls-storage),
+         C(ls-storage-policy), C(operations), C(org-management),
+         C(pn-equipment), C(pn-maintenance), C(pn-policy), C(pn-security),
+         C(pod-config), C(pod-policy), C(pod-qos), C(pod-security),
+         C(power-mgmt), C(read-only)
+        required: false
+        choices:
         default: "read-only"
     policy_owner:
+        version_added: "2.1(1a)"
         description: policy owner
-        required: False
+        required: false
         choices: ['local', 'pending-policy', 'policy']
         default: "local"
     descr:
+        version_added: "1.0(1e)"
         description: role description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
