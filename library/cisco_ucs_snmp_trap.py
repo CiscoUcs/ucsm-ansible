@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,35 +14,48 @@ short_description: configures snmp trap on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures snmp trap on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     hostname:
+        version_added: "1.0(1e)"
         description: hostname or ip address
-        required: True
+        required: true
     community:
+        version_added: "1.0(1e)"
         description: community or username
-        required: True
+        required: true
     port:
+        version_added: "1.0(1e)"
         description: port
-        required: False
+        required: false
         default: "162"
     version:
+        version_added: "1.1(1j)"
         description: version
-        required: False
+        required: false
         choices: ['v1', 'v2c', 'v3']
         default: "v2c"
     notification_type:
+        version_added: "1.4(1i)"
         description: notification type
-        required: False
+        required: false
         choices: ['informs', 'traps']
         default: "traps"
     v3_privilege:
+        version_added: "1.1(1j)"
         description: privilege for version "v3", required only for version 'v3'
-        required: False
+        required: false
         choices: ['noauth', 'priv']
         default: "noauth"
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,32 +14,45 @@ short_description: configures snmp user on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures snmp user on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: snmp user name
-        required: True
+        required: true
     pwd:
+        version_added: "1.0(1e)"
         description: snmp user password, minimum 8 characters
-        required: True
+        required: true
     auth:
+        version_added: "1.0(1e)"
         description: auth type
-        required: False
+        required: false
         choices: ['md5', 'sha']
         default: "md5"
     use_aes:
+        version_added: "1.0(1e)"
         description: use AES-128
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
     privpwd:
+        version_added: "1.0(1e)"
         description: privacy password
-        required: False
+        required: false
     descr:
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,33 +14,46 @@ short_description: configures snmp on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures snmp on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     policy_owner:
+        version_added: "2.1(1a)"
         description: policy owner
-        required: False
+        required: false
         choices: ['local', 'pending-policy', 'policy']
         default: "local"
     is_set_snmp_secure:
+        version_added: "2.1(2a)"
         description: sets snmp secure
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
     descr:
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
         default: "SNMP Service"
     community:
+        version_added: "1.0(1e)"
         description: community
-        required: False
+        required: false
     sys_contact:
+        version_added: "1.4(1i)"
         description: system contact
-        required: False
+        required: false
     sys_location:
+        version_added: "1.4(1i)"
         description: system location
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
