@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,48 +14,57 @@ short_description: configures callhome system inventory on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures callhome system inventory on a cisco ucs server
-Input Params:
+options:
     admin_state:
+        version_added: "1.0(1e)"
         description: enable/disable send inventory
-        required: False
+        required: false
         choices: ['on', 'off']
         default: "on"
     interval_days:
+        version_added: "1.0(1e)"
         description: send interval(days)
-        required: False
+        required: false
         default: "30"
     time_of_day_hour:
+        version_added: "1.0(1e)"
         description: Hours of day to send
-        required: False
+        required: false
         default: "0"
     time_of_day_minute:
+        version_added: "1.0(1e)"
         description: Minute of hour
-        required: False
+        required: false
         default: "0"
     maximum_retry_count:
+        version_added: "1.0(1e)"
         description: maximum retry count
-        required: False
+        required: false
         default: "1"
     poll_interval_seconds:
+        version_added: "1.0(1e)"
         description: poll interval in seconds
-        required: False
+        required: false
         default: "300"
     retry_delay_minutes:
+        version_added: "1.0(1e)"
         description: retry after 'n' minutes
-        required: False
+        required: false
         default: "10"
     minimum_send_now_interval_seconds:
+        version_added: "1.0(1e)"
         description: minimun send interval
-        required: False
+        required: false
         default: "5"
     send_now:
+        version_added: "1.0(1e)"
         description: send inventory now
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

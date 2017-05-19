@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,17 +14,19 @@ short_description: configures callhome smtp on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures callhome smtp on a cisco ucs server
-Input Params:
+options:
     host:
+        version_added: "1.0(1e)"
         description: ip address of SMTP server
-        required: True
+        required: true
     port:
+        version_added: "1.0(1e)"
         description: port of SMTP server
-        required: False
+        required: false
         default: "25"
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

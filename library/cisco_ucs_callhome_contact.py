@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,42 +14,53 @@ short_description: configures callhome contact on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures callhome contact on a cisco ucs server
-Input Params:
+options:
     contact:
+        version_added: "1.0(1e)"
         description: contact name
-        required: True
+        required: true
     phone:
+        version_added: "1.0(1e)"
         description: phone number e.g. +91-1234567890
-        required: True
+        required: true
     email:
+        version_added: "1.0(1e)"
         description: contact email address
-        required: True
+        required: true
     addr:
+        version_added: "1.0(1e)"
         description: contact address
-        required: True
+        required: true
     customer:
+        version_added: "1.0(1e)"
         description: customer id
-        required: True
+        required: true
     contract:
+        version_added: "1.0(1e)"
         description: contract id
-        required: True
+        required: true
     site:
+        version_added: "1.0(1e)"
         description: site id
-        required: True
+        required: true
     r_from:
+        version_added: "1.0(1e)"
         description: from email address
-        required: True
+        required: true
     reply_to:
+        version_added: "1.0(1e)"
         description: to email address
-        required: True
+        required: true
     urgency:
+        version_added: "1.0(1e)"
         description: alert priority
-        required: False
-        choices: ['alert', 'critical', 'debug', 'emergency', 'error', 'info', 'notice', 'warning']
+        required: false
+        choices: ['alert', 'critical', 'debug', 'emergency', 'error', 'info',
+         'notice', 'warning']
         default: "debug"
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

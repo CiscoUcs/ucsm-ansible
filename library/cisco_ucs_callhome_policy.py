@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,10 +14,18 @@ short_description: configures callhome policy on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures callhome policy on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     cause:
+        version_added: "1.0(1e)"
         description: cause to trigger call home alert
-        required: True
+        required: true
         choices: ['adaptor-mismatch', 'arp-targets-config-error',
         'association-failed', 'backplane-port-problem',
         'configuration-failure', 'configuration-mismatch',
@@ -33,19 +45,22 @@ Input Params:
         'thermal-problem', 'unspecified', 'version-incompatible',
         'vif-ids-mismatch', 'voltage-problem']
     admin_state:
+        version_added: "1.0(1e)"
         description: admin state
-        required: False
+        required: false
         choices: ['disabled', 'enabled']
         default: "enabled"
     name:
+        version_added: "1.0(1e)"
         description: policy name
-        required: False
+        required: false
     descr:
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

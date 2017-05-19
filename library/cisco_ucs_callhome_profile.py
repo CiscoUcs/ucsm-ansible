@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,34 +14,47 @@ short_description: configures callhome profile on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures callhome profile on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: callhome profile name
-        required: True
+        required: true
     format:
+        version_added: "1.0(1e)"
         description: message format
-        required: False
+        required: false
         choices: ['fullTxt', 'shortTxt', 'xml']
         default: "xml"
     max_size:
+        version_added: "1.0(1e)"
         description: message max size
-        required: False
+        required: false
     level:
+        version_added: "1.0(1e)"
         description: debug level
-        required: False
+        required: false
         choices: ['critical', 'debug', 'disaster', 'fatal', 'major', 'minor',
         'normal', 'notification', 'warning']
         default: "debug"
     alert_groups:
+        version_added: "1.0(1e)"
         description: alert groups
-        required: False
+        required: false
         choices: ['ciscoTac', 'diagnostic', 'environmental']
     descr:
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
