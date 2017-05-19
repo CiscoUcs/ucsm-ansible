@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,24 +14,33 @@ short_description: configures dns on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures dns on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: ip address of dns server
-        required: True
-    description:
+        required: true
+    descr:
+        version_added: "1.0(1e)"
         description: description of server
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
 EXAMPLES = '''
 - name:
   cisco_ucs_dns:
-    name:
-    description:
+    name: "10.10.10.10"
+    descr: "description"
     state: "present"
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
@@ -96,14 +109,13 @@ def setup_dns(server, module):
 
     if ansible["state"] == "present":
         if module.check_mode or exists:
-            return not exists
+            return not exists, False
         dns_server_add(handle=server, **args_mo)
     else:
         if module.check_mode or not exists:
-            return exists
-        dns_server_remove(server, mo.name)
-
-    return True
+            return exists, False
+        dns_server_remove(server, trap_id)
+    return True, False
 
 
 def setup(server, module):
@@ -111,7 +123,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_dns(server, module)
+        result["changed"], err = setup_dns(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)
