@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,29 +14,40 @@ short_description: configures syslog remote on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures syslog remote on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: remote server type
-        required: True
+        required: true
         choices: ['primary', 'secondary', 'tertiary']
     hostname:
+        version_added: "1.0(1e)"
         description: remote hostname or ip address
-        required: True
+        required: true
     severity:
+        version_added: "1.0(1e)"
         description: level of logging
-        required: False
+        required: false
         choices: ['alerts', 'critical', 'debugging', 'emergencies', 'errors',
         'information', 'notifications', 'warnings']
         default: "critical"
     forwarding_facility:
+        version_added: "1.0(1e)"
         description: forwarding mechanism local0 to local7
-        required: False
+        required: false
         choices: ['local0', 'local1', 'local2', 'local3', 'local4', 'local5',
         'local6', 'local7']
         default: "local0"
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

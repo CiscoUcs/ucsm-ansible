@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,28 +14,33 @@ short_description: configures syslog source on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures syslog source on a cisco ucs server
-Input Params:
+options:
     faults:
+        version_added: "1.4(1i)"
         description: flag for fault logging
-        required: False
+        required: false
         choices: ['disabled', 'enabled']
     audits:
+        version_added: "1.4(1i)"
         description: flag for audits logging
-        required: False
+        required: false
         choices: ['disabled', 'enabled']
     events:
+        version_added: "1.4(1i)"
         description: flag for events logging
-        required: False
+        required: false
         choices: ['disabled', 'enabled']
     name:
+        version_added: "1.4(1i)"
         description: name
-        required: False
+        required: false
     descr:
+        version_added: "1.4(1i)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
