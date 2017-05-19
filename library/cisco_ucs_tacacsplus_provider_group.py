@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,16 +14,25 @@ short_description: configures tacacsplus provider group on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures tacacsplus provider group on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.4(1i)"
         description: tacacsplus provider group name
-        required: True
+        required: true
     descr:
+        version_added: "1.4(1i)"
         description: tacacsplus provider group description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
