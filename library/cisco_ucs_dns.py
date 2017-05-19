@@ -51,7 +51,7 @@ EXAMPLES = '''
 def _argument_mo():
     return dict(
                 name=dict(required=True, type='str'),
-                description=dict(type='str'),
+                descr=dict(type='str'),
     )
 
 
@@ -109,13 +109,13 @@ def setup_dns(server, module):
 
     if ansible["state"] == "present":
         if module.check_mode or exists:
-            return not exists, False
+            return not exists
         dns_server_add(handle=server, **args_mo)
     else:
         if module.check_mode or not exists:
-            return exists, False
+            return exists
         dns_server_remove(server, trap_id)
-    return True, False
+    return True
 
 
 def setup(server, module):
@@ -123,7 +123,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"], err = setup_dns(server, module)
+        result["changed"] = setup_dns(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)
