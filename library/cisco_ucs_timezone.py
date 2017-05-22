@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,30 +14,35 @@ short_description: configures timezone on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures timezone on a cisco ucs server
-Input Params:
+options:
     timezone:
+        version_added: "1.0(1e)"
         description: time zone e.g. "Asia/Kolkata"
-        required: True
+        required: true
     policy_owner:
+        version_added: "2.1(1a)"
         description: policy owner
-        required: False
+        required: false
         choices: ['local', 'pending-policy', 'policy']
         default: "local"
     admin_state:
+        version_added: "1.0(1e)"
         description: admin state
-        required: False
+        required: false
         choices: ['disabled', 'enabled']
         default: "enabled"
     port:
+        version_added: "1.0(1e)"
         description: port
-        required: False
+        required: false
         default: "0"
     descr:
+        version_added: "1.0(1e)"
         description: timezone description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
