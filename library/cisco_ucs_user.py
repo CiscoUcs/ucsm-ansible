@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,62 +14,83 @@ short_description: configures user on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures user on a cisco ucs server
-Input Params:
+options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: "present"
     name:
+        version_added: "1.0(1e)"
         description: user name
-        required: True
+        required: true
     pwd:
+        version_added: "1.0(1e)"
         description: password
-        required: False
+        required: false
     clear_pwd_history:
+        version_added: "2.0(1m)"
         description: clear password history
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
     pwd_life_time:
+        version_added: "2.0(1m)"
         description: password life time
-        required: False
+        required: false
         default: "no-password-expire"
     account_status:
+        version_added: "1.4(1i)"
         description: account status
-        required: False
+        required: false
         choices: ['active', 'inactive']
         default: "active"
     expires:
+        version_added: "1.0(1e)"
         description: expires
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
     expiration:
+        version_added: "1.0(1e)"
         description: expiration
-        required: False
+        required: false
         default: "never"
     enc_pwd_set:
+        version_added: "2.1(2a)"
         description: sets password encryption
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
     enc_pwd:
+        version_added: "1.0(1e)"
         description: encrypted password
-        required: False
+        required: false
     first_name:
+        version_added: "1.0(1e)"
         description: first name
-        required: False
+        required: false
     last_name:
+        version_added: "1.0(1e)"
         description: last name
-        required: False
+        required: false
     phone:
+        version_added: "1.0(1e)"
         description: phone
-        required: False
+        required: false
     email:
+        version_added: "1.0(1e)"
         description: email
-        required: False
+        required: false
     descr:
+        version_added: "1.0(1e)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 

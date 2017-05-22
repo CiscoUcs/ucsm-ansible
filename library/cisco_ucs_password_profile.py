@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,51 +14,60 @@ short_description: configures profile strength of an user on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures profile strength of an user on a cisco ucs server
-Input Params:
+options:
     min_passphrase_len:
+        version_added: "3.1(1e)"
         description: min passphrase length
-        required: False
+        required: false
         default: "8"
     policy_owner:
+        version_added: "2.1(1a)"
         description: policy owner
-        required: False
+        required: false
         choices: ['local', 'pending-policy', 'policy']
         default: "local"
     change_during_interval:
+        version_added: "2.0(1m)"
         description: Restricts the number of password changes, a locally
         authenticated user can make within a given number of hours.
-        required: False
+        required: false
         choices: ['disable', 'enable']
         default: "disable"
     change_interval:
+        version_added: "2.0(1m)"
         description: change interval in hours, "1-745".Specifies the maximum
         number of hours over which the number of password changes specified
         in the change_count field are enforced.
-        required: False
+        required: false
     no_change_interval:
+        version_added: "2.0(1m)"
         description: no change interval in hours, "1-745".Specifies the
         minimum number of hours that a locally authenticated user must wait
         before changing a newly created password.
-        required: False
+        required: false
     history_count:
+        version_added: "2.0(1m)"
         description: history password count, "0-15".Specifies the number of
         unique passwords that a locally authenticated user must create before
         that user can reuse a previously used password.
-        required: False
+        required: false
     change_count:
+        version_added: "2.0(1m)"
         description: change count, "0-10".Specifies the maximum number of
         times a locally authenticated user can change his or her password
         during the change_interval.
-        required: False
+        required: false
     expiration_warn_time:
+        version_added: "2.0(1m)"
         description: expiration warning time
-        required: False
+        required: false
     descr:
+        version_added: "2.0(1m)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
