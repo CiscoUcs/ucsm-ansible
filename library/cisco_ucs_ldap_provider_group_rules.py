@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import *
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
@@ -10,38 +14,44 @@ short_description: configures group rules of ldap provider on a cisco ucs server
 version_added: 0.9.0.0
 description:
    -  configures group rules of ldap provider on a cisco ucs server
-Input Params:
+options:
     ldap_provider_name:
         description: ldap provider name
-        required: True
+        required: true
     authorization:
+        version_added: "1.4(1i)"
         description: group authorization
-        required: False
+        required: false
         choices: ['disable', 'enable']
         default: "enable"
     traversal:
+        version_added: "1.4(1i)"
         description: group recursion
-        required: False
+        required: false
         choices: ['non-recursive', 'recursive']
         default: "recursive"
     target_attr:
+        version_added: "1.4(1i)"
         description: target atribute
-        required: False
+        required: false
         default: "memberOf"
     use_primary_group:
+        version_added: "2.2(1b)"
         description: use primary group
-        required: False
+        required: false
         choices: ['yes', 'no']
         default: "no"
     name:
+        version_added: "1.4(1i)"
         description: name
-        required: False
+        required: false
     descr:
+        version_added: "1.4(1i)"
         description: description
-        required: False
+        required: false
 
 requirements: ['ucsmsdk', 'ucsm_apis']
-author: "Rahul Gupta(ragupta4@cisco.com)"
+author: "Cisco Systems Inc(ucs-python@cisco.com)"
 '''
 
 
