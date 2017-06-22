@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_native_auth
-short_description: configures native auth on a cisco ucs server
+short_description: Configures native auth on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures native authentication on a cisco ucs server
+   -  Configures native authentication on a cisco ucs server.
 options:
     def_role_policy:
         version_added: "1.1(1j)"

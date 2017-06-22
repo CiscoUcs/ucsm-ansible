@@ -27,10 +27,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_boot_order
-short_description: configures boot order on a cisco ucs server
+short_description: Configures boot order on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures boot order on a cisco ucs server
+   -  Configures boot order on a cisco ucs server.
 options:
     name:
         version_added: "1.0(1e)"

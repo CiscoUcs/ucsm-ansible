@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_user_locale
-short_description: configures locale of an user on a cisco ucs server
+short_description: Configures locale of an user on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures locale of an user on a cisco ucs server
+   -  Configures locale of an user on a cisco ucs server.
 options:
     state:
         description:

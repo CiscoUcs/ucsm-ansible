@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_password_strength
-short_description: configures password strength of an user on a cisco ucs server
+short_description: Configures password strength of an user on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures password strength of an user on a cisco ucs server
+   -  Configures password strength of an user on a cisco ucs server.
 options:
     state:
         description:

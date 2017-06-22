@@ -27,10 +27,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_boot_security
-short_description: configures boot security for a boot policy on a cisco ucs server
+short_description: Configures boot security for a boot policy on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures boot security for a policy on a cisco ucs server
+   -  Configures boot security for a policy on a cisco ucs server.
 options:
     state:
         description:

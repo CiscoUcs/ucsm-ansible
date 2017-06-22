@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_callhome_system_inventory
-short_description: configures callhome system inventory on a cisco ucs server
+short_description: Configures callhome system inventory on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures callhome system inventory on a cisco ucs server
+   -  Configures callhome system inventory on a cisco ucs server.
 options:
     admin_state:
         version_added: "1.0(1e)"

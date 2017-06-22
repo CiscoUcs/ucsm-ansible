@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_auth_domain_realm
-short_description: configures auth domain realm on a cisco ucs server
+short_description: Configures auth domain realm on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures authentication domain realm on a cisco ucs server
+   -  Configures authentication domain realm on a cisco ucs server.
 options:
     domain_name:
         description: auth domain name

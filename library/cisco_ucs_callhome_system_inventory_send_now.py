@@ -22,10 +22,10 @@ from ansible.module_utils.basic import *
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_callhome_system_inventory_send_now
-short_description: sends callhome system inventory now on cisco ucs server
+short_description: Sends callhome system inventory now on cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  sends callhome system inventory now on a cisco ucs server
+   -  Sends callhome system inventory now on a cisco ucs server.
 
 requirements: ['ucsmsdk', 'ucsm_apis']
 author: "Rahul Gupta(ragupta4@cisco.com)"

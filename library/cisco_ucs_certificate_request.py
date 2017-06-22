@@ -26,11 +26,11 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_certificate_request
-short_description: configures certifcate request for a keyring  on a cisco ucs
-server
+short_description: Configures certifcate request for a keyring  on a cisco ucs
+server.
 version_added: "0.9.0.0"
 description:
-   -  configures certifcate request for a keyring on a cisco ucs server
+   -  Configures certifcate request for a keyring on a cisco ucs server.
 options:
     state:
         description:

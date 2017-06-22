@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_locale_org
-short_description: configures org for the locale on a cisco ucs server
+short_description: Configures org for the locale on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures organization for the locale on a cisco ucs server
+   -  Configures organization for the locale on a cisco ucs server.
 options:
     state:
         description:

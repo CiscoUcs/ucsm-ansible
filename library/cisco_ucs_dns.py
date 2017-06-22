@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_dns
-short_description: configures dns on a cisco ucs server
+short_description: Configures dns on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures dns on a cisco ucs server
+   -  Configures dns on a cisco ucs server.
 options:
     state:
         description:

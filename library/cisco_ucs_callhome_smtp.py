@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_callhome_smtp
-short_description: configures callhome smtp on a cisco ucs server
+short_description: Configures callhome smtp on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures callhome smtp on a cisco ucs server
+   -  Configures callhome smtp on a cisco ucs server.
 options:
     host:
         version_added: "1.0(1e)"

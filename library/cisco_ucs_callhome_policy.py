@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_callhome_policy
-short_description: configures callhome policy on a cisco ucs server
+short_description: Configures callhome policy on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures callhome policy on a cisco ucs server
+   -  Configures callhome policy on a cisco ucs server.
 options:
     state:
         description:

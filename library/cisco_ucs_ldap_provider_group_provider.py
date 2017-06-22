@@ -26,11 +26,11 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_ldap_provider_group_provider
-short_description: configures provider for a ldap provider group on a cisco
-ucs server
+short_description: Configures provider for a ldap provider group on a cisco
+ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures ldap provider for a provider group on a cisco ucs server
+   -  Configures ldap provider for a provider group on a cisco ucs server.
 options:
     state:
         description:

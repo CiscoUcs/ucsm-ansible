@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_callhome_profile
-short_description: configures callhome profile on a cisco ucs server
+short_description: Configures callhome profile on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures callhome profile on a cisco ucs server
+   -  Configures callhome profile on a cisco ucs server.
 options:
     state:
         description:

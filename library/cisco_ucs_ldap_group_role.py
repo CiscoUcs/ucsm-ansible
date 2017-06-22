@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_ldap_group_role
-short_description: configures role for ldap group on a cisco ucs server
+short_description: Configures role for ldap group on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures role for ldap group on a cisco ucs server
+   -  Configures role for ldap group on a cisco ucs server.
 options:
     state:
         description:

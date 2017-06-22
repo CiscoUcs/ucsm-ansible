@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_syslog_local_monitor
-short_description: configures syslog local monitor on a cisco ucs server
+short_description: Configures syslog local monitor on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures syslog local monitor on a cisco ucs server
+   -  Configures syslog local monitor on a cisco ucs server.
 options:
     state:
         description:

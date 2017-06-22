@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_snmp_trap
-short_description: configures snmp trap on a cisco ucs server
+short_description: Configures snmp trap on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures snmp trap on a cisco ucs server
+   -  Configures snmp trap on a cisco ucs server.
 options:
     state:
         description:

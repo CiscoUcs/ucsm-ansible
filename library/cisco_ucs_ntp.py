@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_ntp
-short_description: configures ntp on a cisco ucs server
+short_description: Configures ntp on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures ntp on a cisco ucs server
+   -  Configures ntp on a cisco ucs server.
 options:
     state:
         description:

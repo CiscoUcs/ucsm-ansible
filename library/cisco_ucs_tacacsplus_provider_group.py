@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_tacacsplus_provider_group
-short_description: configures tacacsplus provider group on a cisco ucs server
+short_description: Configures tacacsplus provider group on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures tacacsplus provider group on a cisco ucs server
+   -  Configures tacacsplus provider group on a cisco ucs server.
 options:
     state:
         description:

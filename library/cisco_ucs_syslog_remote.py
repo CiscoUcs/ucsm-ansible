@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_syslog_remote
-short_description: configures syslog remote on a cisco ucs server
+short_description: Configures syslog remote on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures syslog remote on a cisco ucs server
+   -  Configures syslog remote on a cisco ucs server.
 options:
     state:
         description:

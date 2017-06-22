@@ -26,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_trusted_point
-short_description: configures trusted point  on a cisco ucs server
+short_description: Configures trusted point  on a cisco ucs server.
 version_added: "0.9.0.0"
 description:
-   -  configures trusted point  on a cisco ucs server
+   -  Configures trusted point  on a cisco ucs server.
 options:
     state:
         description:
