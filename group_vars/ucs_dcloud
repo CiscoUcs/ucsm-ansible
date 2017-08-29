@@ -6,7 +6,7 @@ uuid_pool: {"name":"Docker", "from":"0000-000000000001", "to":"0000-0000000001f4
 
 boot_devices:
   - {"device_order":"1", "device_name":"lan", "vnic_name":"eth0"}
-  - {"device_order":"2", "device_name":"local_lun", "lun_name":"Boot-Lun"}
+  - {"device_order":"2", "device_name":"local_lun", "lun_name":"Boot-Lun", "type":"primary"}
 
 disk_group_policy: {"name":"Docker-DG", "RAID_level":"mirror", "disk_slot_numbers":["1","2"]}
 
