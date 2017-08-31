@@ -1,25 +1,8 @@
-ntp_server: ntp.esl.cisco.com
-
 dns_server: 198.18.134.242
-
-uuid_pool: {"name":"Docker", "from":"0000-000000000001", "to":"0000-0000000001f4"}
 
 boot_devices:
   - {"device_order":"1", "device_name":"lan", "vnic_name":"eth0"}
   - {"device_order":"2", "device_name":"local_lun", "lun_name":"Boot-Lun", "type":"primary"}
-
-disk_group_policy: {"name":"Docker-DG", "RAID_level":"mirror", "disk_slot_numbers":["1","2"]}
-
-storage_profile:
-  name: Docker-StgProf
-  lun_list:
-  - lun_name: Boot-Lun
-    size: "60"
-    disk_group_policy: Docker-DG
-
-  - lun_name: Data-Lun
-    size: "200"
-    disk_group_policy: Docker-DG
 
 service_profile_template_list:
   - name: Docker-DTR
@@ -31,6 +14,7 @@ service_profile_template_list:
       vnic_template: Docker-eth0
       vnic_adapter_policy: Linux
       vnic_order: "1"
+    san_connectivity_policy: Cntr-FC-Boot
     boot_policy: Docker-LocalBoot
     server_pool: Docker-DTR
     host_fw_package: default
@@ -45,6 +29,7 @@ service_profile_template_list:
       vnic_template: Docker-eth0
       vnic_adapter_policy: Linux
       vnic_order: "1"
+    san_connectivity_policy: Cntr-FC-Boot
     boot_policy: Docker-LocalBoot
     server_pool: Docker-Ctrl
     host_fw_package: default
@@ -59,6 +44,7 @@ service_profile_template_list:
       vnic_template: Docker-eth0
       vnic_adapter_policy: Linux
       vnic_order: "1"
+    san_connectivity_policy: Cntr-FC-Boot
     boot_policy: Docker-LocalBoot
     server_pool: Docker-Node
     host_fw_package: default

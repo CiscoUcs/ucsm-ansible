@@ -6,7 +6,7 @@
   roles:
   - common
 
-- hosts: ucs_dcloud
+- hosts: ucs
   connection: local
   gather_facts: no
   roles:
@@ -25,6 +25,24 @@
       name: "{{dns_server}}"
       descr: Ansible managed DNS
       state: present
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
+  - name: configure WWN pools
+    cisco_ucs_wwn:
+      wwn_list: "{{wwn_list}}"
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
+  - name: configure vHBA templates
+    cisco_ucs_vhba_template:
+      vhba_list: "{{vhba_list}}"
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
+  - name: configure SAN connectivity policies
+    cisco_ucs_san_connectivity:
+      san_conn_list: "{{san_conn_list}}"
       ucs_ip: "{{ucs_ip}}"
       ucs_username: "{{ucs_username}}"
       ucs_password: "{{ucs_password}}"

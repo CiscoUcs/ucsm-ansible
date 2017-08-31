@@ -10,14 +10,14 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_sp
-short_description: configures service profiles on cisco ucs manager
+module: cisco_ucs_san_connectivity
+short_description: configures san connectivity policies on cisco ucs manager
 version_added: 0.9.0.0
 description:
-   -  configures service profiles on cisco ucs manager
+   -  configures san connectivity policies on cisco ucs manager
 options:
-    sp_list:
-        description: list of sp dictionaries
+    san_conn_list:
+        description: list of san conn dictionaries
         required: true
     org_dn:
         description: org dn
@@ -31,9 +31,9 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_sp:
-    sp_list:
-      - {"name":"DDC-DTR-1"...
+  cisco_ucs_san_connectivity:
+    san_conn_list:
+      - {"name":"Docker-DTR"...
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"
@@ -42,7 +42,7 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
-                sp_list=dict(required=True, type='list'),
+                san_conn_list=dict(required=True, type='list'),
                 org_dn=dict(type='str', default="org-root"),
     )
 
@@ -83,32 +83,41 @@ def _get_mo_params(params):
     return args
 
 
-def setup_sp(server, module):
-    from ucsmsdk.mometa.ls.LsServer import LsServer
-   
+def setup_san_connectivity(server, module):
+    from ucsmsdk.mometa.vnic.VnicSanConnPolicy import VnicSanConnPolicy
+    from ucsmsdk.mometa.vnic.VnicFcNode import VnicFcNode
+    from ucsmsdk.mometa.vnic.VnicFc import VnicFc
+    from ucsmsdk.mometa.vnic.VnicFcIf import VnicFcIf
+
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
 
     changed = False
 
-    for sp in args_mo['sp_list']:
+    for san_conn in args_mo['san_conn_list']:
         exists = False
-        mo = server.query_dn(args_mo['org_dn']+'/ls-'+sp['name'])
+        mo = server.query_dn(args_mo['org_dn']+'/san-conn-pol-'+san_conn['name'])
         if mo:
             exists = True
         else:
             changed = True
 
         if not module.check_mode and not exists:
-            mo =  LsServer(parent_mo_or_dn=args_mo['org_dn'],
-	                   name=sp['name'],
-	    	           src_templ_name=sp['src_templ_name'],
-                           type='instance',
-                           uuid='derived'
-                           )
+	    mo = VnicSanConnPolicy(parent_mo_or_dn=args_mo['org_dn'],
+	                           name=san_conn['name'])
+	    mo_1 = VnicFcNode(parent_mo_or_dn=mo,
+	                      ident_pool_name=san_conn['wwnn_pool'],
+			      addr='pool-derived')
+            for vhba in san_conn['vhba_list']:
+                mo_2 = VnicFc(parent_mo_or_dn=mo,
+		              adaptor_profile_name=vhba['adapter_policy'],
+			      order=vhba['order'],
+			      name=vhba['name'],
+			      nw_templ_name=vhba['vhba_template'])
+	        mo_2_1 = VnicFcIf(parent_mo_or_dn=mo_2, name='default')
             server.add_mo(mo, True)
             server.commit()
-
+    
     return changed
 
 
@@ -117,7 +126,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_sp(server, module)
+        result["changed"] = setup_san_connectivity(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)

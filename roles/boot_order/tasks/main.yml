@@ -3,14 +3,14 @@
 
 - name: create boot policy
   cisco_ucs_boot_policy:
-    name: Docker-LocalBoot
+    name: "{{boot_policy_name}}" 
     ucs_ip: "{{ucs_ip}}"
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
 
 - name: set boot order
   cisco_ucs_boot_order:
-    name: Docker-LocalBoot
+    name: "{{boot_policy_name}}"
     devices: "{{boot_devices}}"
     ucs_ip: "{{ucs_ip}}"
     ucs_username: "{{ucs_username}}"

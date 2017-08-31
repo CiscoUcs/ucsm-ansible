@@ -10,14 +10,14 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_sp
+module: cisco_ucs_vhba_template
 short_description: configures service profiles on cisco ucs manager
 version_added: 0.9.0.0
 description:
    -  configures service profiles on cisco ucs manager
 options:
-    sp_list:
-        description: list of sp dictionaries
+    vhba_list:
+        description: list of vhba dictionaries
         required: true
     org_dn:
         description: org dn
@@ -31,8 +31,8 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_sp:
-    sp_list:
+  cisco_ucs_vhba_template:
+    vhba_list:
       - {"name":"DDC-DTR-1"...
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
@@ -42,7 +42,7 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
-                sp_list=dict(required=True, type='list'),
+                vhba_list=dict(required=True, type='list'),
                 org_dn=dict(type='str', default="org-root"),
     )
 
@@ -83,29 +83,29 @@ def _get_mo_params(params):
     return args
 
 
-def setup_sp(server, module):
-    from ucsmsdk.mometa.ls.LsServer import LsServer
+def setup_vhba_template(server, module):
+    from ucsmsdk.mometa.vnic.VnicSanConnTempl import VnicSanConnTempl
+    from ucsmsdk.mometa.vnic.VnicFcIf import VnicFcIf
    
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
 
     changed = False
 
-    for sp in args_mo['sp_list']:
+    for vhba in args_mo['vhba_list']:
         exists = False
-        mo = server.query_dn(args_mo['org_dn']+'/ls-'+sp['name'])
+        mo = server.query_dn(args_mo['org_dn']+'/san-conn-templ-'+vhba['name'])
         if mo:
             exists = True
         else:
             changed = True
 
         if not module.check_mode and not exists:
-            mo =  LsServer(parent_mo_or_dn=args_mo['org_dn'],
-	                   name=sp['name'],
-	    	           src_templ_name=sp['src_templ_name'],
-                           type='instance',
-                           uuid='derived'
-                           )
+	    mo = VnicSanConnTempl(parent_mo_or_dn=args_mo['org_dn'],
+	                          ident_pool_name=vhba['wwpn_pool'],
+				  name=vhba['name'],
+				  switch_id=vhba['fabric'])
+	    mo_1 = VnicFcIf(parent_mo_or_dn=mo, name=vhba['vsan'])
             server.add_mo(mo, True)
             server.commit()
 
@@ -117,7 +117,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_sp(server, module)
+        result["changed"] = setup_vhba_template(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)

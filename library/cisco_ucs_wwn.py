@@ -10,14 +10,15 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_sp
-short_description: configures service profiles on cisco ucs manager
+module: cisco_ucs_wwn
+short_description: configures wwn pools on cisco ucs manager
 version_added: 0.9.0.0
 description:
-   -  configures service profiles on cisco ucs manager
+   -  configures wwn pools on cisco ucs manager
 options:
-    sp_list:
-        description: list of sp dictionaries
+    wwn_list:
+        description: wwn_list
+        - {"name": "", "from": "", "to": ""}
         required: true
     org_dn:
         description: org dn
@@ -31,9 +32,9 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_sp:
-    sp_list:
-      - {"name":"DDC-DTR-1"...
+  cisco_ucs_wwn:
+    wwn_list:
+      - {"name":"Docker", "from":"0000-000000000001", "to":"0000-0000000001f4"}
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"
@@ -42,7 +43,7 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
-                sp_list=dict(required=True, type='list'),
+                wwn_list=dict(required=True, type='list'),
                 org_dn=dict(type='str', default="org-root"),
     )
 
@@ -83,30 +84,34 @@ def _get_mo_params(params):
     return args
 
 
-def setup_sp(server, module):
-    from ucsmsdk.mometa.ls.LsServer import LsServer
-   
+def setup_wwn(server, module):
+    from ucsmsdk.mometa.fcpool.FcpoolInitiators import FcpoolInitiators
+    from ucsmsdk.mometa.fcpool.FcpoolBlock import FcpoolBlock
+
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
-
+    
     changed = False
 
-    for sp in args_mo['sp_list']:
+    for wwn in args_mo['wwn_list']:
         exists = False
-        mo = server.query_dn(args_mo['org_dn']+'/ls-'+sp['name'])
+        mo = server.query_dn(args_mo['org_dn']+'/wwn-pool-'+wwn['name'])
         if mo:
             exists = True
-        else:
-            changed = True
+	else:
+	    changed = True
 
         if not module.check_mode and not exists:
-            mo =  LsServer(parent_mo_or_dn=args_mo['org_dn'],
-	                   name=sp['name'],
-	    	           src_templ_name=sp['src_templ_name'],
-                           type='instance',
-                           uuid='derived'
-                           )
-            server.add_mo(mo, True)
+	    # create if mo does not already exist
+            mo = FcpoolInitiators(parent_mo_or_dn=args_mo['org_dn'],
+                                  name=wwn['name'],
+                                  assignment_order=wwn['order'],
+                                  purpose=wwn['purpose'])
+            if(wwn['to'] <> '' and wwn['from'] <> ''):
+                 mo_1= FcpoolBlock(parent_mo_or_dn=mo,
+                                   to=wwn['to'],
+                                   r_from=wwn['from'])
+            server.add_mo(mo)
             server.commit()
 
     return changed
@@ -117,7 +122,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_sp(server, module)
+        result["changed"] = setup_wwn(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)

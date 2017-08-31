@@ -88,57 +88,63 @@ def setup_spt(server, module):
     from ucsmsdk.mometa.ls.LsRequirement import LsRequirement
     from ucsmsdk.mometa.lstorage.LstorageProfileBinding import LstorageProfileBinding
     from ucsmsdk.mometa.vnic.VnicEther import VnicEther
+    from ucsmsdk.mometa.vnic.VnicConnDef import VnicConnDef
    
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
 
+    changed = False
+
     for spt in args_mo['spt_list']:
+        exists = False
         mo = server.query_dn(args_mo['org_dn']+'/ls-'+spt['name'])
         if mo:
             exists = True
         else:
-            exists = False
+            changed = True
 
-        if module.check_mode or exists:
-            return not exists
-       
-        mo =  LsServer(parent_mo_or_dn=args_mo['org_dn'],
-	               name=spt['name'],
-                       type=spt['template_type'],
-                       resolve_remote='yes',
-                       descr='',
-                       usr_lbl='',
-                       src_templ_name='',
-                       ext_ip_state='pooled',
-                       ext_ip_pool_name='ext-mgmt',
-                       ident_pool_name=spt['uuid_pool'],
-                       vcon_profile_name='',
-                       agent_policy_name='',
-                       bios_profile_name=spt['bios_policy'],
-                       boot_policy_name=spt['boot_policy'],
-                       dynamic_con_policy_name='',
-                       host_fw_policy_name=spt['host_fw_package'],
-                       kvm_mgmt_policy_name='',
-                       local_disk_policy_name='',
-                       maint_policy_name='',
-                       mgmt_access_policy_name='',
-                       mgmt_fw_policy_name='',
-                       power_policy_name='',
-                       scrub_policy_name='',
-                       sol_policy_name='',
-                       stats_policy_name='',
-                       vmedia_policy_name=''
-                       )
-        if(spt['server_pool'] <> ''): 
-            mo_1 = LsRequirement(parent_mo_or_dn=mo, name=spt['server_pool'])
-        if(spt['storage_profile'] <> ''):
-            mo_1 = LstorageProfileBinding(parent_mo_or_dn=mo, storage_profile_name=spt['storage_profile'])
-	for vnic in spt['vnic_list']:
-	    if(vnic['vnic_name'] <> '' and vnic['vnic_template'] <> ''):
-                mo_1 = VnicEther(parent_mo_or_dn=mo, adaptor_profile_name=vnic['vnic_adapter_policy'], order=vnic['vnic_order'], name=vnic['vnic_name'], nw_templ_name=vnic['vnic_template'])
-        server.add_mo(mo, True)
-        server.commit()
-    return True
+        if not module.check_mode and not exists:
+            mo =  LsServer(parent_mo_or_dn=args_mo['org_dn'],
+	                   name=spt['name'],
+                           type=spt['template_type'],
+                           resolve_remote='yes',
+                           descr='',
+                           usr_lbl='',
+                           src_templ_name='',
+                           ext_ip_state='pooled',
+                           ext_ip_pool_name='ext-mgmt',
+                           ident_pool_name=spt['uuid_pool'],
+                           vcon_profile_name='',
+                           agent_policy_name='',
+                           bios_profile_name=spt['bios_policy'],
+                           boot_policy_name=spt['boot_policy'],
+                           dynamic_con_policy_name='',
+                           host_fw_policy_name=spt['host_fw_package'],
+                           kvm_mgmt_policy_name='',
+                           local_disk_policy_name='',
+                           maint_policy_name='',
+                           mgmt_access_policy_name='',
+                           mgmt_fw_policy_name='',
+                           power_policy_name='',
+                           scrub_policy_name='',
+                           sol_policy_name='',
+                           stats_policy_name='',
+                           vmedia_policy_name=''
+                           )
+            if(spt['server_pool'] <> ''): 
+                mo_1 = LsRequirement(parent_mo_or_dn=mo, name=spt['server_pool'])
+            if(spt['storage_profile'] <> ''):
+                mo_1 = LstorageProfileBinding(parent_mo_or_dn=mo, storage_profile_name=spt['storage_profile'])
+            if(spt['san_connectivity_policy'] <> ''):
+                mo_1 = VnicConnDef(parent_mo_or_dn=mo,
+		                   san_conn_policy_name=spt['san_connectivity_policy'])
+    	    for vnic in spt['vnic_list']:
+	        if(vnic['vnic_name'] <> '' and vnic['vnic_template'] <> ''):
+                    mo_1 = VnicEther(parent_mo_or_dn=mo, adaptor_profile_name=vnic['vnic_adapter_policy'], order=vnic['vnic_order'], name=vnic['vnic_name'], nw_templ_name=vnic['vnic_template'])
+            server.add_mo(mo, True)
+            server.commit()
+    
+    return changed
 
 
 def setup(server, module):

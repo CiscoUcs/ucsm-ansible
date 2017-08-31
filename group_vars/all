@@ -1,0 +1,62 @@
+ntp_server: ntp.esl.cisco.com
+
+wwn_list:
+  - name: WWNN-Pool
+    order: sequential
+    purpose: node-wwn-assignment
+    from: 20:00:00:25:B5:48:00:00
+    to: 20:00:00:25:B5:48:00:0F
+
+  - name: WWPN-Pool-A
+    order: sequential
+    purpose: port-wwn-assignment
+    from: 20:00:00:25:B5:48:0A:00
+    to: 20:00:00:25:B5:48:0A:0F
+
+  - name: WWPN-Pool-B
+    order: sequential
+    purpose: port-wwn-assignment
+    from: 20:00:00:25:B5:48:0B:00
+    to: 20:00:00:25:B5:48:0B:0F
+
+vhba_list:
+  - name: vHBA-Template-A
+    fabric: A
+    vsan: VSAN-A
+    wwpn_pool: WWPN-Pool-A
+
+  - name: vHBA-Template-B
+    fabric: B
+    vsan: VSAN-B
+    wwpn_pool: WWPN-Pool-B
+
+san_conn_list:
+  - name: Cntr-FC-Boot
+    wwnn_pool: WWNN-Pool
+    vhba_list:
+    - name: Fabric-A
+      vhba_template: vHBA-Template-A
+      order: "1"
+      adapter_policy: Linux
+
+    - name: Fabric-B
+      vhba_template: vHBA-Template-B
+      order: "2"
+      adapter_policy: Linux
+
+uuid_pool: {"name":"Docker", "from":"0000-000000000001", "to":"0000-0000000001f4"}
+
+boot_policy_name: Docker-LocalBoot
+
+disk_group_policy: {"name":"Docker-DG", "RAID_level":"mirror", "disk_slot_numbers":["1","2"]}
+
+storage_profile:
+  name: Docker-StgProf
+  lun_list:
+  - lun_name: Boot-Lun
+    size: "60"
+    disk_group_policy: Docker-DG
+
+  - lun_name: Data-Lun
+    size: "200"
+    disk_group_policy: Docker-DG
