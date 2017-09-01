@@ -1,0 +1,13 @@
+---
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+  - common
+
+- hosts: ucsdevi
+  connection: local
+  gather_facts: no
+  roles:
+  - network
