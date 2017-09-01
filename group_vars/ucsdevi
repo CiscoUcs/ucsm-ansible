@@ -1,9 +1,6 @@
 ntp_server: ntp.esl.cisco.com
-
 dns_server: 198.18.134.242
-
 uuid_pool: {"name":"kubam", "from":"0000-000000000001", "to":"0000-0000000001f4"}
-
 mac_list:
   - name: KUBAM-A
     order: sequential
@@ -31,6 +28,17 @@ vnic_list:
     - default
     - vm-network
 
+lan_conn_list:
+  - name: VMware
+    vnic_list:
+    - name: eth0
+      vnic_template: KUBAM-A
+      order: "1"
+      adapter_policy: Linux
+    - name: eth1
+      vnic_template: KUBAM-B
+      order: "2"
+      adapter_policy: Linux
 
 boot_devices:
   - {"device_order":"1", "device_name":"lan", "vnic_name":"eth0"}
