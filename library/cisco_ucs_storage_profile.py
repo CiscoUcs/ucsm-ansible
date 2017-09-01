@@ -16,6 +16,13 @@ version_added: 0.9.0.0
 description:
    -  configures storage profiles on cisco ucs manager
 options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: 'present'
     storage_profile:
         description: storage_profile dictionary
         required: true
@@ -46,6 +53,12 @@ def _argument_mo():
                 org_dn=dict(type='str', default="org-root"),
     )
 
+def _argument_custom():
+    return dict(
+        state=dict(default='present',
+                   choices=['present', 'absent'],
+                   type='str'),
+    )
 
 def _argument_connection():
     return  dict(
@@ -67,6 +80,7 @@ def _ansible_module_create():
     argument_spec = dict()
     argument_spec.update(_argument_connection())
     argument_spec.update(_argument_mo())
+    argument_spec.update(_argument_custom())
 
     return AnsibleModule(argument_spec,
                          supports_check_mode=True)
@@ -90,26 +104,37 @@ def setup_storage_profile(server, module):
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
 
+    changed = False
+
     mo = server.query_dn(args_mo['org_dn']+'/profile-'+args_mo['storage_profile']['name'])
     if mo:
         exists = True
     else:
         exists = False
 
-    if module.check_mode or exists:
-        return not exists
-       
-    mo = LstorageProfile(parent_mo_or_dn=args_mo['org_dn'],
-                         name=args_mo['storage_profile']['name'])
-    if(len(args_mo['storage_profile']['lun_list']) <> 0 ):
-        for lun in args_mo['storage_profile']['lun_list'] :
-            mo_1 = LstorageDasScsiLun(parent_mo_or_dn=mo,
-	                              local_disk_policy_name=lun['disk_group_policy'],
-				      name=lun['lun_name'],
-				      size=lun['size'])
-    server.add_mo(mo, True)
-    server.commit()
-    return True
+    if ansible['state'] == 'absent':
+        if exists:
+            changed = True
+            if not module.check_mode:
+                server.remove_mo(mo)
+                server.commit()
+    else:
+        if not exists:
+            changed = True
+            if not module.check_mode:
+                # create if mo does not already exist
+                mo = LstorageProfile(parent_mo_or_dn=args_mo['org_dn'],
+                                     name=args_mo['storage_profile']['name'])
+                if(len(args_mo['storage_profile']['lun_list']) <> 0 ):
+                    for lun in args_mo['storage_profile']['lun_list'] :
+                        mo_1 = LstorageDasScsiLun(parent_mo_or_dn=mo,
+	                                          local_disk_policy_name=lun['disk_group_policy'],
+				                  name=lun['lun_name'],
+				                  size=lun['size'])
+                server.add_mo(mo, True)
+                server.commit()
+
+    return changed
 
 
 def setup(server, module):

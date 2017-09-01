@@ -16,6 +16,13 @@ version_added: 0.9.0.0
 description:
    -  configures service profiles on cisco ucs manager
 options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: 'present'
     vhba_list:
         description: list of vhba dictionaries
         required: true
@@ -46,6 +53,12 @@ def _argument_mo():
                 org_dn=dict(type='str', default="org-root"),
     )
 
+def _argument_custom():
+    return dict(
+        state=dict(default='present',
+                   choices=['present', 'absent'],
+                   type='str'),
+    )
 
 def _argument_connection():
     return  dict(
@@ -67,6 +80,7 @@ def _ansible_module_create():
     argument_spec = dict()
     argument_spec.update(_argument_connection())
     argument_spec.update(_argument_mo())
+    argument_spec.update(_argument_custom())
 
     return AnsibleModule(argument_spec,
                          supports_check_mode=True)
@@ -97,17 +111,25 @@ def setup_vhba_template(server, module):
         mo = server.query_dn(args_mo['org_dn']+'/san-conn-templ-'+vhba['name'])
         if mo:
             exists = True
-        else:
-            changed = True
 
-        if not module.check_mode and not exists:
-	    mo = VnicSanConnTempl(parent_mo_or_dn=args_mo['org_dn'],
-	                          ident_pool_name=vhba['wwpn_pool'],
-				  name=vhba['name'],
-				  switch_id=vhba['fabric'])
-	    mo_1 = VnicFcIf(parent_mo_or_dn=mo, name=vhba['vsan'])
-            server.add_mo(mo, True)
-            server.commit()
+        if ansible['state'] == 'absent':
+            if exists:
+                changed = True
+                if not module.check_mode:
+                    server.remove_mo(mo)
+                    server.commit()
+        else:
+            if not exists:
+                changed = True
+                if not module.check_mode:
+                    # create if mo does not already exist
+	            mo = VnicSanConnTempl(parent_mo_or_dn=args_mo['org_dn'],
+	                                  ident_pool_name=vhba['wwpn_pool'],
+				          name=vhba['name'],
+				          switch_id=vhba['fabric'])
+	            mo_1 = VnicFcIf(parent_mo_or_dn=mo, name=vhba['vsan'])
+                    server.add_mo(mo, True)
+                    server.commit()
 
     return changed
 

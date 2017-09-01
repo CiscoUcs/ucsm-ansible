@@ -16,6 +16,13 @@ version_added: 0.9.0.0
 description:
    -  configures wwn pools on cisco ucs manager
 options:
+    state:
+        description:
+         - if C(present), will perform create/add/enable operation
+         - if C(absent), will perform delete/remove/disable operation
+        required: false
+        choices: ['present', 'absent']
+        default: 'present'
     wwn_list:
         description: wwn_list
         - {"name": "", "from": "", "to": ""}
@@ -47,6 +54,12 @@ def _argument_mo():
                 org_dn=dict(type='str', default="org-root"),
     )
 
+def _argument_custom():
+    return dict(
+        state=dict(default='present',
+                   choices=['present', 'absent'],
+                   type='str'),
+    )
 
 def _argument_connection():
     return  dict(
@@ -66,8 +79,9 @@ def _argument_connection():
 
 def _ansible_module_create():
     argument_spec = dict()
-    argument_spec.update(_argument_connection())
     argument_spec.update(_argument_mo())
+    argument_spec.update(_argument_custom())
+    argument_spec.update(_argument_connection())
 
     return AnsibleModule(argument_spec,
                          supports_check_mode=True)
@@ -98,21 +112,28 @@ def setup_wwn(server, module):
         mo = server.query_dn(args_mo['org_dn']+'/wwn-pool-'+wwn['name'])
         if mo:
             exists = True
-	else:
-	    changed = True
 
-        if not module.check_mode and not exists:
-	    # create if mo does not already exist
-            mo = FcpoolInitiators(parent_mo_or_dn=args_mo['org_dn'],
-                                  name=wwn['name'],
-                                  assignment_order=wwn['order'],
-                                  purpose=wwn['purpose'])
-            if(wwn['to'] <> '' and wwn['from'] <> ''):
-                 mo_1= FcpoolBlock(parent_mo_or_dn=mo,
-                                   to=wwn['to'],
-                                   r_from=wwn['from'])
-            server.add_mo(mo)
-            server.commit()
+        if ansible['state'] == 'absent':
+            if exists:
+                changed = True
+                if not module.check_mode:
+                    server.remove_mo(mo)
+                    server.commit()
+        else:
+            if not exists:
+                changed = True
+                if not module.check_mode:
+    	            # create if mo does not already exist
+                    mo = FcpoolInitiators(parent_mo_or_dn=args_mo['org_dn'],
+                                          name=wwn['name'],
+                                          assignment_order=wwn['order'],
+                                          purpose=wwn['purpose'])
+                    if(wwn['to'] <> '' and wwn['from'] <> ''):
+                        mo_1= FcpoolBlock(parent_mo_or_dn=mo,
+                                          to=wwn['to'],
+                                          r_from=wwn['from'])
+                    server.add_mo(mo)
+                    server.commit()
 
     return changed
 
