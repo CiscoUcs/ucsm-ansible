@@ -127,8 +127,11 @@ def setup_storage_profile(server, module):
                                      name=args_mo['storage_profile']['name'])
                 if(len(args_mo['storage_profile']['lun_list']) <> 0 ):
                     for lun in args_mo['storage_profile']['lun_list'] :
+                        if not "expand" in lun:
+                            lun["expand"] = "no" 
                         mo_1 = LstorageDasScsiLun(parent_mo_or_dn=mo,
 	                                          local_disk_policy_name=lun['disk_group_policy'],
+                                                  expand_to_avail=lun['expand'],
 				                  name=lun['lun_name'],
 				                  size=lun['size'])
                 server.add_mo(mo, True)

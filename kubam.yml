@@ -10,4 +10,6 @@
   connection: local
   gather_facts: no
   roles:
-  - network
+  #- network
+  - storage
+  #- server

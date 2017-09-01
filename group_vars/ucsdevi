@@ -41,21 +41,19 @@ lan_conn_list:
       adapter_policy: Linux
 
 boot_devices:
-  - {"device_order":"1", "device_name":"lan", "vnic_name":"eth0"}
-  - {"device_order":"2", "device_name":"local_lun", "lun_name":"Boot-Lun", "type":"primary"}
-
-disk_group_policy: {"name":"Docker-DG", "RAID_level":"mirror", "disk_slot_numbers":["1","2"]}
+  - {"device_order":"1", "device_name": "local_lun"}
+  - {"device_order":"2", "device_name": "cd_dvd_cimc"}
 
 storage_profile:
-  name: Docker-StgProf
+  name: KUBAM
   lun_list:
   - lun_name: Boot-Lun
-    size: "60"
-    disk_group_policy: Docker-DG
+    size: "1"
+    expand: "yes"
+    disk_group_policy: KUBAM-Boot
 
-  - lun_name: Data-Lun
-    size: "200"
-    disk_group_policy: Docker-DG
+disk_group_policy: {"name":"KUBAM-Boot", "RAID_level":"mirror", "disk_slot_numbers": ["1", "2"]}
+
 
 service_profile_template_list:
   - name: Docker-DTR

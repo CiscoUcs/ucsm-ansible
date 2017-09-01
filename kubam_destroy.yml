@@ -10,6 +10,14 @@
   connection: local
   gather_facts: no
   tasks:
+  - name: remove boot order
+    cisco_ucs_boot_policy:
+      name: KUBAM
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
+      state: absent
+
   - name: remove lan connectivity policy
     cisco_ucs_lan_connectivity:
       lan_conn_list: "{{ lan_conn_list }}"
@@ -31,5 +39,6 @@
       ucs_username: "{{ucs_username}}"
       ucs_password: "{{ucs_password}}"
       state: absent
+  
   
   

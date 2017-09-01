@@ -1,0 +1,17 @@
+---
+# This role contains tasks for configuring LAN settings.
+
+- name: ensure KUBAM boot policy
+  cisco_ucs_boot_policy: 
+    name: KUBAM
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+    
+- name: ensure KUBAM boot order
+  cisco_ucs_boot_order:
+    name: KUBAM
+    devices: "{{ boot_devices }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
