@@ -11,5 +11,5 @@
   gather_facts: no
   roles:
   #- network
-  - storage
-  #- server
+  #- storage
+  - server
