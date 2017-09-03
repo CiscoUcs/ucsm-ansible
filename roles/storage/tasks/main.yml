@@ -9,7 +9,7 @@
     ucs_password: "{{ucs_password}}"
     
 
-- name: ensure KUBAM storage policy
+- name: ensure KUBAM storage profile exists
   cisco_ucs_storage_profile:
     storage_profile: "{{ storage_profile }}"
     ucs_ip: "{{ucs_ip}}"

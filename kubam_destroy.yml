@@ -20,7 +20,7 @@
     
   - name: remove the vmedia policy
     cisco_ucs_vmedia_policy:
-      name: KUBE
+      name: KUBAM
       ucs_ip: "{{ucs_ip}}"
       ucs_username: "{{ucs_username}}"
       ucs_password: "{{ucs_password}}"
@@ -64,6 +64,19 @@
       ucs_username: "{{ucs_username}}"
       ucs_password: "{{ucs_password}}"
       state: absent
-  
-  
+  - name: remove Storage Profile
+    cisco_ucs_storage_profile:
+      storage_profile: "{{ storage_profile }}"
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
+      state: absent
+
+  - name: remove KUBAM disk group policy
+    cisco_ucs_disk_group_policy:
+      disk_group_policy: "{{ disk_group_policy }}"
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
+      state: absent
   

@@ -138,7 +138,7 @@ def setup_vmedia_policy(server, module):
 
 
     if ansible['state'] == 'absent':
-        if mo: 
+        if exists: 
             changed = True
             if not module.check_mode:
                 server.remove_mo(mo)
