@@ -143,13 +143,11 @@ def setup_vmedia_policy(server, module):
             if not module.check_mode:
                 server.remove_mo(mo)
                 server.commit()
-        else:
-            changed = False
     else:
         if not exists:
             changed = True
             if not module.check_mode:
-                mo = CimcvmediaMountConfigPolicy(name="kube",
+                mo = CimcvmediaMountConfigPolicy(name=args_mo['name'],
                     retry_on_mount_fail=args_mo['retry'],
                     parent_mo_or_dn=args_mo['org_dn'],
                     descr=args_mo['descr'])
@@ -177,6 +175,7 @@ def setup_vmedia_policy(server, module):
 
                 server.add_mo(mo, True) 
                 server.commit()
+
     return changed
 
 def setup(server, module):

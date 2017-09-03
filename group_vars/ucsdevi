@@ -65,7 +65,6 @@ service_profile_template:
     boot_policy: KUBAM
     vmedia_policy: KUBAM
     lan_connectivity_policy: KUBAM
-    server_pool: KUBAM
     host_fw_package: default
 
 service_profile_list:

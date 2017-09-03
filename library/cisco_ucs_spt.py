@@ -156,9 +156,9 @@ def setup_spt(server, module):
                                    stats_policy_name='',
                                    vmedia_policy_name=spt['vmedia_policy']
                                    )
-                    if(spt['server_pool'] <> ''): 
+                    if 'server_pool' in spt: 
                         mo_1 = LsRequirement(parent_mo_or_dn=mo, name=spt['server_pool'])
-                    if(spt['storage_profile'] <> ''):
+                    if 'storage_profile' in spt:
                         mo_1 = LstorageProfileBinding(parent_mo_or_dn=mo, storage_profile_name=spt['storage_profile'])
                     if 'san_connectivity_policy' in spt:
                         mo_1 = VnicConnDef(parent_mo_or_dn=mo,
