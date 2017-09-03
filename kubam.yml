@@ -12,4 +12,13 @@
   roles:
   #- network
   #- storage
-  - server
+  #- server
+  tasks:
+  - name: KUBAM Service Profile
+    cisco_ucs_spt:
+      spt_list: "{{ service_profile_template }}"
+      ucs_ip: "{{ ucs_ip}}"
+      ucs_username: "{{ ucs_username }}"
+      ucs_password: "{{ ucs_password }}" 
+
+

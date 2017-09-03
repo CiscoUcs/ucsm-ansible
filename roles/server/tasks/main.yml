@@ -42,6 +42,14 @@
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
 
+- name: ensure KUBAM UUID pool is created
+  cisco_ucs_uuid:
+    uuid_pool: "{{ uuid_pool }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+
+
 #TODO: BIOS policy to do naming of NICs. 
 #TODO: Scrub policy
 

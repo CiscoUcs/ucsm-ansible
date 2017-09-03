@@ -1,6 +1,6 @@
 ntp_server: ntp.esl.cisco.com
 dns_server: 198.18.134.242
-uuid_pool: {"name":"kubam", "from":"0000-000000000001", "to":"0000-0000000001f4"}
+uuid_pool: {"name":"KUBAM", "from":"0000-000000000001", "to":"0000-0000000001f4"}
 mac_list:
   - name: KUBAM-A
     order: sequential
@@ -29,7 +29,7 @@ vnic_list:
     - vm-network
 
 lan_conn_list:
-  - name: VMware
+  - name: KUBAM
     vnic_list:
     - name: eth0
       vnic_template: KUBAM-A
@@ -55,65 +55,23 @@ storage_profile:
 disk_group_policy: {"name":"KUBAM-Boot", "RAID_level":"mirror", "disk_slot_numbers": ["1", "2"]}
 
 
-service_profile_template_list:
-  - name: Docker-DTR
-    template_type: updating-template
-    uuid_pool: Docker
-    storage_profile: Docker-StgProf
-    vnic_list:
-    - vnic_name: eth0
-      vnic_template: Docker-eth0
-      vnic_adapter_policy: Linux
-      vnic_order: "1"
-    boot_policy: Docker-LocalBoot
-    server_pool: Docker-DTR
-    host_fw_package: default
-    bios_policy: Docker-BiosPol
 
-  - name: Docker-UCP-Ctrl
+service_profile_template:
+  - name: KUBAM-ESXi
     template_type: updating-template
-    uuid_pool: Docker
-    storage_profile: Docker-StgProf
-    vnic_list:
-    - vnic_name: eth0
-      vnic_template: Docker-eth0
-      vnic_adapter_policy: Linux
-      vnic_order: "1"
-    boot_policy: Docker-LocalBoot
-    server_pool: Docker-Ctrl
+    uuid_pool: KUBAM
+    storage_profile: KUBAM
+    bios_policy: default
+    boot_policy: KUBAM
+    vmedia_policy: KUBAM
+    lan_connectivity_policy: KUBAM
+    server_pool: KUBAM
     host_fw_package: default
-    bios_policy: Docker-BiosPol
-
-  - name: Docker-UCP-Node
-    template_type: updating-template
-    uuid_pool: Docker
-    storage_profile: Docker-StgProf
-    vnic_list:
-    - vnic_name: eth0
-      vnic_template: Docker-eth0
-      vnic_adapter_policy: Linux
-      vnic_order: "1"
-    boot_policy: Docker-LocalBoot
-    server_pool: Docker-Node
-    host_fw_package: default
-    bios_policy: Docker-BiosPol
 
 service_profile_list:
-  - name: DDC-DTR-1
-    src_templ_name: Docker-DTR
-
-  - name: DDC-DTR-2
-    src_templ_name: Docker-DTR
-
-  - name: UCP-Ctrl-1
-    src_templ_name: Docker-UCP-Ctrl
-
-  - name: UCP-Ctrl-2
-    src_templ_name: Docker-UCP-Ctrl
-
-  - name: UCP-Node-1
-    src_templ_name: Docker-UCP-Node
-
-  - name: UCP-Node-2
-    src_templ_name: Docker-UCP-Node
-
+  - name: node01
+    src_templ_name: KUBAM
+  - name: node02
+    src_templ_name: KUBAM
+  - name: node03
+    src_templ_name: KUBAM

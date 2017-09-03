@@ -73,7 +73,7 @@ def _argument_mo():
                 org_dn=dict(type='str', default="org-root"),
                 descr=dict(type='str', default=""),
                 retry=dict(type='str', default="yes"),
-                mounts=dict(type='list', required=True)
+                mounts=dict(type='list')
     )
 
 
@@ -106,7 +106,6 @@ def _ansible_module_create():
     argument_spec.update(_argument_connection())
     argument_spec.update(_argument_mo())
     argument_spec.update(_argument_custom())
-
     return AnsibleModule(argument_spec,
                          supports_check_mode=True)
 
@@ -126,20 +125,26 @@ def setup_vmedia_policy(server, module):
     from ucsmsdk.mometa.cimcvmedia.CimcvmediaMountConfigPolicy import CimcvmediaMountConfigPolicy
     from ucsmsdk.mometa.cimcvmedia.CimcvmediaConfigMountEntry import CimcvmediaConfigMountEntry
 
+    print module
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
-    
+     
     changed = False
     policy = args_mo['name']    
     mo = server.query_dn(args_mo['org_dn']+"/mnt-cfg-policy-"+policy)
     exists = False
     if mo:
         exists = True
+
+
     if ansible['state'] == 'absent':
-        changed = True
-        if not module.check_mode:
-            server.remove_mo(mo)
-            server.commit()
+        if mo: 
+            changed = True
+            if not module.check_mode:
+                server.remove_mo(mo)
+                server.commit()
+        else:
+            changed = False
     else:
         if not exists:
             changed = True

@@ -127,6 +127,8 @@ def setup_spt(server, module):
                 changed = True
                 if not module.check_mode:
                     # create if mo does not already exist
+                    if not 'vmedia_policy' in spt:
+                        spt['vmedia_policy'] = ''
                     mo =  LsServer(parent_mo_or_dn=args_mo['org_dn'],
 	                           name=spt['name'],
                                    type=spt['template_type'],
@@ -152,18 +154,24 @@ def setup_spt(server, module):
                                    scrub_policy_name='',
                                    sol_policy_name='',
                                    stats_policy_name='',
-                                   vmedia_policy_name=''
+                                   vmedia_policy_name=spt['vmedia_policy']
                                    )
                     if(spt['server_pool'] <> ''): 
                         mo_1 = LsRequirement(parent_mo_or_dn=mo, name=spt['server_pool'])
                     if(spt['storage_profile'] <> ''):
                         mo_1 = LstorageProfileBinding(parent_mo_or_dn=mo, storage_profile_name=spt['storage_profile'])
-                    if(spt['san_connectivity_policy'] <> ''):
+                    if 'san_connectivity_policy' in spt:
                         mo_1 = VnicConnDef(parent_mo_or_dn=mo,
 		                           san_conn_policy_name=spt['san_connectivity_policy'])
-    	            for vnic in spt['vnic_list']:
-	                if(vnic['vnic_name'] <> '' and vnic['vnic_template'] <> ''):
-                            mo_1 = VnicEther(parent_mo_or_dn=mo, adaptor_profile_name=vnic['vnic_adapter_policy'], order=vnic['vnic_order'], name=vnic['vnic_name'], nw_templ_name=vnic['vnic_template'])
+                    if 'vnic_list' in spt: 
+                        for vnic in spt['vnic_list']:
+                            if(vnic['vnic_name'] <> '' and vnic['vnic_template'] <> ''):
+                                mo_1 = VnicEther(parent_mo_or_dn=mo, adaptor_profile_name=vnic['vnic_adapter_policy'], order=vnic['vnic_order'], name=vnic['vnic_name'], nw_templ_name=vnic['vnic_template'])
+
+                    if(spt['lan_connectivity_policy'] <> ''):
+                        mo_x = VnicConnDef(parent_mo_or_dn=mo,
+                                    lan_conn_policy_name=spt['lan_connectivity_policy'])
+    # create server pool and add to template.
                     server.add_mo(mo, True)
                     server.commit()
     
