@@ -41,7 +41,7 @@ lan_conn_list:
       adapter_policy: Linux
 
 boot_devices:
-  - {"device_order":"1", "device_name": "local_lun"}
+  - {"device_order":"1", "device_name": "local_disk"}
   - {"device_order":"2", "device_name": "cd_dvd_cimc"}
 
 storage_profile:
