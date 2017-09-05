@@ -10,22 +10,22 @@
   connection: local
   gather_facts: no
   roles:
-  - network
+#  - network
   - storage
-  - server
-  tasks:
-  - name: KUBAM Service Profile
-    cisco_ucs_spt:
-      spt_list: "{{ service_profile_template }}"
-      ucs_ip: "{{ ucs_ip}}"
-      ucs_username: "{{ ucs_username }}"
-      ucs_password: "{{ ucs_password }}" 
-  - name: KUBAM Service Profiles
-    cisco_ucs_sp:
-      sp_list: "{{ service_profile_list }}"
-      ucs_ip: "{{ ucs_ip}}"
-      ucs_username: "{{ ucs_username }}"
-      ucs_password: "{{ ucs_password }}" 
+#  - server
+#  tasks:
+#  - name: KUBAM Service Profile
+#    cisco_ucs_spt:
+#      spt_list: "{{ service_profile_template }}"
+#      ucs_ip: "{{ ucs_ip}}"
+#      ucs_username: "{{ ucs_username }}"
+#      ucs_password: "{{ ucs_password }}" 
+#  - name: KUBAM Service Profiles
+#    cisco_ucs_sp:
+#      sp_list: "{{ service_profile_list }}"
+#      ucs_ip: "{{ ucs_ip}}"
+#      ucs_username: "{{ ucs_username }}"
+#      ucs_password: "{{ ucs_password }}" 
 
 
 
