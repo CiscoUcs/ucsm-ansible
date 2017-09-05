@@ -49,9 +49,17 @@
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
 
+- name: ensure KUBAM scrub policy is created
+  cisco_ucs_scrub_policy:
+    name: "KUBAM"
+    descr: "Destroy disks when disassociated."
+    disk_scrub: "yes"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+    
 
 #TODO: BIOS policy to do naming of NICs. 
-#TODO: Scrub policy
 
     
     

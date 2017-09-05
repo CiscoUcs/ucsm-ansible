@@ -10,11 +10,11 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_scrub_policy
-short_description: configures scrub policy on a cisco ucs server
+module: cisco_ucs_bios_policy
+short_description: configures bios policy on a cisco ucs server
 version_added: 0.9.0.0
 description:
-   -  configures scrub policy on a cisco ucs server
+   -  configures bios policy on a cisco ucs server
 options:
     state:
         description:
@@ -25,7 +25,7 @@ options:
         default: "present"
     name:
         version_added: "1.0(1e)"
-        description: scrub policy name
+        description: bios policy name
         required: true
     org_dn:
         description: org dn
@@ -44,7 +44,7 @@ options:
         default: yes
     mounts:
         version_added: "1.0(1e)"
-        description: list of scrub mounts
+        description: list of bios mounts
 
 requirements: ['ucsmsdk', 'ucsm_apis']
 author: "Cisco Systems Inc(ucs-python@cisco.com)"
@@ -53,7 +53,7 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_scrub_policy:
+  cisco_ucs_bios_policy:
     name: KUBAM
     descr: Destroy disk when dissasociated. 
     ucs_ip: 192.168.1.1
@@ -67,15 +67,15 @@ def _argument_mo():
                 name=dict(required=True, type='str'),
                 org_dn=dict(type='str', default="org-root"),
                 descr=dict(required=False, type='str', default=""),
-                flex_flash_scrub=dict(required=False, 
+                reboot_on_update=dict(required=False, 
                                 choices=['yes', 'no'],
                                 type='str', default="no"),
-                bios_scrub=dict(required=False, 
-                                choices=['yes', 'no'],
-                                type='str', default="no"),
-                disk_scrub=dict(required=False, 
-                                choices=['yes', 'no'],
-                                type='str', default="no")
+                resume_on_power_loss=dict(required=False,
+                                choices=['last-state'],
+                                type='str', default="platform-default"),
+                cdn_control=dict(required=False, 
+                                choices=['enabled', 'disabled'],
+                                type='str', default="disabled")
     )
 
 
@@ -123,7 +123,7 @@ def _get_mo_params(params):
     return args
 
 
-def setup_scrub_policy(server, module):
+def setup_bios_policy(server, module):
     from ucsmsdk.mometa.compute.ComputeScrubPolicy import ComputeScrubPolicy
     
 
@@ -132,7 +132,7 @@ def setup_scrub_policy(server, module):
      
     changed = False
     policy = args_mo['name']    
-    mo = server.query_dn(args_mo['org_dn']+"/scrub-"+policy)
+    mo = server.query_dn(args_mo['org_dn']+"/bios-"+policy)
     exists = False
     if mo:
         exists = True
@@ -148,16 +148,16 @@ def setup_scrub_policy(server, module):
         if not exists:
             changed = True
             if not module.check_mode:
-                for i in ["flex_flash_scrub", "bios_scrub", "disk_scrub"]:
+                for i in ["flex_flash_bios", "bios_bios", "disk_bios"]:
                     if not i in args_mo:
                         args_mo[i] = "no"
                 if not "descr" in args_mo:
                     args_mo["descr"] =""
                     
                 mo = ComputeScrubPolicy(name=args_mo['name'],
-                    flex_flash_scrub=args_mo['flex_flash_scrub'],
-                    bios_settings_scrub=args_mo['bios_scrub'],
-                    disk_scrub=args_mo['disk_scrub'],
+                    flex_flash_bios=args_mo['flex_flash_bios'],
+                    bios_settings_bios=args_mo['bios_bios'],
+                    disk_bios=args_mo['disk_bios'],
                     descr=args_mo['descr'])
                 server.add_mo(mo, True) 
                 server.commit()
@@ -169,7 +169,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_scrub_policy(server, module)
+        result["changed"] = setup_bios_policy(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)
