@@ -10,8 +10,8 @@
   connection: local
   gather_facts: no
   roles:
-  #- network
-  #- storage
+  - network
+  - storage
   - server
   tasks:
   - name: KUBAM Service Profile
