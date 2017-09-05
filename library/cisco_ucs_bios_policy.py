@@ -71,7 +71,7 @@ def _argument_mo():
                                 choices=['yes', 'no'],
                                 type='str', default="no"),
                 resume_on_power_loss=dict(required=False,
-                                choices=['last-state'],
+                                choices=['last-state', 'platform-default'],
                                 type='str', default="platform-default"),
                 cdn_control=dict(required=False, 
                                 choices=['enabled', 'disabled'],
@@ -83,7 +83,7 @@ def _argument_custom():
     return dict(
         state=dict(default="present",
                    choices=['present', 'absent'],
-                   type='str'),
+                   type='str')
     )
 
 
@@ -124,7 +124,12 @@ def _get_mo_params(params):
 
 
 def setup_bios_policy(server, module):
-    from ucsmsdk.mometa.compute.ComputeScrubPolicy import ComputeScrubPolicy
+    from ucsmsdk.mometa.bios.BiosVProfile import BiosVProfile
+    from ucsmsdk.mometa.bios.BiosVfConsistentDeviceNameControl import BiosVfConsistentDeviceNameControl
+    from ucsmsdk.mometa.bios.BiosVfFrontPanelLockout import BiosVfFrontPanelLockout
+    from ucsmsdk.mometa.bios.BiosVfPOSTErrorPause import BiosVfPOSTErrorPause
+    from ucsmsdk.mometa.bios.BiosVfQuietBoot import BiosVfQuietBoot
+    from ucsmsdk.mometa.bios.BiosVfResumeOnACPowerLoss import BiosVfResumeOnACPowerLoss
     
 
     ansible = module.params
@@ -148,17 +153,20 @@ def setup_bios_policy(server, module):
         if not exists:
             changed = True
             if not module.check_mode:
-                for i in ["flex_flash_bios", "bios_bios", "disk_bios"]:
-                    if not i in args_mo:
-                        args_mo[i] = "no"
-                if not "descr" in args_mo:
-                    args_mo["descr"] =""
-                    
-                mo = ComputeScrubPolicy(name=args_mo['name'],
-                    flex_flash_bios=args_mo['flex_flash_bios'],
-                    bios_settings_bios=args_mo['bios_bios'],
-                    disk_bios=args_mo['disk_bios'],
+                if not 'reboot_on_update' in args_mo: 
+                    args_mo['reboot_on_update'] = "no"
+                mo = BiosVProfile(
+                    parent_mo_or_dn=args_mo['org_dn'],
+                    name=args_mo['name'],
+                    reboot_on_update=args_mo['reboot_on_update'],
                     descr=args_mo['descr'])
+                
+                if 'reboot_on_power_loss' in args_mo:
+                    m_1 = BiosVfResumeOnACPowerLoss(parent_mo_or_dn=mo, vp_resume_on_ac_power_loss=args_mo['reboot_on_power_loss'])            
+                # consistent device naming.  
+                if 'cdn_control' in args_mo: 
+                    mo_2 = BiosVfConsistentDeviceNameControl(parent_mo_or_dn=mo, vp_cdn_control="enabled")
+                
                 server.add_mo(mo, True) 
                 server.commit()
 

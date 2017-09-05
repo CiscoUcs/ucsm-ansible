@@ -61,7 +61,9 @@ service_profile_template:
     template_type: updating-template
     uuid_pool: KUBAM
     storage_profile: KUBAM
-    bios_policy: default
+    bios_policy: KUBAM
+    scrub_policy: KUBAM
+    server_pool: KUBAM
     boot_policy: KUBAM
     vmedia_policy: KUBAM
     lan_connectivity_policy: KUBAM
@@ -69,8 +71,8 @@ service_profile_template:
 
 service_profile_list:
   - name: node01
-    src_templ_name: KUBAM
+    src_templ_name: KUBAM-ESXi
   - name: node02
-    src_templ_name: KUBAM
+    src_templ_name: KUBAM-ESXi
   - name: node03
-    src_templ_name: KUBAM
+    src_templ_name: KUBAM-ESXi

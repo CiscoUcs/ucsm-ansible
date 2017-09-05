@@ -83,7 +83,7 @@ def _argument_custom():
     return dict(
         state=dict(default="present",
                    choices=['present', 'absent'],
-                   type='str'),
+                   type='str')
     )
 
 
@@ -125,7 +125,6 @@ def _get_mo_params(params):
 
 def setup_scrub_policy(server, module):
     from ucsmsdk.mometa.compute.ComputeScrubPolicy import ComputeScrubPolicy
-    
 
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
@@ -154,7 +153,9 @@ def setup_scrub_policy(server, module):
                 if not "descr" in args_mo:
                     args_mo["descr"] =""
                     
-                mo = ComputeScrubPolicy(name=args_mo['name'],
+                mo = ComputeScrubPolicy(
+                    parent_mo_or_dn=args_mo['org_dn'],
+                    name=args_mo['name'],
                     flex_flash_scrub=args_mo['flex_flash_scrub'],
                     bios_settings_scrub=args_mo['bios_scrub'],
                     disk_scrub=args_mo['disk_scrub'],

@@ -129,6 +129,9 @@ def setup_spt(server, module):
                     # create if mo does not already exist
                     if not 'vmedia_policy' in spt:
                         spt['vmedia_policy'] = ''
+                    if not 'scrub_policy' in spt: 
+                        spt['scrub_policy'] = ''
+
                     mo =  LsServer(parent_mo_or_dn=args_mo['org_dn'],
 	                           name=spt['name'],
                                    type=spt['template_type'],
@@ -151,7 +154,7 @@ def setup_spt(server, module):
                                    mgmt_access_policy_name='',
                                    mgmt_fw_policy_name='',
                                    power_policy_name='',
-                                   scrub_policy_name='',
+                                   scrub_policy_name=spt['scrub_policy'],
                                    sol_policy_name='',
                                    stats_policy_name='',
                                    vmedia_policy_name=spt['vmedia_policy']

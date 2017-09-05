@@ -1,5 +1,23 @@
 ---
-# This role contains tasks for configuring LAN settings.
+- name: ensure KUBAM bios policy is created
+  cisco_ucs_bios_policy:
+    name: "KUBAM"
+    descr: "Make sure the BIOS policy allows for cdn control."
+    cdn_control: "enabled"
+    resume_on_power_loss: "last-state"
+    reboot_on_update: "yes"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+
+- name: ensure KUBAM scrub policy is created
+  cisco_ucs_scrub_policy:
+    name: "KUBAM"
+    descr: "Destroy disks when disassociated."
+    disk_scrub: "yes"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
 
 - name: Ensure virtual media policy is created.
   cisco_ucs_vmedia_policy:
@@ -49,17 +67,3 @@
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
 
-- name: ensure KUBAM scrub policy is created
-  cisco_ucs_scrub_policy:
-    name: "KUBAM"
-    descr: "Destroy disks when disassociated."
-    disk_scrub: "yes"
-    ucs_ip: "{{ucs_ip}}"
-    ucs_username: "{{ucs_username}}"
-    ucs_password: "{{ucs_password}}"
-    
-
-#TODO: BIOS policy to do naming of NICs. 
-
-    
-    
