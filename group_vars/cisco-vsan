@@ -1,3 +1,13 @@
+qos_policies:
+  - name: test
+    priority: best-effort
+    host_control: full
+  - name: gold
+    priority: gold
+  - name: silver
+    priority: silver
+    
+
 mac_list:
   - name: cisco-vsan-A
     order: sequential
@@ -26,12 +36,14 @@ vnic_list:
     side: A
     mac_pool: cisco-vsan-A
     description: cisco-vsan A side VNIC
+    qos: gold
     vlans: 
     - vTEP
     - vMotion
     mtu: "9000"
   - name: cisco-vsan-data-B
     side: B
+    qos: gold
     mac_pool: cisco-vsan-B
     description: cisco-vsan B side VNIC
     vlans: 

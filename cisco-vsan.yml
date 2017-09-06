@@ -10,9 +10,9 @@
   connection: local
   gather_facts: no
   roles:
-  #- network
+  - network
   #- storage
-  - server
+  #- server
   #tasks:
   #- name: Ensure Service Profile Templates exist
   #  cisco_ucs_spt:
