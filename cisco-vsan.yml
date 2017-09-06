@@ -1,0 +1,28 @@
+---
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+  - common
+
+- hosts: cisco-vsan
+  connection: local
+  gather_facts: no
+  roles:
+  #- network
+  #- storage
+  - server
+  #tasks:
+  #- name: Ensure Service Profile Templates exist
+  #  cisco_ucs_spt:
+  #    spt_list: "{{ service_profile_template }}"
+  #    ucs_ip: "{{ ucs_ip}}"
+  #    ucs_username: "{{ ucs_username }}"
+  #    ucs_password: "{{ ucs_password }}" 
+  #- name: Ensure Service Profiles exist
+  #  cisco_ucs_sp:
+  #    sp_list: "{{ service_profile_list }}"
+  #    ucs_ip: "{{ ucs_ip}}"
+  #    ucs_username: "{{ ucs_username }}"
+  #    ucs_password: "{{ ucs_password }}"

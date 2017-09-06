@@ -136,12 +136,11 @@ def setup_bios_policy(server, module):
     args_mo  =  _get_mo_params(ansible)
      
     changed = False
-    policy = args_mo['name']    
-    mo = server.query_dn(args_mo['org_dn']+"/bios-"+policy)
     exists = False
+    policy = args_mo['name']    
+    mo = server.query_dn(args_mo['org_dn']+"/bios-prof-"+policy)
     if mo:
         exists = True
-
 
     if ansible['state'] == 'absent':
         if exists: 

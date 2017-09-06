@@ -102,8 +102,8 @@ def update_nic(server, vnic, org):
     # create if mo does not already exist
     if not "description" in vnic:
         vnic["description"] = "" 
-    if not "qos_policy_name" in vnic:
-        vnic["qos_policy_name"] = ""
+    if not "qos_policy" in vnic:
+        vnic["qos_policy"] = ""
     if not "mtu" in vnic:
         vnic["mtu"] = "1500"
     if not "stats_policy" in vnic:
@@ -116,7 +116,7 @@ def update_nic(server, vnic, org):
         if vnic["updating"] == "yes":
             vnic["updating"] = "updating-template"
         else:
-            vnic["updating"] = "static-template"
+            vnic["updating"] = "initial-template"
     else:
         vnic["updating"] = "updating-template"
 
@@ -128,7 +128,7 @@ def update_nic(server, vnic, org):
                           ident_pool_name=vnic['mac_pool'],
                           name=vnic['name'],
                           mtu=vnic['mtu'],
-                          qos_policy_name=vnic['qos_policy_name'],
+                          qos_policy_name=vnic['qos_policy'],
                           stats_policy_name=vnic['stats_policy'],
                           nw_ctrl_policy_name=vnic['nw_ctrl_policy'],
                           switch_id=vnic['side'])
@@ -147,6 +147,41 @@ def update_nic(server, vnic, org):
     server.add_mo(mo, True)
     server.commit()
 
+def check_templ(mo, vnic):
+    if "updating" in vnic:
+        if vnic["updating"] == "yes" and mo.templ_type == "updating-template":
+            # no change.
+            return False
+        elif vnic["updating"] == "no" and mo.templ_type == "initial-template":
+            # no change.
+            return False
+
+    if not mo.templ_type == "updating-template":
+        return False
+
+    return False
+
+# compares existing VNIC template to see if something changed. 
+def did_change(mo, vnic):
+    # go through each part.
+    if not mo.switch_id == vnic["side"]:
+        return True   
+    if "mtu" in vnic:
+        if not mo.mtu == vnic["mtu"]:
+            return True
+    else:
+        if mo.mtu != "1500":
+            return True
+
+    if not mo.ident_pool_name == vnic["mac_pool"]:
+        return True
+    #if check_templ(mo, vnic):
+    #    return True
+    
+    return False
+    
+
+
 def setup_vnic_template(server, module):
     from ucsmsdk.mometa.vnic.VnicLanConnTempl import VnicLanConnTempl
     from ucsmsdk.mometa.vnic.VnicEtherIf import VnicEtherIf
@@ -164,7 +199,7 @@ def setup_vnic_template(server, module):
 
         if ansible['state'] == 'absent':
             if exists:
-                changed = True
+                changed == True
                 if not module.check_mode:
                     server.remove_mo(mo)
                     server.commit()
@@ -173,6 +208,12 @@ def setup_vnic_template(server, module):
                 changed = True
                 if not module.check_mode:
                     update_nic(server, vnic, args_mo['org_dn'])
+            else:
+                ch = did_change(mo, vnic)
+                if ch == True:
+                    changed = True
+                    if not module.check_mode:
+                        update_nic(server, vnic, args_mo['org_dn'])
 
     return changed
 
