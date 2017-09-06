@@ -10,11 +10,11 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_storage_profile
-short_description: configures storage profiles on cisco ucs manager
+module: cisco_ucs_lan_connectivity
+short_description: configures lan connectivity policies on cisco ucs manager
 version_added: 0.9.0.0
 description:
-   -  configures storage profiles on cisco ucs manager
+   -  configures lan connectivity policies on cisco ucs manager
 options:
     state:
         description:
@@ -23,8 +23,8 @@ options:
         required: false
         choices: ['present', 'absent']
         default: 'present'
-    storage_profile:
-        description: storage_profile dictionary
+    lan_conn_list:
+        description: list of lan conn dictionaries
         required: true
     org_dn:
         description: org dn
@@ -38,9 +38,9 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_storage_profile:
-    storage_profile:
-      name: Docker-StgProf
+  cisco_ucs_lan_connectivity:
+    lan_conn_list:
+      - {"name":"Docker-DTR"...
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"
@@ -49,7 +49,7 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
-                storage_profile=dict(required=True, type='dict'),
+                lan_conn_list=dict(required=True, type='list'),
                 org_dn=dict(type='str', default="org-root"),
     )
 
@@ -97,46 +97,45 @@ def _get_mo_params(params):
     return args
 
 
-def setup_storage_profile(server, module):
-    from ucsmsdk.mometa.lstorage.LstorageProfile import LstorageProfile
-    from ucsmsdk.mometa.lstorage.LstorageDasScsiLun import LstorageDasScsiLun
-   
+def setup_lan_connectivity(server, module):
+    from ucsmsdk.mometa.vnic.VnicLanConnPolicy import VnicLanConnPolicy
+    from ucsmsdk.mometa.vnic.VnicEther import VnicEther
+
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
 
     changed = False
 
-    mo = server.query_dn(args_mo['org_dn']+'/profile-'+args_mo['storage_profile']['name'])
-    if mo:
-        exists = True
-    else:
+    for lan_conn in args_mo['lan_conn_list']:
         exists = False
+        mo = server.query_dn(args_mo['org_dn']+'/lan-conn-pol-'+lan_conn['name'])
+        if mo:
+            exists = True
 
-    if ansible['state'] == 'absent':
-        if exists:
-            changed = True
-            if not module.check_mode:
-                server.remove_mo(mo)
-                server.commit()
-    else:
-        if not exists:
-            changed = True
-            if not module.check_mode:
-                # create if mo does not already exist
-                mo = LstorageProfile(parent_mo_or_dn=args_mo['org_dn'],
-                                     name=args_mo['storage_profile']['name'])
-                if(len(args_mo['storage_profile']['lun_list']) <> 0 ):
-                    for lun in args_mo['storage_profile']['lun_list'] :
-                        if not "expand" in lun:
-                            lun["expand"] = "no" 
-                        mo_1 = LstorageDasScsiLun(parent_mo_or_dn=mo,
-	                                          local_disk_policy_name=lun['disk_group_policy'],
-                                                  expand_to_avail=lun['expand'],
-				                  name=lun['lun_name'],
-				                  size=lun['size'])
-                server.add_mo(mo, True)
-                server.commit()
+        if ansible['state'] == 'absent':
+            if exists:
+                changed = True
+                if not module.check_mode:
+                    server.remove_mo(mo)
+                    server.commit()
+        else:
+            if not exists:
+                changed = True
+                if not module.check_mode:
+                    # create if mo does not already exist
+	            mo = VnicLanConnPolicy(parent_mo_or_dn=args_mo['org_dn'],
+	                                   name=lan_conn['name'])
+                    for vnic in lan_conn['vnic_list']:
+                        mo_2 = VnicEther(parent_mo_or_dn=mo,
+                                      addr="derived",
+		                      adaptor_profile_name=vnic['adapter_policy'],
+			              order=vnic['order'],
+			              name=vnic['name'],
+			              nw_templ_name=vnic['vnic_template'])
 
+                    server.add_mo(mo, True)
+                    server.commit()
+    
     return changed
 
 
@@ -145,7 +144,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_storage_profile(server, module)
+        result["changed"] = setup_lan_connectivity(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)

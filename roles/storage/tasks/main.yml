@@ -1,0 +1,17 @@
+---
+# This role contains tasks for configuring storage settings
+
+- name: ensure KUBAM disk group policy
+  cisco_ucs_disk_group_policy:
+    disk_group_policy: "{{ disk_group_policy }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+    
+
+- name: ensure KUBAM storage profile exists
+  cisco_ucs_storage_profile:
+    storage_profile: "{{ storage_profile }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"

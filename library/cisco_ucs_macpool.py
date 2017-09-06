@@ -10,11 +10,11 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_storage_profile
-short_description: configures storage profiles on cisco ucs manager
+module: cisco_ucs_macpool
+short_description: configures mac pools on cisco ucs manager
 version_added: 0.9.0.0
 description:
-   -  configures storage profiles on cisco ucs manager
+   -  configures mac pools on cisco ucs manager
 options:
     state:
         description:
@@ -23,8 +23,9 @@ options:
         required: false
         choices: ['present', 'absent']
         default: 'present'
-    storage_profile:
-        description: storage_profile dictionary
+    mac_list:
+        description: mac_list
+        - {"name": "", "from": "", "to": ""}
         required: true
     org_dn:
         description: org dn
@@ -38,9 +39,9 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_storage_profile:
-    storage_profile:
-      name: Docker-StgProf
+  cisco_ucs_macpool:
+    mac_list:
+      - {"name":"mac-A", "from":"0000-000000000001", "to":"0000-0000000001f4"}
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"
@@ -49,7 +50,7 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
-                storage_profile=dict(required=True, type='dict'),
+                mac_list=dict(required=True, type='list'),
                 org_dn=dict(type='str', default="org-root"),
     )
 
@@ -78,9 +79,9 @@ def _argument_connection():
 
 def _ansible_module_create():
     argument_spec = dict()
-    argument_spec.update(_argument_connection())
     argument_spec.update(_argument_mo())
     argument_spec.update(_argument_custom())
+    argument_spec.update(_argument_connection())
 
     return AnsibleModule(argument_spec,
                          supports_check_mode=True)
@@ -97,45 +98,45 @@ def _get_mo_params(params):
     return args
 
 
-def setup_storage_profile(server, module):
-    from ucsmsdk.mometa.lstorage.LstorageProfile import LstorageProfile
-    from ucsmsdk.mometa.lstorage.LstorageDasScsiLun import LstorageDasScsiLun
-   
+def setup_macpool(server, module):
+    from ucsmsdk.mometa.macpool.MacpoolPool import MacpoolPool
+    from ucsmsdk.mometa.macpool.MacpoolBlock import MacpoolBlock
+
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
-
+    
     changed = False
 
-    mo = server.query_dn(args_mo['org_dn']+'/profile-'+args_mo['storage_profile']['name'])
-    if mo:
-        exists = True
-    else:
+    for mac in args_mo['mac_list']:
         exists = False
+        mo = server.query_dn(args_mo['org_dn']+'/mac-pool-'+ mac['name'])
+        if mo:
+            exists = True
 
-    if ansible['state'] == 'absent':
-        if exists:
-            changed = True
-            if not module.check_mode:
-                server.remove_mo(mo)
-                server.commit()
-    else:
-        if not exists:
-            changed = True
-            if not module.check_mode:
-                # create if mo does not already exist
-                mo = LstorageProfile(parent_mo_or_dn=args_mo['org_dn'],
-                                     name=args_mo['storage_profile']['name'])
-                if(len(args_mo['storage_profile']['lun_list']) <> 0 ):
-                    for lun in args_mo['storage_profile']['lun_list'] :
-                        if not "expand" in lun:
-                            lun["expand"] = "no" 
-                        mo_1 = LstorageDasScsiLun(parent_mo_or_dn=mo,
-	                                          local_disk_policy_name=lun['disk_group_policy'],
-                                                  expand_to_avail=lun['expand'],
-				                  name=lun['lun_name'],
-				                  size=lun['size'])
-                server.add_mo(mo, True)
-                server.commit()
+        if ansible['state'] == 'absent':
+            if exists:
+                changed = True
+                if not module.check_mode:
+                    server.remove_mo(mo)
+                    server.commit()
+        else:
+            if not exists:
+                changed = True
+                if not module.check_mode:
+    	            # create if mo does not already exist
+                    if not "description" in mac:
+                        mac["description"] = "" 
+                    mo = MacpoolPool(parent_mo_or_dn=args_mo['org_dn'],
+                                        name=mac["name"],
+                                        descr=mac["description"],
+                                        assignment_order=mac["order"])
+                                        
+                    if(mac['to'] <> '' and mac['from'] <> ''):
+                        mo_1= MacpoolBlock(parent_mo_or_dn=mo,
+                                          to=mac['to'],
+                                          r_from=mac['from'])
+                    server.add_mo(mo)
+                    server.commit()
 
     return changed
 
@@ -145,7 +146,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_storage_profile(server, module)
+        result["changed"] = setup_macpool(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)

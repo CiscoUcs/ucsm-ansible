@@ -1,0 +1,29 @@
+---
+# This role contains tasks for configuring LAN settings.
+
+- name: ensure MAC pools are in place
+  cisco_ucs_macpool:
+    mac_list: "{{ mac_list }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+    
+- name: ensure vNIC templates are in place
+  cisco_ucs_vnic_template:
+    vnic_list: "{{ vnic_list }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+    #state: absent
+
+- name: encure LAN connectivity policy is in place
+  cisco_ucs_lan_connectivity: 
+    lan_conn_list: "{{ lan_conn_list }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+    #state: absent
+  
+
+
+

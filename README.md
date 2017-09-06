@@ -23,7 +23,7 @@ sudo make install
 ```
 - clone this repository and install the ansible modules
 ```
-git clone https://github.com/ciscoucs/ucsm-ansible
+git clone https://github.com/vallard/ucsm-ansible
 cd ucsm-ansible
 sudo python install.py
 ```
