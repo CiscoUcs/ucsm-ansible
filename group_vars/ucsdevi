@@ -54,7 +54,6 @@ storage_profile:
 
 disk_group_policy: {"name":"KUBAM-Boot", "RAID_level":"mirror", "disk_slot_numbers": ["1", "2"]}
 
-storage_profile
 
 service_profile_template:
   - name: KUBAM-ESXi

@@ -123,18 +123,39 @@ def setup_vnic_template(server, module):
                 changed = True
                 if not module.check_mode:
                     # create if mo does not already exist
-                    #if not "description" in vnic:
-                    #    vnic["description"] = "" 
-                    #if not "qos_policy_name" in vnic:
-                    #    vnic["qos_policy_name"] = ""
+                    if not "description" in vnic:
+                        vnic["description"] = "" 
+                    if not "qos_policy_name" in vnic:
+                        vnic["qos_policy_name"] = ""
                     if not "mtu" in vnic:
                         vnic["mtu"] = "1500"
+                    if not "stats_policy" in vnic:
+                        vnic["stats_policy"] = "default"
+
+                    # default template is updating, this is different than  
+                    # standard UCS because UCS made the wrong decision for
+                    # default.  
+                    if "updating" in vnic:
+                        if vnic["updating"] == "yes":
+                            vnic["updating"] = "updating-template"
+                        else:
+                            vnic["updating"] = "static-template"
+                    else:
+                        vnic["updating"] = "updating-template"
+
+
+                    if not "nw_ctrl_policy" in vnic:
+                        vnic["nw_ctrl_policy"] = ""
+
 	            mo = VnicLanConnTempl(parent_mo_or_dn=args_mo['org_dn'],
+                                          templ_type=vnic['updating'],
                                           descr=vnic['description'],    
 	                                  ident_pool_name=vnic['mac_pool'],
 				          name=vnic['name'],
                                           mtu=vnic['mtu'],
-                                          #qos_policy_name=vnic['qos_policy_name'],
+                                          qos_policy_name=vnic['qos_policy_name'],
+                                          stats_policy_name=vnic['stats_policy'],
+                                          nw_ctrl_policy_name=vnic['nw_ctrl_policy'],
 		    		          switch_id=vnic['side'])
 
                     # make the first network the native vlan
