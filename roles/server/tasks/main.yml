@@ -1,7 +1,15 @@
 ---
-- name: ensure KUBAM bios policy is created
+- name: Ensure server pool is created
+  cisco_ucs_server_pool: 
+    pool: "{{ server_pool_list }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+    
+
+- name: Ensure bios policy is created
   cisco_ucs_bios_policy:
-    name: "KUBAM"
+    name: "{{ bios_policy_name }}"
     descr: "Make sure the BIOS policy allows for cdn control."
     cdn_control: "enabled"
     resume_on_power_loss: "last-state"
@@ -10,9 +18,9 @@
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
 
-- name: ensure KUBAM scrub policy is created
+- name: Ensure scrub policy is created
   cisco_ucs_scrub_policy:
-    name: "KUBAM"
+    name: "{{ scrub_policy_name }}"
     descr: "Destroy disks when disassociated."
     disk_scrub: "yes"
     ucs_ip: "{{ucs_ip}}"
@@ -21,7 +29,7 @@
 
 - name: Ensure virtual media policy is created.
   cisco_ucs_vmedia_policy:
-    name: KUBAM
+    name: "{{ vmedia_policy_name }}"
     descr: OS Boot VMedia
     retry: "yes"
     mounts:
@@ -32,35 +40,28 @@
       remote_ip: 172.28.225.135
       file: variable
       path: kubam
-    - name: redhat7.3
-      descr: CentOS image
-      device: hdd
-      protocol: http
-      remote_ip: 172.28.225.135
-      file: "centos.img"
-      path: kubam
     ucs_ip: "{{ucs_ip}}"
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
 
-- name: ensure KUBAM boot policy
+- name: Ensure boot policy is created
   cisco_ucs_boot_policy: 
-    name: KUBAM
+    name: "{{ boot_policy_name }}"
     reboot_on_update: "yes"
     enforce_vnic_name: "yes"
     ucs_ip: "{{ucs_ip}}"
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
     
-- name: ensure KUBAM boot order
+- name: Ensure boot order policy is created
   cisco_ucs_boot_order:
-    name: KUBAM
+    name: "{{ boot_order_name }}"
     devices: "{{ boot_devices }}"
     ucs_ip: "{{ucs_ip}}"
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
 
-- name: ensure KUBAM UUID pool is created
+- name: ensure UUID pool is created
   cisco_ucs_uuid:
     uuid_pool: "{{ uuid_pool }}"
     ucs_ip: "{{ucs_ip}}"

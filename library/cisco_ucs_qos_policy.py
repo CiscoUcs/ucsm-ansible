@@ -10,11 +10,11 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_bios_policy
-short_description: configures bios policy on a cisco ucs server
+module: cisco_ucs_qos_policy
+short_description: configures qos policy on a cisco ucs server
 version_added: 0.9.0.0
 description:
-   -  configures bios policy on a cisco ucs server
+   -  configures qos policy on a cisco ucs server
 options:
     state:
         description:
@@ -25,8 +25,18 @@ options:
         default: "present"
     name:
         version_added: "1.0(1e)"
-        description: bios policy name
+        description: qos policy name
         required: true
+    priority: 
+        version_added: "1.0(1e)"
+        description: fc, platinum, gold, silver, bronze, best-effort
+        required: false
+    burst:
+        version_added: "1.0(1e)"
+        description:  default 10240
+        required: false
+        
+        
     org_dn:
         description: org dn
         required: false
@@ -44,7 +54,7 @@ options:
         default: yes
     mounts:
         version_added: "1.0(1e)"
-        description: list of bios mounts
+        description: list of qos mounts
 
 requirements: ['ucsmsdk', 'ucsm_apis']
 author: "Cisco Systems Inc(ucs-python@cisco.com)"
@@ -53,29 +63,32 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_bios_policy:
+  cisco_ucs_qos_policy:
     name: KUBAM
-    descr: Destroy disk when dissasociated. 
-    ucs_ip: 192.168.1.1
-    ucs_username: admin
-    ucs_password: Cisco.123
+    descr: OS Boot VMedia
+    retry: yes
+    mounts:
+    - name: VMware Install Media
+      device: cdd
+      protocol: http
+      remote_ip: 172.28.225.135
+      path: kubam
+      file: service-profile-template
 '''
 
 
 def _argument_mo():
     return dict(
                 name=dict(required=True, type='str'),
+                priority=dict(required=True, type='str', 
+                    choices=["platinum", "gold", 
+                             "silver", "bronze", "best-effort"]),
+                rate=dict(required=False, type='str', default="line-rate"),
+                host_control=dict(required=False, type='str', 
+                    choices=["full", "none"], default="none"),
+                burst=dict(required=False, type='str', default="10240"),
                 org_dn=dict(type='str', default="org-root"),
-                descr=dict(required=False, type='str', default=""),
-                reboot_on_update=dict(required=False, 
-                                choices=['yes', 'no'],
-                                type='str', default="no"),
-                resume_on_power_loss=dict(required=False,
-                                choices=['last-state', 'platform-default'],
-                                type='str', default="platform-default"),
-                cdn_control=dict(required=False, 
-                                choices=['enabled', 'disabled'],
-                                type='str', default="disabled")
+                descr=dict(type='str', default="")
     )
 
 
@@ -83,7 +96,7 @@ def _argument_custom():
     return dict(
         state=dict(default="present",
                    choices=['present', 'absent'],
-                   type='str')
+                   type='str'),
     )
 
 
@@ -123,24 +136,21 @@ def _get_mo_params(params):
     return args
 
 
-def setup_bios_policy(server, module):
-    from ucsmsdk.mometa.bios.BiosVProfile import BiosVProfile
-    from ucsmsdk.mometa.bios.BiosVfConsistentDeviceNameControl import BiosVfConsistentDeviceNameControl
-    from ucsmsdk.mometa.bios.BiosVfFrontPanelLockout import BiosVfFrontPanelLockout
-    from ucsmsdk.mometa.bios.BiosVfPOSTErrorPause import BiosVfPOSTErrorPause
-    from ucsmsdk.mometa.bios.BiosVfQuietBoot import BiosVfQuietBoot
-    from ucsmsdk.mometa.bios.BiosVfResumeOnACPowerLoss import BiosVfResumeOnACPowerLoss
-    
+def setup_qos_policy(server, module):
+    from ucsmsdk.mometa.epqos.EpqosDefinition import EpqosDefinition
+    from ucsmsdk.mometa.epqos.EpqosEgress import EpqosEgress
 
+    print module
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
      
     changed = False
-    exists = False
     policy = args_mo['name']    
-    mo = server.query_dn(args_mo['org_dn']+"/bios-prof-"+policy)
+    mo = server.query_dn(args_mo['org_dn']+"/ep-qos-"+policy)
+    exists = False
     if mo:
         exists = True
+
 
     if ansible['state'] == 'absent':
         if exists: 
@@ -152,21 +162,17 @@ def setup_bios_policy(server, module):
         if not exists:
             changed = True
             if not module.check_mode:
-                if not 'reboot_on_update' in args_mo: 
-                    args_mo['reboot_on_update'] = "no"
-                mo = BiosVProfile(
+                nmo = EpqosDefinition(
                     parent_mo_or_dn=args_mo['org_dn'],
                     name=args_mo['name'],
-                    reboot_on_update=args_mo['reboot_on_update'],
                     descr=args_mo['descr'])
-                
-                if 'reboot_on_power_loss' in args_mo:
-                    m_1 = BiosVfResumeOnACPowerLoss(parent_mo_or_dn=mo, vp_resume_on_ac_power_loss=args_mo['reboot_on_power_loss'])            
-                # consistent device naming.  
-                if 'cdn_control' in args_mo: 
-                    mo_2 = BiosVfConsistentDeviceNameControl(parent_mo_or_dn=mo, vp_cdn_control="enabled")
-                
-                server.add_mo(mo, True) 
+                mo_x = EpqosEgress(parent_mo_or_dn=nmo,
+                    rate=args_mo['rate'],   
+                    host_control=args_mo['host_control'],
+                    prio=args_mo['priority'],
+                    burst=args_mo['burst'])
+
+                server.add_mo(nmo, True) 
                 server.commit()
 
     return changed
@@ -176,7 +182,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_bios_policy(server, module)
+        result["changed"] = setup_qos_policy(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)

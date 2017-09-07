@@ -1,6 +1,15 @@
 ---
-# This role contains tasks for configuring LAN settings.
-
+# This role contains tasks for configuring LAN settings in UCS.
+- name: ensure QoS groups are in place
+  cisco_ucs_qos_policy: 
+    name: "{{ item.name }}"
+    priority: "{{ item.priority }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+  with_items:
+    - "{{ qos_policies }}"
+    
 - name: ensure MAC pools are in place
   cisco_ucs_macpool:
     mac_list: "{{ mac_list }}"
@@ -14,7 +23,6 @@
     ucs_ip: "{{ucs_ip}}"
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
-    #state: absent
 
 - name: encure LAN connectivity policy is in place
   cisco_ucs_lan_connectivity: 
@@ -22,7 +30,6 @@
     ucs_ip: "{{ucs_ip}}"
     ucs_username: "{{ucs_username}}"
     ucs_password: "{{ucs_password}}"
-    #state: absent
   
 
 

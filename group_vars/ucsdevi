@@ -17,15 +17,15 @@ vnic_list:
     side: A
     mac_pool: KUBAM-A
     description: KUBAM A side VNIC
-    vlan: 
-    - default
+    default_vlan: default
+    vlans: 
     - vm-network
   - name: KUBAM-B
     side: B
     mac_pool: KUBAM-B
     description: KUBAM B side VNIC
-    vlan: 
-    - default
+    default_vlan: default
+    vlans: 
     - vm-network
 
 lan_conn_list:

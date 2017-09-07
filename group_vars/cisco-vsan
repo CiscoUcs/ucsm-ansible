@@ -1,0 +1,191 @@
+qos_policies:
+  - name: test
+    priority: best-effort
+    host_control: full
+  - name: gold
+    priority: gold
+  - name: silver
+    priority: silver
+    
+
+mac_list:
+  - name: cisco-vsan-A
+    order: sequential
+    description: cisco-vsan Side A
+    from: 00:25:B5:77:AA:00
+    to: 00:25:B5:77:AA:FF
+  - name: cisco-vsan-B
+    order: sequential
+    description: cisco-vsan Side B
+    from: 00:25:B5:77:BB:00
+    to: 00:25:B5:77:BB:FF
+vnic_list: 
+  - name: cisco-vsan-mgmt-A
+    side: A
+    mac_pool: cisco-vsan-A
+    description: cisco-vsan A side VNIC
+    vlans:
+    - ESXi-MGMT
+  - name: cisco-vsan-mgmt-B
+    side: B
+    mac_pool: cisco-vsan-B
+    description: cisco-vsan B side VNIC
+    vlans: 
+    - ESXi-MGMT
+  - name: cisco-vsan-data-A
+    side: A
+    mac_pool: cisco-vsan-A
+    description: cisco-vsan A side VNIC
+    qos: gold
+    vlans: 
+    - vTEP
+    - vMotion
+    mtu: "9000"
+  - name: cisco-vsan-data-B
+    side: B
+    qos: gold
+    mac_pool: cisco-vsan-B
+    description: cisco-vsan B side VNIC
+    vlans: 
+    - vTEP
+    - vMotion
+    mtu: "9000"
+  - name: cisco-vsan-vsan-A
+    side: A
+    mac_pool: cisco-vsan-A
+    description: cisco-vsan A side VNIC
+    vlans: 
+    - vSAN
+    mtu: "9000"
+  - name: cisco-vsan-vsan-B
+    side: B
+    mac_pool: cisco-vsan-B
+    description: cisco-vsan B side VNIC
+    vlans: 
+    - vSAN
+    mtu: "9000"
+
+lan_conn_list:
+  - name: cisco-vsan
+    vnic_list:
+    - name: eth0
+      vnic_template: cisco-vsan-mgmt-A
+      order: "1"
+      adapter_policy: VMWare
+    - name: eth1
+      vnic_template: cisco-vsan-mgmt-B
+      order: "2"
+      adapter_policy: VMWare
+    - name: eth2
+      vnic_template: cisco-vsan-data-A
+      order: "3"
+      adapter_policy: VMWare
+    - name: eth3
+      vnic_template: cisco-vsan-data-B
+      order: "4"
+      adapter_policy: VMWare
+    - name: eth4
+      vnic_template: cisco-vsan-vsan-A
+      order: "5"
+      adapter_policy: VMWare
+    - name: eth5
+      vnic_template: cisco-vsan-vsan-B
+      order: "6"
+      adapter_policy: VMWare
+
+uuid_pool: {"name":"cisco-vsan", "from":"0000-0000000001f5", "to":"0000-0000000003f4"}
+bios_policy_name: cisco-vsan
+scrub_policy_name: cisco-vsan
+vmedia_policy_name: cisco-vsan
+boot_policy_name: cisco-vsan
+boot_order_name: cisco-vsan
+boot_devices:
+  - {"device_order":"1", "device_name": "local_disk"}
+  - {"device_order":"2", "device_name": "cd_dvd_cimc"}
+
+server_pool_list: 
+  name: cisco-vsan
+  descr: Servers for Cisco VSAN
+  servers: 
+  - 7
+  - 8
+  - 9
+  blades: 
+  - 1/1
+  - 1/2
+
+storage_profile:
+  name: cisco-vsan
+  lun_list:
+  - lun_name: lun-boot
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-boot
+  - lun_name: lun-disk3
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk3
+  - lun_name: lun-disk4
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk4
+  - lun_name: lun-disk5
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk5
+  - lun_name: lun-disk6
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk6
+  - lun_name: lun-disk7
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk7
+  - lun_name: lun-disk8
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk8
+  - lun_name: lun-disk9
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk9
+  - lun_name: lun-disk10
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk10
+  - lun_name: lun-disk11
+    size: "1"
+    expand: "yes"
+    disk_group_policy: cisco-vsan-disk11
+          
+disk_group_policy1: {"name":"cisco-vsan-boot", "RAID_level":"mirror", "disk_slot_numbers": ["1","2"], "drive_cache":"disable"}
+disk_group_policy2: {"name":"cisco-vsan-disk3", "RAID_level":"stripe", "disk_slot_numbers": ["3"]}
+disk_group_policy3: {"name":"cisco-vsan-disk4", "RAID_level":"stripe", "disk_slot_numbers": ["4"]}
+disk_group_policy4: {"name":"cisco-vsan-disk5", "RAID_level":"stripe", "disk_slot_numbers": ["5"]}
+disk_group_policy5: {"name":"cisco-vsan-disk6", "RAID_level":"stripe", "disk_slot_numbers": ["6"]}
+disk_group_policy6: {"name":"cisco-vsan-disk7", "RAID_level":"stripe", "disk_slot_numbers": ["7"]}
+disk_group_policy7: {"name":"cisco-vsan-disk8", "RAID_level":"stripe", "disk_slot_numbers": ["8"]}
+disk_group_policy8: {"name":"cisco-vsan-disk9", "RAID_level":"stripe", "disk_slot_numbers": ["9"]}
+disk_group_policy9: {"name":"cisco-vsan-disk10", "RAID_level":"stripe", "disk_slot_numbers": ["10"]}
+disk_group_policy10: {"name":"cisco-vsan-disk11", "RAID_level":"stripe", "disk_slot_numbers": ["11"]}
+
+service_profile_template:
+  - name: cisco-vsan-ESXi
+    template_type: updating-template
+    uuid_pool: cisco-vsan
+    storage_profile: cisco-vsan
+    bios_policy: cisco-vsan
+    boot_policy: cisco-vsan
+    vmedia_policy: cisco-vsan
+    lan_connectivity_policy: cisco-vsan
+    host_fw_package: default
+    scrub_policy: cisco-vsan    
+    server_pool: cisco-vsan
+
+service_profile_list:
+  - name: cisco-vsan-01
+    src_templ_name: cisco-vsan-ESXi
+  - name: cisco-vsan-02
+    src_templ_name: cisco-vsan-ESXi
+  - name: cisco-vsan-03
+    src_templ_name: cisco-vsan-ESXi

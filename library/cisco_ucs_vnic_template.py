@@ -96,6 +96,91 @@ def _get_mo_params(params):
         args[key] = params.get(key)
     return args
 
+def update_nic(server, vnic, org):
+    from ucsmsdk.mometa.vnic.VnicLanConnTempl import VnicLanConnTempl
+    from ucsmsdk.mometa.vnic.VnicEtherIf import VnicEtherIf
+    # create if mo does not already exist
+    if not "description" in vnic:
+        vnic["description"] = "" 
+    if not "qos_policy" in vnic:
+        vnic["qos_policy"] = ""
+    if not "mtu" in vnic:
+        vnic["mtu"] = "1500"
+    if not "stats_policy" in vnic:
+        vnic["stats_policy"] = "default"
+
+    # default template is updating, this is different than  
+    # standard UCS because UCS made the wrong decision for
+    # default.  
+    if "updating" in vnic:
+        if vnic["updating"] == "yes":
+            vnic["updating"] = "updating-template"
+        else:
+            vnic["updating"] = "initial-template"
+    else:
+        vnic["updating"] = "updating-template"
+
+    if not "nw_ctrl_policy" in vnic:
+        vnic["nw_ctrl_policy"] = ""
+    mo = VnicLanConnTempl(parent_mo_or_dn=org,
+                          templ_type=vnic['updating'],
+                          descr=vnic['description'],    
+                          ident_pool_name=vnic['mac_pool'],
+                          name=vnic['name'],
+                          mtu=vnic['mtu'],
+                          qos_policy_name=vnic['qos_policy'],
+                          stats_policy_name=vnic['stats_policy'],
+                          nw_ctrl_policy_name=vnic['nw_ctrl_policy'],
+                          switch_id=vnic['side'])
+
+    # make the first network the native vlan
+    if "default_vlan" in vnic:
+        mo_x = VnicEtherIf(parent_mo_or_dn=mo, 
+                        default_net="yes", 
+                        name=vnic["default_vlan"])
+    if "vlans" in vnic:
+        for v in vnic['vlans']:
+            mo_x = VnicEtherIf(parent_mo_or_dn=mo, 
+                        default_net="no", 
+                        name=v)
+
+    server.add_mo(mo, True)
+    server.commit()
+
+def check_templ(mo, vnic):
+    if "updating" in vnic:
+        if vnic["updating"] == "yes" and mo.templ_type == "updating-template":
+            # no change.
+            return False
+        elif vnic["updating"] == "no" and mo.templ_type == "initial-template":
+            # no change.
+            return False
+
+    if not mo.templ_type == "updating-template":
+        return False
+
+    return False
+
+# compares existing VNIC template to see if something changed. 
+def did_change(mo, vnic):
+    # go through each part.
+    if not mo.switch_id == vnic["side"]:
+        return True   
+    if "mtu" in vnic:
+        if not mo.mtu == vnic["mtu"]:
+            return True
+    else:
+        if mo.mtu != "1500":
+            return True
+
+    if not mo.ident_pool_name == vnic["mac_pool"]:
+        return True
+    #if check_templ(mo, vnic):
+    #    return True
+    
+    return False
+    
+
 
 def setup_vnic_template(server, module):
     from ucsmsdk.mometa.vnic.VnicLanConnTempl import VnicLanConnTempl
@@ -114,7 +199,7 @@ def setup_vnic_template(server, module):
 
         if ansible['state'] == 'absent':
             if exists:
-                changed = True
+                changed == True
                 if not module.check_mode:
                     server.remove_mo(mo)
                     server.commit()
@@ -122,53 +207,13 @@ def setup_vnic_template(server, module):
             if not exists:
                 changed = True
                 if not module.check_mode:
-                    # create if mo does not already exist
-                    if not "description" in vnic:
-                        vnic["description"] = "" 
-                    if not "qos_policy_name" in vnic:
-                        vnic["qos_policy_name"] = ""
-                    if not "mtu" in vnic:
-                        vnic["mtu"] = "1500"
-                    if not "stats_policy" in vnic:
-                        vnic["stats_policy"] = "default"
-
-                    # default template is updating, this is different than  
-                    # standard UCS because UCS made the wrong decision for
-                    # default.  
-                    if "updating" in vnic:
-                        if vnic["updating"] == "yes":
-                            vnic["updating"] = "updating-template"
-                        else:
-                            vnic["updating"] = "static-template"
-                    else:
-                        vnic["updating"] = "updating-template"
-
-
-                    if not "nw_ctrl_policy" in vnic:
-                        vnic["nw_ctrl_policy"] = ""
-
-	            mo = VnicLanConnTempl(parent_mo_or_dn=args_mo['org_dn'],
-                                          templ_type=vnic['updating'],
-                                          descr=vnic['description'],    
-	                                  ident_pool_name=vnic['mac_pool'],
-				          name=vnic['name'],
-                                          mtu=vnic['mtu'],
-                                          qos_policy_name=vnic['qos_policy_name'],
-                                          stats_policy_name=vnic['stats_policy'],
-                                          nw_ctrl_policy_name=vnic['nw_ctrl_policy'],
-		    		          switch_id=vnic['side'])
-
-                    # make the first network the native vlan
-                    def_net = "yes" 
-                    for v in vnic['vlan']:
-	                mo_1 = VnicEtherIf(parent_mo_or_dn=mo, 
-                                        default_net=def_net, 
-                                        name=v)
-                        if def_net == "yes":
-                            def_net = "no"
-
-                    server.add_mo(mo, True)
-                    server.commit()
+                    update_nic(server, vnic, args_mo['org_dn'])
+            else:
+                ch = did_change(mo, vnic)
+                if ch == True:
+                    changed = True
+                    if not module.check_mode:
+                        update_nic(server, vnic, args_mo['org_dn'])
 
     return changed
 
