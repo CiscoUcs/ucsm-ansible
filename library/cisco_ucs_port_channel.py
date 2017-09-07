@@ -10,11 +10,11 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 
 DOCUMENTATION = '''
 ---
-module: cisco_ucs_disk_group_policy
-short_description: configures disk group policies on cisco ucs manager
+module: cisco_ucs_pc
+short_description: configures port channels on cisco ucs manager
 version_added: 0.9.0.0
 description:
-   -  configures disk group policies on cisco ucs manager
+   -  configures port channels on cisco ucs manager
 options:
     state:
         description:
@@ -23,13 +23,9 @@ options:
         required: false
         choices: ['present', 'absent']
         default: 'present'
-    disk_group_policy_list:
-        description: disk group policy list of dictionaries
+    pc_list:
+        description: list of pc dictionaries
         required: true
-    org_dn:
-        description: org dn
-        required: false
-        default: "org-root"
 
 requirements: ['ucsmsdk', 'ucsm_apis']
 author: "Cisco Systems Inc(ucs-python@cisco.com)"
@@ -38,9 +34,9 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 
 EXAMPLES = '''
 - name:
-  cisco_ucs_disk_group_policy:
-    disk_group_policy_list:
-      - {"name":"Docker-DG"...
+  cisco_ucs_pc:
+    pc_list:
+      - {"name":"DDC-DTR-1"...
     ucs_ip: "192.168.1.1"
     ucs_username: "admin"
     ucs_password: "password"
@@ -49,8 +45,7 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
-                disk_group_policy_list=dict(required=True, type='list'),
-                org_dn=dict(type='str', default="org-root"),
+                pc_list=dict(required=True, type='list'),
     )
 
 def _argument_custom():
@@ -97,18 +92,18 @@ def _get_mo_params(params):
     return args
 
 
-def setup_disk_group_policy(server, module):
-    from ucsmsdk.mometa.lstorage.LstorageDiskGroupConfigPolicy import LstorageDiskGroupConfigPolicy
-    from ucsmsdk.mometa.lstorage.LstorageVirtualDriveDef import LstorageVirtualDriveDef
-    from ucsmsdk.mometa.lstorage.LstorageLocalDiskConfigRef import LstorageLocalDiskConfigRef
+def setup_pc(server, module):
+    from ucsmsdk.mometa.fabric.FabricEthLanPc import FabricEthLanPc
+    from ucsmsdk.mometa.fabric.FabricEthLanPcEp import FabricEthLanPcEp
    
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
 
     changed = False
 
-    for dg in args_mo['disk_group_policy_list']:
-        mo = server.query_dn(args_mo['org_dn']+'/disk-group-config-'+dg['name'])
+    for pc in args_mo['pc_list']:
+        dn = 'fabric/lan/'+pc['fabric_id']
+        mo = server.query_dn(dn+'/pc-'+pc['port_id'])
         if mo:
             exists = True
         else:
@@ -125,23 +120,23 @@ def setup_disk_group_policy(server, module):
                 changed = True
                 if not module.check_mode:
                     # create if mo does not already exist
-                    mo = LstorageDiskGroupConfigPolicy(parent_mo_or_dn=args_mo['org_dn'],
-                                                       raid_level=dg['RAID_level'],
-				                       name=dg['name'])
-                    mo_1 = LstorageVirtualDriveDef(parent_mo_or_dn=mo,
-                                                   read_policy='platform-default',
-				                   drive_cache='platform-default',
-                                                   strip_size='platform-default',
-				                   io_policy='platform-default',
-				                   write_cache_policy='platform-default',
-                                                   access_policy='platform-default')
-                    if(len(dg['disk_slot_numbers']) > 0):
-                        for slot_num in dg['disk_slot_numbers']:
-                            mo_2 = LstorageLocalDiskConfigRef(parent_mo_or_dn=mo,
-	                                                      slot_num=slot_num)
+                    mo =  FabricEthLanPc(parent_mo_or_dn=dn,
+	                                 name=pc['name'],
+					 port_id=pc['port_id']
+
+                                         )
+                    for port in pc['port_list']:
+		        mo_1 = FabricEthLanPcEp(parent_mo_or_dn=mo,
+			                        eth_link_profile_name='default',
+						name='',
+						auto_negotiate='yes',
+						slot_id=port['slot'],
+						admin_state='enabled',
+						port_id=port['port']
+						)
                     server.add_mo(mo, True)
                     server.commit()
-    
+
     return changed
 
 
@@ -150,7 +145,7 @@ def setup(server, module):
     err = False
 
     try:
-        result["changed"] = setup_disk_group_policy(server, module)
+        result["changed"] = setup_pc(server, module)
     except Exception as e:
         err = True
         result["msg"] = "setup error: %s " % str(e)

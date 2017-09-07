@@ -1,5 +1,26 @@
 ntp_server: ntp.esl.cisco.com
 
+pc_list:
+  - fabric_id: A
+    port_id: "10"
+    name: vPC-Nexus
+    port_list:
+    - slot: "1"
+      port: "31"
+
+    - slot: "1"
+      port: "32"
+
+  - fabric_id: B
+    port_id: "11"
+    name: vPC-Nexus
+    port_list:
+    - slot: "1"
+      port: "31"
+
+    - slot: "1"
+      port: "32"
+
 wwn_list:
   - name: WWNN-Pool
     order: sequential
@@ -48,7 +69,14 @@ uuid_pool: {"name":"Docker", "from":"0000-000000000001", "to":"0000-0000000001f4
 
 boot_policy_name: Docker-LocalBoot
 
-disk_group_policy: {"name":"Docker-DG", "RAID_level":"mirror", "disk_slot_numbers":["1","2"]}
+disk_group_policy_list:
+  - name: Docker-DG
+    RAID_level: mirror
+    disk_slot_numbers: ["1","2"]
+
+  - name: Journal1
+    RAID_level: stripe
+    disk_slot_numbers: ["3"]
 
 storage_profile:
   name: Docker-StgProf
@@ -60,3 +88,7 @@ storage_profile:
   - lun_name: Data-Lun
     size: "200"
     disk_group_policy: Docker-DG
+  
+  - lun_name: Journal1
+    size: "350"
+    disk_group_policy: Journal1

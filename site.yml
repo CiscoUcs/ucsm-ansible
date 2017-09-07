@@ -28,6 +28,12 @@
       ucs_ip: "{{ucs_ip}}"
       ucs_username: "{{ucs_username}}"
       ucs_password: "{{ucs_password}}"
+  - name: configure port channels
+    cisco_ucs_port_channel:
+      pc_list: "{{pc_list}}"
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
   - name: configure WWN pools
     cisco_ucs_wwn:
       wwn_list: "{{wwn_list}}"
@@ -54,7 +60,7 @@
       ucs_password: "{{ucs_password}}"
   - name: configure disk group policy
     cisco_ucs_disk_group_policy:
-      disk_group_policy: "{{disk_group_policy}}"
+      disk_group_policy_list: "{{disk_group_policy_list}}"
       ucs_ip: "{{ucs_ip}}"
       ucs_username: "{{ucs_username}}"
       ucs_password: "{{ucs_password}}"
