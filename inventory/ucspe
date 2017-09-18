@@ -1,6 +1,0 @@
-[ucspe]
-ucspe1 ansible_python_interpreter=/usr/local/opt/python/bin/python
-ucspe1 ucs_ip=172.16.143.144 ucs_username=admin ucs_password=password
-
-[ucs:children]
-ucspe

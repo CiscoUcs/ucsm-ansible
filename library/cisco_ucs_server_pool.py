@@ -22,7 +22,7 @@ options:
         required: false
         choices: ['present', 'absent']
         default: 'present'
-    pool:
+    pool_list:
         description: pool 
         - {"name" : pool-name
             "servers" : { 7, 8, ...}
@@ -41,7 +41,7 @@ author: "Cisco Systems Inc(ucs-python@cisco.com)"
 EXAMPLES = '''
 - name:
   cisco_ucs_server_pool:
-    pool:
+    pool_list:
       name: my-pool 
       descr: "some random servers."
       servers:
@@ -56,7 +56,7 @@ EXAMPLES = '''
 
 def _argument_mo():
     return dict(
-                pool=dict(required=True, type='dict'),
+                pool_list=dict(required=True, type='list'),
                 org_dn=dict(type='str', default="org-root")
     )
 
@@ -116,39 +116,39 @@ def setup_serverpool(server, module):
     
     changed = False
     exists = False
-    pool = args_mo['pool']
-    mo = server.query_dn(args_mo['org_dn']+'/compute-pool-'+ pool['name'])
-    if mo:
-        exists = True
-    if ansible['state'] == 'absent':
-        if exists:
-            changed = True
-            if not module.check_mode:
-                server.remove_mo(mo)
-                server.commit()
-    else:
-        if not exists:
-            changed = True
-            if not module.check_mode:
-                # create if mo does not already exist
-                if not "descr" in pool:
-                    pool["descr"] = "" 
-                nmo = ComputePool(parent_mo_or_dn=args_mo['org_dn'],
-                                 name=pool["name"],
-                                 descr=pool["descr"])
-                if "servers" in pool: 
-                    for ser in pool["servers"]:
-                        ComputePooledRackUnit(
-                            parent_mo_or_dn=nmo,
-                            id=str(ser))
-                if "blades" in pool: 
-                    for b in pool["blades"]:
-                        ComputePooledSlot(parent_mo_or_dn=nmo, 
-                        slot_id=re.sub("\/\d","", b), 
-                        chassis_id=re.sub("\d\/","", b))
-                    
-                server.add_mo(nmo, True)
-                server.commit()
+    for pool in args_mo['pool_list']:
+        mo = server.query_dn(args_mo['org_dn']+'/compute-pool-'+ pool['name'])
+        if mo:
+            exists = True
+        if ansible['state'] == 'absent':
+            if exists:
+                changed = True
+                if not module.check_mode:
+                    server.remove_mo(mo)
+                    server.commit()
+        else:
+            if not exists:
+                changed = True
+                if not module.check_mode:
+                    # create if mo does not already exist
+                    if not "descr" in pool:
+                        pool["descr"] = "" 
+                    nmo = ComputePool(parent_mo_or_dn=args_mo['org_dn'],
+                                     name=pool["name"],
+                                     descr=pool["descr"])
+                    if "servers" in pool: 
+                        for ser in pool["servers"]:
+                            ComputePooledRackUnit(
+                                parent_mo_or_dn=nmo,
+                                id=str(ser))
+                    if "blades" in pool: 
+                        for b in pool["blades"]:
+                            ComputePooledSlot(parent_mo_or_dn=nmo, 
+                            slot_id=re.sub("\/\d","", b), 
+                            chassis_id=re.sub("\d\/","", b))
+                        
+                    server.add_mo(nmo, True)
+                    server.commit()
     return changed
 
 

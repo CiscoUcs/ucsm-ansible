@@ -171,7 +171,7 @@ def setup_spt(server, module):
                             if(vnic['vnic_name'] <> '' and vnic['vnic_template'] <> ''):
                                 mo_1 = VnicEther(parent_mo_or_dn=mo, adaptor_profile_name=vnic['vnic_adapter_policy'], order=vnic['vnic_order'], name=vnic['vnic_name'], nw_templ_name=vnic['vnic_template'])
 
-                    if(spt['lan_connectivity_policy'] <> ''):
+                    if 'lan_connectivity_policy' in spt:
                         mo_x = VnicConnDef(parent_mo_or_dn=mo,
                                     lan_conn_policy_name=spt['lan_connectivity_policy'])
     # create server pool and add to template.

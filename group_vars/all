@@ -65,10 +65,6 @@ san_conn_list:
       order: "2"
       adapter_policy: Linux
 
-uuid_pool: {"name":"Docker", "from":"0000-000000000001", "to":"0000-0000000001f4"}
-
-boot_policy_name: Docker-LocalBoot
-
 disk_group_policy_list:
   - name: Docker-DG
     RAID_level: mirror

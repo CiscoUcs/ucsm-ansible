@@ -1,5 +1,6 @@
-[ucs_dcloud]
+[docker_dcloud]
+ucsm1 ansible_python_interpreter=/usr/local/opt/python/bin/python
 ucsm1 ucs_ip=198.18.0.10 ucs_username='ucs-dCloud\demouser' ucs_password=C1sco12345
 
 [ucs:children]
-ucs_dcloud
+docker_dcloud

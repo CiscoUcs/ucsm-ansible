@@ -1,9 +1,79 @@
-dns_server: 198.18.134.242
+# mac address pool
+mac_list:
+  - name: Docker
+    from: 00:25:B5:00:66:00
+    to: 00:25:B5:00:67:F3
+    order: sequential
 
+# vnic templates
+vnic_list:
+  - name: Docker-eth0
+    side: A
+    vlans:
+    - name: UCS_Data_10
+      native: 'yes'
+    cdn_name: eth0
+    mtu: '1500'
+    mac_pool: Docker
+
+# bios policy
+bios_policy_name: Docker-BiosPol
+
+# boot policy
+boot_policy_name: Docker-LocalBoot
 boot_devices:
-  - {"device_order":"1", "device_name":"lan", "vnic_name":"eth0"}
-  - {"device_order":"2", "device_name":"local_lun", "lun_name":"Boot-Lun", "type":"primary"}
+  - device_order: '1'
+    device_name: lan
+    vnic_name: eth0
 
+  - device_order: '2'
+    device_name: local_lun
+    lun_name: Boot-Lun
+    type: primary
+
+# server uuid pool
+uuid_pool:
+  name: Docker
+  from: 0000-000000000001
+  to: 0000-0000000001f4
+
+# server pools
+# do not use chassis 1/server 8 in dCloud lab
+server_pool_list:
+  - name: Docker-DTR
+    blades:
+    - 1/1
+    - 2/1
+
+  - name: Docker-Ctrl
+    blades:
+    - 3/1
+    - 4/1
+
+  - name: Docker-Node
+    blades:
+    - 5/1
+    - 6/1
+
+# disk configuration policy
+disk_group_policy_list:
+  - name: Docker-DG
+    RAID_level: mirror
+    disk_slot_numbers: ['1','2']
+
+# storage profile
+storage_profile:
+  name: Docker-StgProf
+  lun_list:
+  - lun_name: Boot-Lun
+    size: '60'
+    disk_group_policy: Docker-DG
+
+  - lun_name: Data-Lun
+    size: '200'
+    disk_group_policy: Docker-DG
+
+# service profile templates
 service_profile_template_list:
   - name: Docker-DTR
     template_type: updating-template
@@ -13,8 +83,7 @@ service_profile_template_list:
     - vnic_name: eth0
       vnic_template: Docker-eth0
       vnic_adapter_policy: Linux
-      vnic_order: "1"
-    san_connectivity_policy: Cntr-FC-Boot
+      vnic_order: '1'
     boot_policy: Docker-LocalBoot
     server_pool: Docker-DTR
     host_fw_package: default
@@ -28,8 +97,7 @@ service_profile_template_list:
     - vnic_name: eth0
       vnic_template: Docker-eth0
       vnic_adapter_policy: Linux
-      vnic_order: "1"
-    san_connectivity_policy: Cntr-FC-Boot
+      vnic_order: '1'
     boot_policy: Docker-LocalBoot
     server_pool: Docker-Ctrl
     host_fw_package: default
@@ -43,13 +111,13 @@ service_profile_template_list:
     - vnic_name: eth0
       vnic_template: Docker-eth0
       vnic_adapter_policy: Linux
-      vnic_order: "1"
-    san_connectivity_policy: Cntr-FC-Boot
+      vnic_order: '1'
     boot_policy: Docker-LocalBoot
     server_pool: Docker-Node
     host_fw_package: default
     bios_policy: Docker-BiosPol
 
+# service profile instances
 service_profile_list:
   - name: DDC-DTR-1
     src_templ_name: Docker-DTR
@@ -68,4 +136,3 @@ service_profile_list:
 
   - name: UCP-Node-2
     src_templ_name: Docker-UCP-Node
-

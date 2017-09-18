@@ -1,0 +1,17 @@
+---
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+  - common
+
+- hosts: ucs
+  connection: local
+  gather_facts: no
+  roles:
+  - network_basic
+  - boot_order
+  - storage
+  - server_basic
+

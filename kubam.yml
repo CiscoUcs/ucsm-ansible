@@ -6,7 +6,7 @@
   roles:
   - common
 
-- hosts: ucsdevi
+- hosts: ucs
   connection: local
   gather_facts: no
   roles:

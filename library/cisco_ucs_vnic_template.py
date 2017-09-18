@@ -133,16 +133,13 @@ def update_nic(server, vnic, org):
                           nw_ctrl_policy_name=vnic['nw_ctrl_policy'],
                           switch_id=vnic['side'])
 
-    # make the first network the native vlan
-    if "default_vlan" in vnic:
-        mo_x = VnicEtherIf(parent_mo_or_dn=mo, 
-                        default_net="yes", 
-                        name=vnic["default_vlan"])
     if "vlans" in vnic:
         for v in vnic['vlans']:
+	    if not 'native' in v:
+	        v['native'] = 'no'
             mo_x = VnicEtherIf(parent_mo_or_dn=mo, 
-                        default_net="no", 
-                        name=v)
+                               default_net=v['native'],
+                               name=v['name'])
 
     server.add_mo(mo, True)
     server.commit()
