@@ -109,9 +109,21 @@ def setup_macpool(server, module):
 
     for mac in args_mo['mac_list']:
         exists = False
-        mo = server.query_dn(args_mo['org_dn']+'/mac-pool-'+ mac['name'])
+	dn = args_mo['org_dn']+'/mac-pool-'+ mac['name']
+        mo = server.query_dn(dn)
         if mo:
-            exists = True
+	    # check top-level mo props
+	    kwargs = {}
+	    kwargs['assignment_order'] = mac['order']
+	    if (mo.check_prop_match(**kwargs)):
+	        # top-level props match, check next level props
+                if(mac['to'] <> '' and mac['from'] <> ''):
+	            block_dn = dn+'/block-'+mac['from']+'-'+mac['to']
+                    mo_1 = server.query_dn(block_dn)
+		    if mo_1:
+                        exists = True
+		else:
+                    exists = True
 
         if ansible['state'] == 'absent':
             if exists:
@@ -127,15 +139,15 @@ def setup_macpool(server, module):
                     if not "description" in mac:
                         mac["description"] = "" 
                     mo = MacpoolPool(parent_mo_or_dn=args_mo['org_dn'],
-                                        name=mac["name"],
-                                        descr=mac["description"],
-                                        assignment_order=mac["order"])
+                                        name=mac['name'],
+                                        descr=mac['description'],
+                                        assignment_order=mac['order'])
                                         
                     if(mac['to'] <> '' and mac['from'] <> ''):
                         mo_1= MacpoolBlock(parent_mo_or_dn=mo,
                                           to=mac['to'],
                                           r_from=mac['from'])
-                    server.add_mo(mo)
+                    server.add_mo(mo, True)
                     server.commit()
 
     return changed
