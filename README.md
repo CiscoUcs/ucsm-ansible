@@ -5,6 +5,8 @@
 
 See https://github.com/CiscoUcs/ucsm-ansible for additional information on installation and usage of the core UCSM modules.  This repository provides example playbooks, inventory, and group_vars files for deployment of several reference UCS environments.
 
+Tested on UCS Manager version 3.1 and later.  Please submit issues for problems found on earlier UCSM versions.
+
 # install
 - ansible must be installed
 ```
