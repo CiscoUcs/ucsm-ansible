@@ -25,16 +25,45 @@ options:
     - If C(absent), will verify VLANs are absent and will delete if needed.
     choices: [present, absent]
     default: present
+  name:
+    description:
+    - Name of the VLAN
+    - If specifying a single VLAN, name is required
+  id:
+    description:
+    - VLAN ID
+    - If specifying a single VLAN, id is required
+  native:
+    description:
+    - native VLAN
+    choices: ['no', 'yes']
+    default: 'no'
+    type: str
+  fabric:
+    description:
+    - Which fabric
+    choices: [common, A, B]
+    default: common
+  multicast_policy:
+    description:
+    - Multicast Policy Name
+  sharing:
+    description:
+    - Sharing
+    choices: [none, primary, isolated, community]
+    default: none
   vlan_list:
     description:
-    - List of VLANs which contain the following properties
+    - List of VLANs
+    - vlan_list allows multiple resource updates with a single UCSM connection
+    - Each list item contains the following properties
     - name (Name of the VLAN pool (required))
     - id (VLAN ID (required))
-    - native (native VLAN str specifying no (default) or yes)
-    - sharing (none (default), primary, isolated, or community)
-    - multicast_policy (Multicast Policy Name)
+    - native (native VLAN str specifying 'no' (default) or 'yes')
     - fabric (common (default), A, or B)
-    required: yes
+    - multicast_policy (Multicast Policy Name)
+    - sharing (none (default), primary, isolated, or community)
+    - Either vlan_list or name/id is required
 requirements:
 - ucsmsdk
 author:
@@ -44,7 +73,7 @@ version_added: '2.5'
 '''
 
 EXAMPLES = r'''
-- name: Configure MAC address pool
+- name: Configure multiple VLANs
   ucs_vlans:
     hostname: 172.16.143.150
     username: admin
@@ -59,6 +88,14 @@ EXAMPLES = r'''
         id: '102'
         native: 'yes'
         multicast_policy: default
+
+- name: Configure single VLAN
+  ucs_vlans:
+    hostname: 172.16.143.150
+    username: admin
+    password: password
+    name: vlan100
+    id: '100'
 '''
 
 RETURN = r'''
@@ -71,10 +108,25 @@ from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_s
 
 def main():
     argument_spec = ucs_argument_spec
-    argument_spec.update(vlan_list=dict(required=True, type='list'),
-                         state=dict(default='present', choices=['present', 'absent'], type='str'))
+    argument_spec.update(vlan_list=dict(type='list'),
+                         name=dict(type='str'),
+                         id=dict(type='str'),
+                         native=dict(type='str', choices=['no', 'yes']),
+                         fabric=dict(type='str', choices=['common', 'A', 'B']),
+                         multicast_policy=dict(type='str'),
+                         sharing=dict(type='str', choices=['none', 'primary', 'isolated', 'community']),
+                         state=dict(type='str', default='present', choices=['present', 'absent']))
     module = AnsibleModule(argument_spec,
-                           supports_check_mode=True)
+                           supports_check_mode=True,
+                           required_one_of=[
+                               ['vlan_list', 'name']
+                           ],
+                           mutually_exclusive=[
+                               ['vlan_list', 'name']
+                           ],
+                           required_together=[
+                               ['name', 'id']
+                           ])
     ucs = UCSModule(module)
 
     err = False
@@ -83,20 +135,28 @@ def main():
 
     changed = False
     try:
-        for vlan in module.params['vlan_list']:
+        if module.params['vlan_list']:
+            # directly use the list (single resource and list are mutually exclusive
+            vlan_list = module.params['vlan_list']
+        else:
+            # single resource specified, create list from the current params
+            vlan_list = [module.params]
+        for vlan in vlan_list:
             exists = False
+            # set default params.  Done here to set values for lists which can't be done in the argument_spec
+            if not vlan.get('native'):
+                vlan['native'] = 'no'
+            if not vlan.get('fabric'):
+                vlan['fabric'] = 'common'
+            if not vlan.get('sharing'):
+                vlan['sharing'] = 'none'
+            if not vlan.get('multicast_policy'):
+                vlan['multicast_policy'] = ''
             # dn is fabric/lan/net-<name> for common vlans or fabric/lan/[A or B]/net-<name> for A or B
             dn_base = 'fabric/lan'
-            if 'fabric' in vlan and vlan['fabric'] != 'common':
+            if vlan['fabric'] != 'common':
                 dn_base += '/' + vlan['fabric']
             dn = dn_base + '/net-' + vlan['name']
-            # set default params
-            if 'native' not in vlan:
-                vlan['native'] = 'no'
-            if 'sharing' not in vlan:
-                vlan['sharing'] = 'none'
-            if 'multicast_policy' not in vlan:
-                vlan['multicast_policy'] = ''
 
             mo = ucs.login_handle.query_dn(dn)
             if mo:
