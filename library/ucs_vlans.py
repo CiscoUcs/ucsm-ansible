@@ -50,7 +50,7 @@ EXAMPLES = r'''
     username: admin
     password: password
     vlan_list:
-      - name: vlan101
+      - name: vlan100
         id: '100'
       - name: vlan-A-101
         id: '101'
@@ -85,23 +85,26 @@ def main():
     try:
         for vlan in module.params['vlan_list']:
             exists = False
+            # dn is fabric/lan/net-<name> for common vlans or fabric/lan/[A or B]/net-<name> for A or B
             dn_base = 'fabric/lan'
-            if 'fabric' in vlan:
+            if 'fabric' in vlan and vlan['fabric'] != 'common':
                 dn_base += '/' + vlan['fabric']
             dn = dn_base + '/net-' + vlan['name']
+            # set default params
+            if 'native' not in vlan:
+                vlan['native'] = 'no'
+            if 'sharing' not in vlan:
+                vlan['sharing'] = 'none'
+            if 'multicast_policy' not in vlan:
+                vlan['multicast_policy'] = ''
+
             mo = ucs.login_handle.query_dn(dn)
             if mo:
                 # check top-level mo props
                 kwargs = {}
                 kwargs['id'] = vlan['id']
-                if 'native' not in vlan:
-                    vlan['native'] = 'no'
                 kwargs['default_net'] = vlan['native']
-                if 'sharing' not in vlan:
-                    vlan['sharing'] = 'none'
                 kwargs['sharing'] = vlan['sharing']
-                if 'multicast_policy' not in vlan:
-                    vlan['multicast_policy'] = ''
                 kwargs['mcast_policy_name'] = vlan['multicast_policy']
                 if (mo.check_prop_match(**kwargs)):
                     exists = True
