@@ -123,13 +123,11 @@ def setup_pc(server, module):
                     mo =  FabricEthLanPc(parent_mo_or_dn=dn,
 	                                 name=pc['name'],
 					 port_id=pc['port_id']
-
                                          )
                     for port in pc['port_list']:
 		        mo_1 = FabricEthLanPcEp(parent_mo_or_dn=mo,
 			                        eth_link_profile_name='default',
 						name='',
-						auto_negotiate='yes',
 						slot_id=port['slot'],
 						admin_state='enabled',
 						port_id=port['port']
