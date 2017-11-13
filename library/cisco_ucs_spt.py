@@ -131,6 +131,8 @@ def setup_spt(server, module):
                         spt['vmedia_policy'] = ''
                     if not 'scrub_policy' in spt: 
                         spt['scrub_policy'] = ''
+                    if not spt.get('maintenance_policy'):
+                        spt['maintenance_policy'] = ''
 
                     mo =  LsServer(parent_mo_or_dn=args_mo['org_dn'],
 	                           name=spt['name'],
@@ -150,7 +152,7 @@ def setup_spt(server, module):
                                    host_fw_policy_name=spt['host_fw_package'],
                                    kvm_mgmt_policy_name='',
                                    local_disk_policy_name='',
-                                   maint_policy_name='',
+                                   maint_policy_name=spt['maintenance_policy'],
                                    mgmt_access_policy_name='',
                                    mgmt_fw_policy_name='',
                                    power_policy_name='',
