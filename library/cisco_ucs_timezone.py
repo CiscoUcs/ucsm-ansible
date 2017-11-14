@@ -114,6 +114,8 @@ def setup_timezone(server, module):
 
     ansible = module.params
     args_mo  =  _get_mo_params(ansible)
+    if not args_mo.get('descr'):
+        args_mo['descr'] = ''
     exists, mo = timezone_exists(handle=server, **args_mo)
 
     if module.check_mode or exists:
