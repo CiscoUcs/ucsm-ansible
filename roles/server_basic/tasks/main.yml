@@ -1,0 +1,37 @@
+---
+- name: Ensure server pool is created
+  cisco_ucs_server_pool: 
+    pool_list: "{{ server_pool_list }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+
+- name: Ensure bios policy is created
+  cisco_ucs_bios_policy:
+    name: '{{ bios_policy_name }}'
+    descr: 'Basic BIOS policy setup'
+    cdn_control: "enabled"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+
+- name: ensure UUID pool is created
+  cisco_ucs_uuid:
+    uuid_pool: "{{ uuid_pool }}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+
+- name: configure Service Profile Templates
+  cisco_ucs_spt:
+    spt_list: "{{service_profile_template_list}}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"
+
+- name: configure Service Profiles
+  cisco_ucs_sp:
+    sp_list: "{{service_profile_list}}"
+    ucs_ip: "{{ucs_ip}}"
+    ucs_username: "{{ucs_username}}"
+    ucs_password: "{{ucs_password}}"

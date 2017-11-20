@@ -1,0 +1,21 @@
+---
+
+- hosts: ucs
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: remove SPs
+    cisco_ucs_sp:
+      sp_list: "{{service_profile_list}}"
+      state: absent
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
+  - name: remove SPTs
+    cisco_ucs_spt:
+      spt_list: "{{service_profile_template_list}}"
+      state: absent
+      ucs_ip: "{{ucs_ip}}"
+      ucs_username: "{{ucs_username}}"
+      ucs_password: "{{ucs_password}}"
+

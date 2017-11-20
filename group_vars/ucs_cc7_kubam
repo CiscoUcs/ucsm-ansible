@@ -1,0 +1,77 @@
+ntp_server: ntp.esl.cisco.com
+dns_server: 198.18.134.242
+uuid_pool: {"name":"KUBAM", "from":"0000-000000000001", "to":"0000-0000000001f4"}
+mac_list:
+  - name: KUBAM-A
+    order: sequential
+    description: KUBAM Side A
+    from: 00:25:B5:88:AA:00
+    to: 00:25:B5:88:AA:FF
+  - name: KUBAM-B
+    order: sequential
+    description: KUBAM Side B
+    from: 00:25:B5:88:BB:00
+    to: 00:25:B5:88:BB:FF
+vnic_list: 
+  - name: KUBAM-A
+    side: A
+    mac_pool: KUBAM-A
+    description: KUBAM A side VNIC
+    default_vlan: default
+    vlans: 
+    - vm-network
+  - name: KUBAM-B
+    side: B
+    mac_pool: KUBAM-B
+    description: KUBAM B side VNIC
+    default_vlan: default
+    vlans: 
+    - vm-network
+
+lan_conn_list:
+  - name: KUBAM
+    vnic_list:
+    - name: eth0
+      vnic_template: KUBAM-A
+      order: "1"
+      adapter_policy: Linux
+    - name: eth1
+      vnic_template: KUBAM-B
+      order: "2"
+      adapter_policy: Linux
+
+boot_devices:
+  - {"device_order":"1", "device_name": "local_disk"}
+  - {"device_order":"2", "device_name": "cd_dvd_cimc"}
+
+storage_profile:
+  name: KUBAM
+  lun_list:
+  - lun_name: Boot-Lun
+    size: "1"
+    expand: "yes"
+    disk_group_policy: KUBAM-Boot
+
+disk_group_policy: {"name":"KUBAM-Boot", "RAID_level":"mirror", "disk_slot_numbers": ["1", "2"]}
+
+
+service_profile_template:
+  - name: KUBAM-ESXi
+    template_type: updating-template
+    uuid_pool: KUBAM
+    storage_profile: KUBAM
+    bios_policy: KUBAM
+    scrub_policy: KUBAM
+    server_pool: KUBAM
+    boot_policy: KUBAM
+    vmedia_policy: KUBAM
+    lan_connectivity_policy: KUBAM
+    host_fw_package: default
+
+service_profile_list:
+  - name: node01
+    src_templ_name: KUBAM-ESXi
+  - name: node02
+    src_templ_name: KUBAM-ESXi
+  - name: node03
+    src_templ_name: KUBAM-ESXi

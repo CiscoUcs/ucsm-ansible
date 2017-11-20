@@ -14,6 +14,7 @@ module_utils = ansible_path + '/module_utils/'
 extras_path = ansible_path + '/modules/extras'
 server_path = extras_path + '/server'
 ucs_path = server_path + '/cisco'
+remote_management_module_utils = module_utils + '/remote_management/'
 
 
 def touch(fname, times=None):
@@ -43,5 +44,11 @@ copy_files(os.getcwd() + '/library', ucs_path)
 # Copy common files to module_util
 copy_files(os.getcwd() + '/utils', module_utils)
 
+# Create the directory for the ucs module_utils/remote_management
+if not os.path.isdir(remote_management_module_utils):
+    os.makedirs(remote_management_module_utils)
+touch(remote_management_module_utils + '/__init__.py')
 
+# Copy to module_utils/remote_management
+copy_files(os.getcwd() + '/utils/remote_management', remote_management_module_utils)
 
