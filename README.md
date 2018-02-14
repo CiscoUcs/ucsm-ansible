@@ -12,6 +12,31 @@ Modules in the library directory that are prefixed with ucs (and not cisco) are 
 
 There is currently not support for scripted install/uninstall to avoid collision with Ansible hosted modules and ongoing maintenance.  You can specfiy this repo as a library and module_utils location with env variables or command line options (e.g., ANSIBLE_LIBRARY=./library ANSIBLE_MODULE_UTILS=./utils ansible-playbook ..)
 
+### Current Development Status
+
+| Configuration Category | Configuration Task | Module Name | Status (part of 2.5, Proof of Concept, TBD |
+| ---------------------- | ------------------ | ----------- | ------ |
+| LAN                    | IP Addresses for KVM Access | ucs_ip_pool | in 2.5 |
+|                        | MAC Address Pools  | ucs_mac_pool | in 2.5 |
+|                        | VLANs              | ucs_vlans   | in 2.5 |
+|                        | vNIC Templates     | ucs_vnic_template | in 2.5 |
+|                        | LAN Connectivity Policy | ucs_lan_connectivity | in 2.5 |
+|                        | Network Control Policy | TBD     | TBD    |
+|                        | Port Channels      | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+| SAN                    | WWNN Pools         | ucs_wwn_pool | in 2.5 |
+|                        | WWPN Pools         | ucs_wwn_pool | in 2.5 |
+|                        | VSANs              | ucs_vsans   | in 2.5 |
+|                        | vHBA Templates     | ucs_vhba_template | in 2.5 |
+|                        | SAN Connectivity Policy | ucs_san_connectivity | in 2.5 |
+| Server                 | UUID Suffix Pool   | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+|                        | Server Pool        | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+|                        | Server BIOS Policy | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+|                        | FW/Power/Maintenance Polices | TBD | TBD  |
+|                        | Boot Policy        | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+|                        | Service Profile Template | TBD   | PoC: see https://github.com/dsoper2/ucsm-ansible |
+|                        | Service Profiles   | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+| Admin                  | NTP                | TBD         | PoC: cisco_ucs_ntp module |
+
 # Previously provided install/uninstall instructions for modules prefixed with cisco that are not part of Ansible 2.5
 
 ### install
