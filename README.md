@@ -30,13 +30,14 @@ Modules submitted to Ansible are also used in roles now available on Ansible Gal
 |                        | VSANs              | ucs_vsans   | in 2.5 |
 |                        | vHBA Templates     | ucs_vhba_template | in 2.5 |
 |                        | SAN Connectivity Policy | ucs_san_connectivity | in 2.5 |
-| Server                 | UUID Suffix Pool   | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+| Server                 | UUID Suffix Pool   | ucs_uuid_pool | Planned for 2.6 |
 |                        | Server Pool        | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
 |                        | Server BIOS Policy | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
 |                        | FW/Power/Maintenance Polices | TBD | TBD  |
 |                        | Boot Policy        | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
 |                        | Service Profile Template | TBD   | PoC: see https://github.com/dsoper2/ucsm-ansible |
 |                        | Service Profiles   | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+|                        | Service Profile assoc/disassoc | ucs_service_profile_association | Planned for 2.6 |
 | Admin                  | NTP                | TBD         | PoC: cisco_ucs_ntp module |
 
 # Previously provided install/uninstall instructions for modules prefixed with cisco that are not part of Ansible 2.5
