@@ -74,6 +74,19 @@ options:
   maintenance_policy:
     description:
     - The name of the maintenance policy you want to associate with service profiles created from this template.
+  server_pool:
+    description:
+    - The name of the server pool you want to associate with this service profile template.
+  server_pool_qualification:
+    description:
+    - The name of the server pool policy qualificaiton you want to use for this service profile template.
+  power_state:
+    description:
+    - The power state to be applied when a service profile created from this template is associated with a server.
+    - Note that power_state is not idempotent.  The power_state option is only applied the 1st time a template is created.
+    - Changes to power_state on an existing template have no effect.
+    choices: [up, down]
+    default: up
   host_firmware_package:
     description:
     - The name of the host firmware package you want to associate with service profiles created from this template.
@@ -178,6 +191,9 @@ def main():
         vmedia_policy=dict(type='str', default=''),
         lan_connectivity_policy=dict(type='str', default=''),
         san_connectivity_policy=dict(type='str', default=''),
+        server_pool=dict(type='str', default=''),
+        server_pool_qualification=dict(type='str', default=''),
+        power_state=dict(type='str', default='up', choices=['up', 'down']),
         state=dict(type='str', default='present', choices=['present', 'absent']),
     )
 
@@ -192,6 +208,8 @@ def main():
     # UCSModule creation above verifies ucsmsdk is present and exits on failure.  Additional imports are done below.
     from ucsmsdk.mometa.ls.LsServer import LsServer
     from ucsmsdk.mometa.vnic.VnicConnDef import VnicConnDef
+    from ucsmsdk.mometa.ls.LsRequirement import LsRequirement
+    from ucsmsdk.mometa.ls.LsPower import LsPower
 
     changed = False
     try:
@@ -235,13 +253,24 @@ def main():
 
                 if mo.check_prop_match(**kwargs):
                     # top-level props match, check next level mo/props
+                    # LAN/SAN connectivity policies
                     child_dn = dn + '/conn-def'
                     mo_1 = ucs.login_handle.query_dn(child_dn)
                     if mo_1:
                         kwargs = dict(lan_conn_policy_name=module.params['lan_connectivity_policy'])
                         kwargs['san_conn_policy_name'] = module.params['san_connectivity_policy']
                         if mo_1.check_prop_match(**kwargs):
-                            props_match = True
+                            # server pool
+                            child_dn = dn + '/pn-req'
+                            mo_1 = ucs.login_handle.query_dn(child_dn)
+                            if mo_1:
+                                kwargs = dict(name=module.params['server_pool'])
+                                kwargs['qualifier'] = module.params['server_pool_qualification']
+                                if mo_1.check_prop_match(**kwargs):
+                                    props_match = True
+                            elif not module.params['server_pool']:
+                                # no pn-req object and no server pool name provided
+                                props_match = True
 
             if not props_match:
                 if not module.check_mode:
@@ -269,12 +298,27 @@ def main():
                         usr_lbl=module.params['user_label'],
                         vmedia_policy_name=module.params['vmedia_policy'],
                     )
-                    # TBD for LsBinding/LsRequirement, storage profile
+
+                    # TBD storage profile
+
+                    # LAN/SAN connectivity policy
                     mo_1 = VnicConnDef(
                         parent_mo_or_dn=mo,
                         lan_conn_policy_name=module.params['lan_connectivity_policy'],
                         san_conn_policy_name=module.params['san_connectivity_policy'],
                     )
+                    # power state
+                    mo_1 = LsPower(
+                        parent_mo_or_dn=mo,
+                        state=module.params['power_state'],
+                    )
+                    # server pool
+                    mo_1 = LsRequirement(
+                        parent_mo_or_dn=mo,
+                        name=module.params['server_pool'],
+                        qualifier=module.params['server_pool_qualification'],
+                    )
+
                     ucs.login_handle.add_mo(mo, True)
                     ucs.login_handle.commit()
                 changed = True
