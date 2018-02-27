@@ -36,6 +36,11 @@ options:
     description:
     - The name of the service profile template used to create this serivce profile.
     required: yes
+  power_state:
+    description:
+    - The power state to be applied when this service profile is associated with a server.
+    - If no value is provided, the power_state for the service profile will not be modified.
+    choices: [up, down]
   user_label:
     description:
     - The User Label you want to assign to this service profile.
@@ -84,6 +89,7 @@ def main():
         name=dict(type='str', required=True),
         source_template=dict(type='str', required=True),
         user_label=dict(type='str', default=''),
+        power_state=dict(type='str', choices=['up', 'down']),
         state=dict(type='str', default='present', choices=['present', 'absent']),
     )
 
@@ -97,6 +103,7 @@ def main():
 
     # UCSModule creation above verifies ucsmsdk is present and exits on failure.  Additional imports are done below.
     from ucsmsdk.mometa.ls.LsServer import LsServer
+    from ucsmsdk.mometa.ls.LsPower import LsPower
 
     changed = False
     try:
@@ -125,7 +132,16 @@ def main():
 
                 if mo.check_prop_match(**kwargs):
                     # top-level props match
-                    props_match = True
+                    if module.params.get('power_state'):
+                        child_dn = dn + '/power'
+                        mo_1 = ucs.login_handle.query_dn(child_dn)
+                        if mo_1:
+                            kwargs = dict(state=module.params['power_state'])
+                            if mo_1.check_prop_match(**kwargs):
+                                props_match = True
+                    else:
+                        # no power state provided, use existing state as match
+                        props_match = True
 
             if not props_match:
                 if not module.check_mode:
@@ -137,6 +153,12 @@ def main():
                         type='instance',
                         usr_lbl=module.params['user_label'],
                     )
+                    if module.params.get('power_state'):
+                        admin_state = 'admin-' + module.params['power_state']
+                        mo_1 = LsPower(
+                            parent_mo_or_dn=mo,
+                            state=admin_state,
+                        )
 
                     ucs.login_handle.add_mo(mo, True)
                     ucs.login_handle.commit()

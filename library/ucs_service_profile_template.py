@@ -83,8 +83,6 @@ options:
   power_state:
     description:
     - The power state to be applied when a service profile created from this template is associated with a server.
-    - Note that power_state is not idempotent.  The power_state option is only applied the 1st time a template is created.
-    - Changes to power_state on an existing template have no effect.
     choices: [up, down]
     default: up
   host_firmware_package:
@@ -260,17 +258,23 @@ def main():
                         kwargs = dict(lan_conn_policy_name=module.params['lan_connectivity_policy'])
                         kwargs['san_conn_policy_name'] = module.params['san_connectivity_policy']
                         if mo_1.check_prop_match(**kwargs):
-                            # server pool
-                            child_dn = dn + '/pn-req'
+                            # power state
+                            child_dn = dn + '/power'
                             mo_1 = ucs.login_handle.query_dn(child_dn)
                             if mo_1:
-                                kwargs = dict(name=module.params['server_pool'])
-                                kwargs['qualifier'] = module.params['server_pool_qualification']
+                                kwargs = dict(state=module.params['power_state'])
                                 if mo_1.check_prop_match(**kwargs):
-                                    props_match = True
-                            elif not module.params['server_pool']:
-                                # no pn-req object and no server pool name provided
-                                props_match = True
+                                    # server pool
+                                    child_dn = dn + '/pn-req'
+                                    mo_1 = ucs.login_handle.query_dn(child_dn)
+                                    if mo_1:
+                                        kwargs = dict(name=module.params['server_pool'])
+                                        kwargs['qualifier'] = module.params['server_pool_qualification']
+                                        if mo_1.check_prop_match(**kwargs):
+                                            props_match = True
+                                    elif not module.params['server_pool']:
+                                        # no pn-req object and no server pool name provided
+                                        props_match = True
 
             if not props_match:
                 if not module.check_mode:
@@ -280,6 +284,7 @@ def main():
                         bios_profile_name=module.params['bios_policy'],
                         boot_policy_name=module.params['boot_policy'],
                         descr=module.params['description'],
+                        ext_ip_state='pooled',
                         ext_ip_pool_name=module.params['mgmt_ip_pool'],
                         # graphics_card_policy_name=module.params['graphics_card_policy'],
                         host_fw_policy_name=module.params['host_firmware_package'],
@@ -308,9 +313,10 @@ def main():
                         san_conn_policy_name=module.params['san_connectivity_policy'],
                     )
                     # power state
+                    admin_state = 'admin-' + module.params['power_state']
                     mo_1 = LsPower(
                         parent_mo_or_dn=mo,
-                        state=module.params['power_state'],
+                        state=admin_state,
                     )
                     # server pool
                     mo_1 = LsRequirement(
