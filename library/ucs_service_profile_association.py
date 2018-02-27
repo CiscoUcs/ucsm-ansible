@@ -22,29 +22,31 @@ options:
   state:
     description:
     - If C(present), will verify service profile association and associate with specified server or server pool if needed.
-    - If C(absent), will verify service profile is not associated and will disassociate if needed.
+    - If C(absent), will verify service profile is not associated and will disassociate if needed.  This is the same as specifying Assign Later in the webUI.
     choices: [present, absent]
     default: present
   service_profile_name:
     description:
     - The name of the Service Profile being associated or disassociated.
     required: yes
-  association_rn:
+  server_assignment:
     description:
-    - The Relative Name (rn) of the association managed object.
-    - "For pre-provisioning or selecting an existing server, the Relative Name is 'pn'."
-    - "For server pool assignement, the Relative Name is 'pn-req'."
-    choices: [pn, pn-req]
-    default: pn
+    - "Specifies how to associate servers with this service profile using the following choices:"
+    - "server - Use to pre-provision a slot or select an existing server.  Slot or server is specified by the server_dn option."
+    - "pool - Use to select from a server pool.  The server_pool option specifies the name of the server pool to use."
+    - Option is not valid if the service profile is bound to a template.
+    - Optional if the state is absent.
+    choices: [server, pool]
+    required: yes
   server_dn:
     description:
     - The Distinguished Name (dn) of the server object used for pre-provisioning or selecting an existing server.
-    - Required if the association_rn is pn.
+    - Required if the server_assignment option is server.
     - Optional if the state is absent.
   server_pool_name:
     description:
     - Name of the server pool used for server pool based assignment.
-    - Required if the assocation_rn is pn-req.
+    - Required if the server_assignment option is pool.
     - Optional if the state is absent.
   restrict_migration:
     description:
@@ -72,7 +74,7 @@ EXAMPLES = r'''
     username: admin
     password: password
     service_profile_name: test-sp
-    association_rn: pn-req
+    server_assignment: pool
     server_pool_name: Container-Pool
     restrict_migration: 'yes'
 
@@ -82,6 +84,7 @@ EXAMPLES = r'''
     username: admin
     password: password
     service_profile_name: test-sp
+    server_assignment: server
     server_dn: sys/chassis-2/blade-1
   register: result
   until: result.assign_state == 'assigned' and result.assoc_state == 'associated'
@@ -119,7 +122,7 @@ def main():
     argument_spec.update(
         org_dn=dict(type='str', default='org-root'),
         service_profile_name=dict(type='str', required=True),
-        association_rn=dict(type='str', default='pn', choices=['pn', 'pn-req']),
+        server_assignment=dict(type='str', choices=['server', 'pool']),
         server_dn=dict(type='str'),
         server_pool_name=dict(type='str'),
         restrict_migration=dict(type='str', default='no', choices=['yes', 'no']),
@@ -128,6 +131,11 @@ def main():
     module = AnsibleModule(
         argument_spec,
         supports_check_mode=True,
+        required_if=[
+            ['state', 'present', ['server_assignment']],
+            ['server_assignment', 'server', ['server_dn']],
+            ['server_assignment', 'pool', ['server_pool_name']],
+        ],
         mutually_exclusive=[
             ['server_dn', 'server_pool_name'],
         ],
@@ -146,6 +154,7 @@ def main():
     try:
         ls_mo_exists = False
         pn_mo_exists = False
+        pn_req_mo_exists = False
         props_match = False
 
         # logical server distinguished name is <org>/ls-<name> and physical node dn appends 'pn' or 'pn-req'
@@ -153,51 +162,66 @@ def main():
         ls_mo = ucs.login_handle.query_dn(ls_dn)
         if ls_mo:
             ls_mo_exists = True
+            pn_dn = ls_dn + '/pn'
+            pn_mo = ucs.login_handle.query_dn(pn_dn)
+            if pn_mo:
+                pn_mo_exists = True
 
-        if module.params['state'] == 'absent':
-            if ls_mo_exists and ls_mo.assign_state != 'unassigned':
-                # query pn then pn-req to find server association
-                pn_dn = ls_dn + '/pn'
-                pn_mo = ucs.login_handle.query_dn(pn_dn)
-                if pn_mo:
-                    pn_mo_exists = True
-                else:
-                    pn_dn = ls_dn + '/pn-req'
-                    pn_mo = ucs.login_handle.query_dn(pn_dn)
-                    if pn_mo:
-                        pn_mo_exists = True
+            pn_req_dn = ls_dn + '/pn-req'
+            pn_req_mo = ucs.login_handle.query_dn(pn_req_dn)
+            if pn_req_mo:
+                pn_req_mo_exists = True
 
+        if module.params['state'] == 'absent' and ls_mo_exists and ls_mo.assign_state != 'unassigned':
             if pn_mo_exists:
                 if not module.check_mode:
                     ucs.login_handle.remove_mo(pn_mo)
+                    ucs.login_handle.add_mo(ls_mo, True)
                     ucs.login_handle.commit()
                 changed = True
-        else:
-            if ls_mo_exists:
-                # verify logical server is assigned and associated
-                # when server slots are being pre-provisioned (assigned is false), this module always tries to change state
-                ucs.result['assign_state'] = ls_mo.assign_state
-                ucs.result['assoc_state'] = ls_mo.assoc_state
-                if ls_mo.assign_state == 'assigned' and ls_mo.assoc_state == 'associated':
+
+            if pn_req_mo_exists:
+                if not module.check_mode:
+                    ucs.login_handle.remove_mo(pn_req_mo)
+                    ucs.login_handle.add_mo(ls_mo, True)
+                    ucs.login_handle.commit()
+                changed = True
+        elif ls_mo_exists:
+            # check if logical server is assigned and associated
+            ucs.result['assign_state'] = ls_mo.assign_state
+            ucs.result['assoc_state'] = ls_mo.assoc_state
+            if module.params['server_assignment'] == 'pool' and pn_req_mo_exists:
+                # check the current pool
+                kwargs = dict(name=module.params['server_pool_name'])
+                kwargs['restrict_migration'] = module.params['restrict_migration']
+                if pn_req_mo.check_prop_match(**kwargs):
+                    props_match = True
+            elif pn_mo_exists:
+                kwargs = dict(pn_dn=module.params['server_dn'])
+                kwargs['restrict_migration'] = module.params['restrict_migration']
+                if pn_mo.check_prop_match(**kwargs):
                     props_match = True
 
             if not props_match:
                 if not module.check_mode:
                     # create if mo does not already exist in desired state
-                    if module.params.get('server_dn'):
-                        mo = LsBinding(
-                            parent_mo_or_dn=ls_dn,
-                            pn_dn=module.params['server_dn'],
-                            restrict_migration=module.params['restrict_migration'],
-                        )
-                    else:
-                        mo = LsRequirement(
-                            parent_mo_or_dn=ls_dn,
+                    if module.params['server_assignment'] == 'pool':
+                        LsRequirement(
+                            parent_mo_or_dn=ls_mo,
                             name=module.params['server_pool_name'],
                             restrict_migration=module.params['restrict_migration'],
                         )
+                    else:
+                        if pn_req_mo_exists:
+                            ucs.login_handle.remove_mo(pn_req_mo)
 
-                    ucs.login_handle.add_mo(mo, True)
+                        LsBinding(
+                            parent_mo_or_dn=ls_mo,
+                            pn_dn=module.params['server_dn'],
+                            restrict_migration=module.params['restrict_migration'],
+                        )
+
+                    ucs.login_handle.add_mo(ls_mo, True)
                     ucs.login_handle.commit()
                     ls_mo = ucs.login_handle.query_dn(ls_dn)
                     if ls_mo:
