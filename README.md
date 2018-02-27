@@ -35,8 +35,8 @@ Modules submitted to Ansible are also used in roles now available on Ansible Gal
 |                        | Server BIOS Policy | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
 |                        | FW/Power/Maintenance Polices | TBD | TBD  |
 |                        | Boot Policy        | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
-|                        | Service Profile Template | TBD   | PoC: see https://github.com/dsoper2/ucsm-ansible |
-|                        | Service Profiles   | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+|                        | Service Profile Template | ucs_service_profile_template | Planned for 2.6 |
+|                        | Service Profile from Template | ucs_service_profile_from_template | Planned for 2.6 |
 |                        | Service Profile assoc/disassoc | ucs_service_profile_association | Planned for 2.6 |
 | Admin                  | NTP                | TBD         | PoC: cisco_ucs_ntp module |
 
