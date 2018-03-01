@@ -40,6 +40,19 @@ Modules submitted to Ansible are also used in roles now available on Ansible Gal
 |                        | Service Profile assoc/disassoc | ucs_service_profile_association | Planned for 2.6 |
 | Admin                  | NTP                | TBD         | PoC: cisco_ucs_ntp module |
 
+### Ansible Development Notes
+
+ucs_ modules in development follow processes documented at http://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html.  The modules support ansible-doc, and when submitted to Ansible they must pass Ansible CI testing and have integration tests.
+
+When developing ucs_ modules in this repository, here are a few helpful commands to sanity check the code and documentation (replace module_name with your module (e.g., ucs_vlans)).  Ansible modules won't generally be pylint or pycodestyle (PEP8) clean without disabling several of the checks:
+  ```
+  pylint --disable=invalid-name,no-member,too-many-nested-blocks,redefined-variable-type,too-many-statements,too-many-branches,broad-except,line-too-long,missing-docstring,wrong-import-position,too-many-locals <module_name>.py
+  
+  pycodestyle --max-line-length 160 --config /dev/null --ignore E402 <module_name>.py
+  
+  ansible-doc <module_name>
+  ```
+
 # Previously provided install/uninstall instructions for modules prefixed with cisco that are not part of Ansible 2.5
 
 ### install
