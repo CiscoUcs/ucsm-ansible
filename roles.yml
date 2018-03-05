@@ -1,0 +1,15 @@
+---
+#
+# For use with roles published to Ansible Galaxy:
+#   https://galaxy.ansible.com/list#/roles?autocomplete=ucs
+# If ucs (or other) hosts are not specified, localhost will use default settings which connect to dCloud's UCS environment:
+#   https://dcloud2-rtp.cisco.com/demo/cisco-ucs-3-2-v1
+#
+- hosts: ucs
+# - hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+  - CiscoUcs.ucs-lan
+  - CiscoUcs.ucs-san
+  - CiscoUcs.ucs-servers
