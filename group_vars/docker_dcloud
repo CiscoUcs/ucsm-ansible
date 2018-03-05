@@ -1,0 +1,72 @@
+---
+# Variables for the CiscoUcs.ucs-san/lan/servers roles.
+# Default values are based on the FlexPod Datacenter with Docker EE Cisco Validated Design (CVD).
+# The CVD is available at https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/UCS_CVDs/flexpod_docker_deploy_design.html.
+# Default UCS Manager login information can be used with the Cisco demo Cloud UCS 3.2 environment: https://dcloud-cms.cisco.com/demo/cisco-ucs-3-2-v1.
+#
+# This variables file can be used to override default settings or skip a configuration task (by providing an empty list).
+#
+
+# Docker EE CVD SAN related settings
+ucs_wwnn_pools:
+# empty list will skip configuration in dCloud's environment
+ucs_wwpn_pools:
+# empty list will skip configuration in dCloud's environment
+ucs_vsans:
+# empty list will skip configuration in dCloud's environment
+ucs_vhba_templates:
+# empty list will skip configuration in dCloud's environment
+ucs_san_connectivity_policies:
+# empty list will skip configuration in dCloud's environment
+
+# Docker EE CVD LAN related settings
+ucs_ip_pools:
+# empty list will skip configuration in dCloud's environment
+ucs_vlans:
+- name: UCS_Data_10
+  id: '10'
+ucs_vnic_templates:
+- name: Cntr-Template
+  fabric: A-B
+  template_type: updating-template
+  mac_pool: MAC-Pool-A
+  network_control_policy: Enable-CDP-LLDP
+  vlans_list:
+  - name: UCS_Data_10
+    native: 'yes'
+ucs_lan_connectivity_policies:
+- name: Cntr-FC-Boot
+  vnic_list:
+  - name: vNIC-Management
+    vnic_template: Cntr-Template
+    adapter_policy: Linux
+
+# Docker EE CVD Server related settings
+ucs_service_profile_templates:
+- name: Docker-Host-FC-A
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  power_state: up
+ucs_service_profiles_from_templates:
+- name: Docker-Host-01
+  source_template: Docker-Host-FC-A
+  user_label: UCP-Ctrl-1
+- name: Docker-Host-02
+  source_template: Docker-Host-FC-A
+  user_label: UCP-Ctrl-2
+- name: Docker-Host-03
+  source_template: Docker-Host-FC-A
+  user_label: DDC-DTR-1
+- name: Docker-Host-04
+  source_template: Docker-Host-FC-A
+  user_label: DDC-DTR-2
+- name: Docker-Host-05
+  source_template: Docker-Host-FC-A
+  user_label: UCP-Node-1
+- name: Docker-Host-06
+  source_template: Docker-Host-FC-A
+  user_label: UCP-Node-2
