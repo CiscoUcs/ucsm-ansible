@@ -212,7 +212,7 @@ def main():
         if module.params.get('objects'):
             objects = module.params['objects']
         else:
-            # only one of objects of config file can be specified, if no objects then use a config file
+            # either objects or json_config_file will be specified, so if there is no objects option use a config file
             with open(module.params['json_config_file']) as f:
                 objects = json.load(f)['objects']
 
