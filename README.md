@@ -10,7 +10,12 @@ Ansible 2.5 will ship with several UCS modules and we are working to include mor
 
 Modules in the library directory that are prefixed with ucs (and not cisco) are submitted or in development.  utils/remote_management is the module_utils location.
 
-There is currently not support for scripted install/uninstall to avoid collision with Ansible hosted modules and ongoing maintenance.  You can specfiy this repo as a library and module_utils location with env variables or command line options (e.g., ANSIBLE_LIBRARY=./library ANSIBLE_MODULE_UTILS=./utils ansible-playbook ..).
+There is currently not support for scripted install/uninstall to avoid collision with Ansible hosted modules and ongoing maintenance.  You can specfiy this repo as a library and module_utils location with env variables or command line options (e.g., ANSIBLE_LIBRARY=./library ANSIBLE_MODULE_UTILS=./utils ansible-playbook ..).  The .ansible.cfg file can also be updated to use this repo as the library and module_utils path with the following:
+```
+[defaults]
+library = <path to ucsm-ansible clone>/library
+module_utils = <path to ucsm-ansible clone>/utils
+```
 
 Modules submitted to Ansible are also used in roles now available on Ansible Galaxy: https://galaxy.ansible.com/list#/roles?autocomplete=ucs
 
