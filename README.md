@@ -6,9 +6,9 @@
 
 ## News
 
-Ansible 2.5 will ship with several UCS modules and we are working to include more in upcoming releases.  This repo represents the working copy of modules submitted to Ansible or in development for future submission.
+Ansible 2.5 will ship with several UCS modules and we are working to include more in upcoming releases.  This repo represents the working copy of modules submitted to Ansible or in development for future submission.  This repo can be used to provide UCS Ansible modules before their inclusion in official Ansible releases.
 
-Modules in the library directory that are prefixed with ucs (and not cisco) are submitted or in development.  utils/remote_management is the module_utils location.
+Modules in the library directory that are prefixed with ucs (and not cisco) are submitted or in development.  utils/remote_management is the module_utils location for modules being actively maintained.
 
 There is currently not support for scripted install/uninstall to avoid collision with Ansible hosted modules and ongoing maintenance.  You can specfiy this repo as a library and module_utils location with env variables or command line options (e.g., ANSIBLE_LIBRARY=./library ANSIBLE_MODULE_UTILS=./utils ansible-playbook ..).  Alternatively, your .ansible.cfg file can be updated to use this repo as the library and module_utils path with the following:
 ```
@@ -60,36 +60,24 @@ When developing ucs_ modules in this repository, here are a few helpful commands
   ansible-doc <module_name>
   ```
 
-# Previously provided install/uninstall instructions for modules prefixed with cisco that are not part of Ansible 2.5
-
 ### install
 - ansible must be installed
 ```
 sudo pip install ansible
 ```
-- you will need the latest ucsmsdk.
+- you will also need the ucsmsdk.
 ```
-git clone https://github.com/ciscoucs/ucsmsdk
-cd ucsmsdk
-sudo make install
+sudo pip install ucsmsdk
 ```
-- you will need the latest ucsm_apis.
-```
-git clone https://github.com/ciscoucs/ucsm_apis
-cd ucsm_apis
-sudo make install
-```
-- clone this repository and install the ansible modules
+- clone this repository 
 ```
 git clone https://github.com/ciscoucs/ucsm-ansible
-cd ucsm-ansible
-sudo python install.py
 ```
-
-### uninstall
+- Specfiy this repository as a library and module_utils location in your .ansible.cfg file
 ```
-cd ucsm-ansible
-sudo python uninstall.py
+[defaults]
+library = <path to ucsm-ansible clone>/library
+module_utils = <path to ucsm-ansible clone>/utils
 ```
 
 # Community:
