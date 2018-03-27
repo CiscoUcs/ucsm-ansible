@@ -14,6 +14,8 @@ There is currently not support for scripted install/uninstall to avoid collision
 
 Modules submitted to Ansible are also used in roles now available on Ansible Galaxy: https://galaxy.ansible.com/list#/roles?autocomplete=ucs
 
+Cisco's demo Cloud (dcloud.cisco.com) can be used to test and demo the Ansible modules and corresponding roles.  dCloud provides both a Hardware based environment (https://dcloud2-rtp.cisco.com/content/catalogue?search=unified%20computing%20system ) and an emulated environment (https://dcloud2-sjc.cisco.com/content/catalogue?search=ucs%20programmability ) that can be used with the UCS Ansible modules.
+
 ### Current Development Status
 
 | Configuration Category | Configuration Task | Module Name | Status (part of 2.5, Proof of Concept, TBD |
