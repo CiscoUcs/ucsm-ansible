@@ -12,10 +12,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = r'''
 ---
-module: ucs_storage_profile
+module: ucs_disk_group_policy
 short_description: Creates and deletes storage profile on Cisco UCS Manager
 description:
-- Creates storage profile on Cisco UCS Manager.
+- Creates disk group policy on Cisco UCS Manager.
 - Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
@@ -27,7 +27,7 @@ options:
     default: present
   name:
     description:
-    - Name of the storage profile
+    - Name of the disk group policy
 requirements:
 - ucsmsdk
 author:
@@ -37,7 +37,7 @@ version_added: '2.5'
 '''
 
 EXAMPLES = r'''
-ucs_storage_profile:
+ucs_disk_group_policy:
     hostname: 10.0.1.10
     username: my_username
     password: my_password
@@ -48,7 +48,7 @@ ucs_storage_profile:
 
     ---
 
-ucs_storage_profile:
+ucs_disk_group_policy:
     hostname: 10.0.1.10
     username: my_username
     password: my_password
@@ -65,7 +65,7 @@ ucs_storage_profile:
     When using an inventory file, the variables defined in the
     inventory file are used
 
-ucs_storage_profile:
+ucs_disk_group_policy:
     hostname: "{{ucs_ip}}"
     username: "{{ucs_username}}"
     password: "{{ucs_password}}"
