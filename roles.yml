@@ -13,3 +13,4 @@
   - CiscoUcs.ucs-lan
   - CiscoUcs.ucs-san
   - CiscoUcs.ucs-servers
+  - CiscoUcs.ucs-storage
