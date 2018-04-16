@@ -1,5 +1,5 @@
 [docker_dcloud]
-ucs1
+ucs1 ucs_hostname=198.18.0.10 ucs_username='ucs-dCloud\demouser' ucs_password=edit_password ucs_state=present
 
 [ucs:children]
 docker_dcloud

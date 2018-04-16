@@ -1,31 +1,21 @@
 ---
-# Variables for the CiscoUcs.ucs-san/lan/servers roles.
-# Default values are based on the FlexPod Datacenter with Docker EE Cisco Validated Design (CVD).
-# The CVD is available at https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/UCS_CVDs/flexpod_docker_deploy_design.html.
-# Default UCS Manager login information can be used with the Cisco demo Cloud UCS 3.2 environment: https://dcloud-cms.cisco.com/demo/cisco-ucs-3-2-v1.
+# Variables for the CiscoUcs.ucs role used in dCloud
 #
 # This variables file can be used to override default settings or skip a configuration task (by providing an empty list).
+# Default settings are located in the defaults/main.yml files for each lan/san/storage/servers/etc. role.
 #
 
-# Docker EE CVD SAN related settings
-ucs_wwnn_pools:
-# empty list will skip configuration in dCloud's environment
-ucs_wwpn_pools:
-# empty list will skip configuration in dCloud's environment
-ucs_vsans:
-# empty list will skip configuration in dCloud's environment
-ucs_vhba_templates:
-# empty list will skip configuration in dCloud's environment
-ucs_san_connectivity_policies:
-# empty list will skip configuration in dCloud's environment
-
-# Docker EE CVD LAN related settings
+# LAN related settings
 ucs_ip_pools:
 # empty list will skip configuration in dCloud's environment
+ucs_port_channels:
+# empty list will skip configuration in dCloud's environment
 ucs_vlans:
+# only using VLAN 10 in dCloud
 - name: UCS_Data_10
   id: '10'
 ucs_vnic_templates:
+# adjust vNIC templates and LAN connectivity policy for dCloud (single vNIC)
 - name: Cntr-Template
   fabric: A-B
   template_type: updating-template
@@ -41,8 +31,33 @@ ucs_lan_connectivity_policies:
     vnic_template: Cntr-Template
     adapter_policy: Linux
 
-# Docker EE CVD Server related settings
+# SAN related settings (SAN not used in dCloud)
+ucs_wwnn_pools:
+# empty list will skip configuration in dCloud's environment
+ucs_wwpn_pools:
+# empty list will skip configuration in dCloud's environment
+ucs_vsans:
+# empty list will skip configuration in dCloud's environment
+ucs_vhba_templates:
+# empty list will skip configuration in dCloud's environment
+ucs_san_connectivity_policies:
+# empty list will skip configuration in dCloud's environment
+
+# Storage settings (no used in dCloud)
+ucs_storage_profiles:
+# empty list will skip configuration in dCloud's environment
+ucs_disk_group_policies:
+# empty list will skip configuration in dCloud's environment
+ucs_manual_disk_groups:
+# empty list will skip configuration in dCloud's environment
+ucs_local_luns:
+# empty list will skip configuration in dCloud's environment
+
+# Servers settings
+ucs_boot_policies:
+# empty list will skip configuration in dCloud's environment
 ucs_service_profile_templates:
+# use dCloud's existing boot policy and server pool
 - name: Docker-Host-FC-A
   template_type: updating-template
   uuid_pool: UUID-Pool
