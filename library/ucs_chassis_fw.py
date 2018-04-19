@@ -142,7 +142,6 @@ def main():
 				kwargs = dict(name=module.params['name'])
 				kwargs['chassis_bundle_version'] = module.params['chassis_package']
 				kwargs['service_pack_bundle_version'] = module.params['service_pack']
-				kwargs['chassis_component'] = module.params['excluded_components']
 				if (mo.check_prop_match(**kwargs)):
 					props_match = True
 
