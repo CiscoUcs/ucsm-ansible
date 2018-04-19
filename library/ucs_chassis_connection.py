@@ -124,6 +124,7 @@ def main():
 			if mo_exists:
 				# check top-level mo props
 				kwargs = dict(name=module.params['name'])
+				kwargs['descr'] = module.params['description']
 				kwargs['server_sioc_connectivity'] = module.params['sioc_connectivity']
 				if (mo.check_prop_match(**kwargs)):
 					props_match = True
