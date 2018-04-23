@@ -154,12 +154,11 @@ def main():
 				# check top-level mo props
 				kwargs = dict(name=module.params['name'])
 				kwargs['descr'] = module.params['description']
-				kwargs['type'] = module.params['template_type']
-				kwargs['maint_policy_name'] = module.params['maintenance_policy']
 				kwargs['chassis_fw_policy_name'] = module.params['firmware_package']
 				kwargs['compute_conn_policy_name'] = module.params['compute_connection_policy']
-				#kwargs['sas_expander_config_policy_name'] = module.params['sas_expander_policy']
 				kwargs['disk_zoning_policy_name'] = module.params['disk_zoning_policy']
+				if (mo.check_prop_match(**kwargs)):
+					props_match = True
 				
 			if not props_match:
 				if not module.check_mode:
