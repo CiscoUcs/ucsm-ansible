@@ -120,6 +120,7 @@ def main():
 			if mo_exists:
 				# check top-level mo props
 				kwargs = dict(src_templ_name=module.params['source_template'])
+				kwargs['descr'] = module.params['description']
 				# chassis profiles are of type 'instance'
 				kwargs['type'] = 'instance'
 
