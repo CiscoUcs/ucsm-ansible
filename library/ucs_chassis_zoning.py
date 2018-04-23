@@ -165,8 +165,6 @@ def main():
 	from ucsmsdk.mometa.lstorage.LstorageDiskSlot import LstorageDiskSlot
 	from ucsmsdk.mometa.lstorage.LstorageDiskZoningPolicy import LstorageDiskZoningPolicy
 
-	#slot_range = list(parse_range_list['slot_range'])
-
 	changed = False
 	try:
 		mo_exists = False
@@ -187,8 +185,22 @@ def main():
 			if mo_exists:
 				# check top-level mo props
 				kwargs = dict(name=module.params['name'])
+				kwargs['descr'] = module.params['descr']
 				if (mo.check_prop_match(**kwargs)):
-					props_match = True
+					if module.params['slot_range']:
+						filter_zoning = '(name, ' + module.params['name'] + ' ,type="eq")'
+						mo_1 = ucs.login_handle.query_classid("LstorageDiskZoningPolicy", filter_str=filter_zoning)
+						for i in mo_1:
+							mo_2 = ucs.login_handle.query_children(in_mo=i, class_id="LStorageDiskSlot")
+							mo_3 = []
+							for j in mo_2:
+								mo_3.append(j.id)
+							mo_4 = sorted(map(int,mo_3))
+							mo_5 = list(parse_range_list(module.params['slot_range']))
+							if mo_4 == mo_5:
+								props_match = True
+					else:
+						props_match = True
 
 			if not props_match:
 				if not module.check_mode:
