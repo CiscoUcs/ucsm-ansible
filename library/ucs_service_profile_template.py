@@ -57,7 +57,7 @@ options:
     aliases: [ descr ]
   storage_profile:
     description:
-	- The name of the storage profile you want to associate with service profiles created from this template
+    - The name of the storage profile you want to associate with service profiles created from this template
   local_disk_policy:
     description:
     - The name of the local disk policy you want to associate with service profiles created from this template.
