@@ -194,7 +194,7 @@ def main():
         san_connectivity_policy=dict(type='str', default=''),
         server_pool=dict(type='str', default=''),
         server_pool_qualification=dict(type='str', default=''),
-		storage_profile=dict(type='str', default=''),
+	storage_profile=dict(type='str', default=''),
         power_state=dict(type='str', default='up', choices=['up', 'down']),
         state=dict(type='str', default='present', choices=['present', 'absent']),
     )
@@ -251,7 +251,7 @@ def main():
                 kwargs['stats_policy_name'] = module.params['threshold_policy']
                 kwargs['type'] = module.params['template_type']
                 kwargs['usr_lbl'] = module.params['user_label']
-				kwargs['storage_profile_name'] = module.params['storage_profile']
+		kwargs['storage_profile_name'] = module.params['storage_profile']
                 kwargs['vmedia_policy_name'] = module.params['vmedia_policy']
 
                 if mo.check_prop_match(**kwargs):
@@ -310,9 +310,9 @@ def main():
                     )
 
                     # Storage profile
-					mo_1 = LstorageProfileBinding(
-						parent_mo_or_dn=mo,
-						storage_profile_name=module.params['storage_profile],
+		    mo_1 = LstorageProfileBinding(
+			parent_mo_or_dn=mo,
+			storage_profile_name=module.params['storage_profile],
 					)
                     # LAN/SAN connectivity policy
                     mo_1 = VnicConnDef(
