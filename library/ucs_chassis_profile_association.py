@@ -56,7 +56,7 @@ EXAMPLES = r'''
     username: admin
     password: password
     chassis_profile_name: S3260_1
-	chassis_dn: sys/chassis-1
+    chassis_dn: sys/chassis-1
     restrict_migration: 'yes'
 
 - name: Disassociate Chassis Profile
@@ -77,82 +77,85 @@ from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_s
 
 
 def main():
-	argument_spec = ucs_argument_spec
-	argument_spec.update(
-		org_dn=dict(type='str', default='org-root'),
-		chassis_profile_name=dict(type='str', required=True),
-		chassis_dn=dict(type='str'),
-		restrict_migration=dict(type='str', default='no', choices=['yes', 'no']),
-		state=dict(default='present', choices=['present', 'absent'], type='str'),
-	)
-	module = AnsibleModule(
-		argument_spec,
-		supports_check_mode=True,
-	)
-	ucs = UCSModule(module)
+    argument_spec = ucs_argument_spec
+    argument_spec.update(
+        org_dn=dict(type='str', default='org-root'),
+        chassis_profile_name=dict(type='str', required=True),
+        chassis_dn=dict(type='str'),
+        restrict_migration=dict(type='str', default='no', choices=['yes', 'no']),
+        state=dict(default='present', choices=['present', 'absent'], type='str'),
+    )
+    module = AnsibleModule(
+        argument_spec,
+        supports_check_mode=True,
+    )
+    ucs = UCSModule(module)
 
-	err = False
+    err = False
 
-	# UCSModule verifies ucsmsdk is present and exits on failure.  Imports are below ucs object creation.
-	from ucsmsdk.mometa.equipment.EquipmentChassisProfile import EquipmentChassisProfile
-	from ucsmsdk.mometa.equipment.EquipmentBinding import EquipmentBinding
+    # UCSModule verifies ucsmsdk is present and exits on failure.  Imports are below ucs object creation.
+    from ucsmsdk.mometa.equipment.EquipmentBinding import EquipmentBinding
 
-	changed = False
-	ucs.result['assign_state'] = 'unassigned'
-	ucs.result['assoc_state'] = 'unassociated'
-	try:
-		mo_exists = False
-		props_match = False
+    changed = False
+    ucs.result['assign_state'] = 'unassigned'
+    ucs.result['assoc_state'] = 'unassociated'
+    try:
+        cp_mo_exists = False
+        assoc_mo_exists = False
+        props_match = False
 
-		# logical chassis distinguished name is <org>/cp-<name>
-		dn = module.params['org_dn'] + '/cp-' + module.params['chassis_profile_name']
-		mo = ucs.login_handle.query_dn(dn)
-		if mo:
-			mo_exists = True
+        # logical chassis distinguished name is <org>/cp-<name>
+        cp_dn = module.params['org_dn'] + '/cp-' + module.params['chassis_profile_name']
+        cp_mo = ucs.login_handle.query_dn(cp_dn)
+        if cp_mo:
+            cp_mo_exists = True
+            assoc_mo_dn = cp_dn + '/chassis'
+            assoc_mo = ucs.login_handle.query_dn(assoc_mo_dn)
+            if assoc_mo:
+                assoc_mo_exists = True
 
-		if module.params['state'] == 'absent':
-			if mo_exists:
-				if not module.check_mode:
-					ucs.login_handle.remove_mo(mo)
-					ucs.login_handle.commit()
-				changed = True
+        if module.params['state'] == 'absent':
+            if cp_mo_exists and cp_mo.assign_state != 'unassigned' and assoc_mo_exists:
+                if not module.check_mode:
+                    ucs.login_handle.remove_mo(assoc_mo)
+                    ucs.login_handle.add_mo(cp_mo, True)
+                    ucs.login_handle.commit()
+                changed = True
 
-		else:
-			if mo_exists:
-				# check if logical chassis is assigned and associated
-				#ucs.result['assign_state'] = mo.assign_state
-				#ucs.result['assoc_state'] = mo.assoc_state
-				kwargs = dict(name=module.params['chassis_profile_name'])
-				if (mo.check_prop_match(**kwargs)):
-					props_match = True
+        else:
+            if cp_mo_exists:
+                ucs.result['assign_state'] = cp_mo.assign_state
+                ucs.result['assoc_state'] = cp_mo.assoc_state
+                if assoc_mo_exists:
+                    # check the current chassis association
+                    kwargs = dict(chassis_dn=module.params['chassis_dn'])
+                    if assoc_mo.check_prop_match(**kwargs):
+                        props_match = True
 
-			if not props_match:
-				if not module.check_mode:
-					#if mo_exists:
-						#ucs.login_handle.remove_mo(mo)
+            if not props_match:
+                if not module.check_mode:
+                    mo = EquipmentBinding(
+                        parent_mo_or_dn=cp_dn,
+                        chassis_dn=module.params['chassis_dn'],
+                        restrict_migration=module.params['restrict_migration'],
+                    )
 
-					mo_1 = EquipmentBinding(
-						parent_mo_or_dn=module.params['org_dn'],
-						chassis_dn='sys/' + module.params['chassis_dn'],
-						restrict_migration=module.params['restrict_migration'],
-					)
+                    ucs.login_handle.add_mo(mo, True)
+                    ucs.login_handle.commit()
+                    cp_mo = ucs.login_handle.query_dn(cp_dn)
+                    if cp_mo:
+                        ucs.result['assign_state'] = cp_mo.assign_state
+                        ucs.result['assoc_state'] = cp_mo.assoc_state
+                changed = True
 
-					ucs.login_handle.add_mo(mo, True)
-					ucs.login_handle.commit()
-					#mo = ucs.login_handle.query_dn(dn)
-					#if mo:
-						#ucs.result['assign_state'] = mo.assign_state
-						#ucs.result['assoc_state'] = mo.assoc_state
-				changed = True
+    except Exception as e:
+        err = True
+        ucs.result['msg'] = "setup error: %s " % str(e)
 
-	except Exception as e:
-		err = True
-		ucs.result['msg'] = "setup error: %s " % str(e)
-
-	ucs.result['changed'] = changed
-	if err:
-		module.fail_json(**ucs.result)
-	module.exit_json(**ucs.result)
+    ucs.result['changed'] = changed
+    if err:
+        module.fail_json(**ucs.result)
+    module.exit_json(**ucs.result)
 
 
 if __name__ == '__main__':
