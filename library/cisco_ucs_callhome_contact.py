@@ -1,4 +1,20 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+
 
 from ansible.module_utils.basic import *
 
@@ -10,10 +26,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: cisco_ucs_callhome_contact
-short_description: configures callhome contact on a cisco ucs server
-version_added: 0.9.0.0
+short_description: Configures callhome contact on a cisco ucs server.
+version_added: "0.9.0.0"
 description:
-   -  configures callhome contact on a cisco ucs server
+   -  Configures callhome contact on a cisco ucs server.
 options:
     contact:
         version_added: "1.0(1e)"
