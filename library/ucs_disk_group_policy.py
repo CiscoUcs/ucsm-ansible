@@ -28,7 +28,11 @@ options:
 
   name:
     description:
-    - Name of the disk group policy 
+    - Name of the disk group policy
+    - When creating multiple disk group policies, disk group policy name, start index as suffix to name and
+      required number of policies can be specified as comma separated values.
+    - For example, name: my_grp, 1, 60 - in this example 60 disk group policies are created 
+      starting with the name my_grp1 to my_grp60. 
   
   raid_level:
     description:
@@ -41,7 +45,8 @@ options:
       - RAID 50 Striped Parity and Striped
       - RAID 60 Striped Dual Parity and Striped
     - Note:
-      - When disk group with RAID 1 policy with four disks is created, storage controller creates a RAID1E configuration internally.
+      - When disk group with RAID 1 policy with four disks is created, storage 
+        controller creates a RAID1E configuration internally.
 
 requirements:
 - ucsmsdk
@@ -73,6 +78,26 @@ ucs_disk_group_policy:
     
     ---
 
+ucs_disk_group_policy:
+    hostname: 10.0.1.10
+    username: my_username
+    password: my_password
+    state: present
+    name: my_grp, name_start_index, num_policies
+    raid_level: stripe
+
+    ---
+
+ucs_disk_group_policy:
+    hostname: 10.0.1.10
+    username: my_username
+    password: my_password
+    state: absent
+    name: my_grp, name_start_index, num_policies
+    raid_level: stripe
+
+    ---
+
     It's a best practice to use the -i option of ansible-playbook
     to specify an inventory file when configuring multiple hosts.
 
@@ -86,6 +111,16 @@ ucs_disk_group_policy:
     state: "{{state}}"
     name: my_dskgrp
     raid_level: mirror
+
+    ---
+
+ucs_disk_group_policy:
+    hostname: "{{ucs_ip}}"
+    username: "{{ucs_username}}"
+    password: "{{ucs_password}}"
+    state: "{{state}}"
+    name: my_grp, name_start_index, num_policies
+    raid_level: stripe
 '''
 
 RETURN = r'''
@@ -107,44 +142,59 @@ def main():
     ucs = UCSModule(module)
 
     from ucsmsdk.mometa.lstorage.LstorageDiskGroupConfigPolicy import LstorageDiskGroupConfigPolicy 
-    err = False
-    changed = False
-    mo_exists = False
 
-    try:
-        dn_base = 'org-root' 
-        mo = LstorageDiskGroupConfigPolicy(parent_mo_or_dn=dn_base,
-                                           name=module.params['name'],
+    num_policies = 1
+    name_start_index = 0
+
+    name_list = module.params['name'].split(',')
+    policy_name_prefix = name_list[0]
+    policy_name = policy_name_prefix
+    if len( name_list ) == 3:
+        name_start_index = int( name_list[1] )
+        num_policies = int( name_list[2] )
+
+    for num in range( name_start_index, name_start_index + num_policies ):
+
+        err = False
+        changed = False
+        mo_exists = False
+        if num_policies > 1:
+            policy_name = policy_name_prefix + str( num )
+
+        try:
+            dn_base = 'org-root' 
+            mo = LstorageDiskGroupConfigPolicy(parent_mo_or_dn=dn_base,
+                                           name=policy_name,
                                            descr=module.params['descr'],
                                            raid_level=module.params['raid_level']) 
 
-        dn = dn_base + '/disk-group-config-' + module.params['name'] 
-        existing_mo = ucs.login_handle.query_dn(dn)
-        if existing_mo:
-            # check top-level mo props
-            kwargs = dict(descr= module.params['descr'])
-            kwargs['raid_level'] = module.params['raid_level']
-            if existing_mo.check_prop_match(**kwargs):
-                mo_exists = True
+            dn = dn_base + '/disk-group-config-' + policy_name 
+            existing_mo = ucs.login_handle.query_dn(dn)
+            if existing_mo:
+                # check top-level mo props
+                kwargs = dict(descr= module.params['descr'])
+                kwargs['raid_level'] = module.params['raid_level']
+                if existing_mo.check_prop_match(**kwargs):
+                    mo_exists = True
        
-        if module.params['state'] == 'absent':
-            if mo_exists:
-                if not module.check_mode: 
-                    # delete mo if dn already exist
-                    ucs.login_handle.remove_mo(mo)
-                    ucs.login_handle.commit()
-                changed = True               
-        else:
-            if not mo_exists:
-                if not module.check_mode:
-                    # create mo if dn does not already exist
-                    ucs.login_handle.add_mo(mo, True)
-                    ucs.login_handle.commit()
-                changed = True
+            if module.params['state'] == 'absent':
+                if mo_exists:
+                    if not module.check_mode: 
+                        # delete mo if dn already exist
+                        ucs.login_handle.remove_mo(mo)
+                        ucs.login_handle.commit()
+                    changed = True               
+            else:
+                 if not mo_exists:
+                    if not module.check_mode:
+                        # create mo if dn does not already exist
+                        ucs.login_handle.add_mo(mo, True)
+                        ucs.login_handle.commit()
+                    changed = True
 
-    except Exception as e:
-        err = True
-        ucs.result['msg'] = "setup error: %s " % str(e)
+        except Exception as e:
+            err = True
+            ucs.result['msg'] = "setup error: %s " % str(e)
 
     ucs.result['changed'] = changed
     if err:
