@@ -147,6 +147,7 @@ def main():
 
     from ucsmsdk.mometa.ls.LsRequirement import LsRequirement
     from ucsmsdk.mometa.ls.LsBinding import LsBinding
+    from ucsmsdk.mometa.ls.LsServer import LsServer
 
     changed = False
     ucs.result['assign_state'] = 'unassigned'
@@ -172,20 +173,18 @@ def main():
             if pn_req_mo:
                 pn_req_mo_exists = True
 
-        if module.params['state'] == 'absent' and ls_mo_exists and ls_mo.assign_state != 'unassigned':
-            if pn_mo_exists:
-                if not module.check_mode:
-                    ucs.login_handle.remove_mo(pn_mo)
-                    ucs.login_handle.add_mo(ls_mo, True)
-                    ucs.login_handle.commit()
-                changed = True
-
-            if pn_req_mo_exists:
-                if not module.check_mode:
-                    ucs.login_handle.remove_mo(pn_req_mo)
-                    ucs.login_handle.add_mo(ls_mo, True)
-                    ucs.login_handle.commit()
-                changed = True
+        if module.params['state'] == 'absent':
+            if ls_mo_exists and ls_mo.assign_state != 'unassigned':
+                if pn_mo_exists:
+                    if not module.check_mode:
+                        ucs.login_handle.remove_mo(pn_mo)
+                        ucs.login_handle.commit()
+                    changed = True
+                elif pn_req_mo_exists:
+                    if not module.check_mode:
+                        ucs.login_handle.remove_mo(pn_req_mo)
+                        ucs.login_handle.commit()
+                    changed = True
         elif ls_mo_exists:
             # check if logical server is assigned and associated
             ucs.result['assign_state'] = ls_mo.assign_state
@@ -205,23 +204,34 @@ def main():
             if not props_match:
                 if not module.check_mode:
                     # create if mo does not already exist in desired state
+                    mo = LsServer(
+                        parent_mo_or_dn=module.params['org_dn'],
+                        name=module.params['service_profile_name'],
+                    )
                     if module.params['server_assignment'] == 'pool':
-                        LsRequirement(
-                            parent_mo_or_dn=ls_mo,
+                        if pn_mo_exists:
+                            ucs.login_handle.remove_mo(pn_mo)
+
+                        mo_1 = LsRequirement(
+                            parent_mo_or_dn=mo,
                             name=module.params['server_pool_name'],
                             restrict_migration=module.params['restrict_migration'],
                         )
                     else:
-                        if pn_req_mo_exists:
-                            ucs.login_handle.remove_mo(pn_req_mo)
-
-                        LsBinding(
-                            parent_mo_or_dn=ls_mo,
+                        mo_1 = LsBinding(
+                            parent_mo_or_dn=mo,
                             pn_dn=module.params['server_dn'],
                             restrict_migration=module.params['restrict_migration'],
                         )
+                        ucs.login_handle.add_mo(mo_1, True)
+                        ucs.login_handle.commit()
+            
+                        pn_req_mo = ucs.login_handle.query_dn(pn_req_dn)
+                        if pn_req_mo:
+                            # profiles from templates will add a server pool, so remove and add the server again
+                            ucs.login_handle.remove_mo(pn_req_mo)
 
-                    ucs.login_handle.add_mo(ls_mo, True)
+                    ucs.login_handle.add_mo(mo_1, True)
                     ucs.login_handle.commit()
                     ls_mo = ucs.login_handle.query_dn(ls_dn)
                     if ls_mo:
