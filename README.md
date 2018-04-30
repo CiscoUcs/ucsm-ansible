@@ -84,7 +84,7 @@ True
 ```
 git clone https://github.com/ciscoucs/ucsm-ansible
 ```
-- Specfiy this repository as a library and module_utils location in your .ansible.cfg file
+- Specfiy this repository as a library and module_utils location in your .ansible.cfg file (module_utils line is not needed for Ansible 2.5 and later)
 ```
 [defaults]
 library = <path to ucsm-ansible clone>/library
