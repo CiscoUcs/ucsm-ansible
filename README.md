@@ -62,12 +62,23 @@ When developing ucs_ modules in this repository, here are a few helpful commands
 
 ### install
 - ansible must be installed
-```
-sudo pip install ansible
-```
+ ```
+ sudo pip install ansible
+ ```
 - you will also need the ucsmsdk.
+  - `sudo pip install ucsmsdk`
+  - If you would like the latest ucsmsdk from GitHub, here is an alternate install method:
+    - `sudo pip install git+https://github.com/CiscoUcs/ucsmsdk.git`
+  - It is a good idea to verify that the ucsmsdk can connect to the domains you want to manage with Ansible.  Here is an example connection test using python:
 ```
-sudo pip install ucsmsdk
+# python
+Python 2.7.14 (default, Apr 27 2018, 14:31:56) 
+[GCC 4.8.5 20150623 (Red Hat 4.8.5-11)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from ucsmsdk import ucshandle
+>>> handle = ucshandle.UcsHandle(ip='172.22.250.236', username='admin', password='password')
+>>> handle.login()
+True
 ```
 - clone this repository 
 ```
