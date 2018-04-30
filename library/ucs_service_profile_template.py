@@ -55,6 +55,9 @@ options:
     - "You can use any characters or spaces except the following:"
     - "` (accent mark), \ (backslash), ^ (carat), \" (double quote), = (equal sign), > (greater than), < (less than), or ' (single quote)."
     aliases: [ descr ]
+  storage_profile:
+    description:
+    - The name of the storage profile you want to associate with service profiles created from this template
   local_disk_policy:
     description:
     - The name of the local disk policy you want to associate with service profiles created from this template.
@@ -191,6 +194,7 @@ def main():
         san_connectivity_policy=dict(type='str', default=''),
         server_pool=dict(type='str', default=''),
         server_pool_qualification=dict(type='str', default=''),
+        storage_profile=dict(type='str', default=''),
         power_state=dict(type='str', default='up', choices=['up', 'down']),
         state=dict(type='str', default='present', choices=['present', 'absent']),
     )
@@ -208,6 +212,7 @@ def main():
     from ucsmsdk.mometa.vnic.VnicConnDef import VnicConnDef
     from ucsmsdk.mometa.ls.LsRequirement import LsRequirement
     from ucsmsdk.mometa.ls.LsPower import LsPower
+    from ucsmsdk.mometa.lstorage.LstorageProfileBinding import LstorageProfileBinding
 
     changed = False
     try:
@@ -304,8 +309,11 @@ def main():
                         vmedia_policy_name=module.params['vmedia_policy'],
                     )
 
-                    # TBD storage profile
-
+                    # Storage profile
+                    mo_1 = LstorageProfileBinding(
+                        parent_mo_or_dn=mo,
+                        storage_profile_name=module.params['storage_profile'],
+                    )
                     # LAN/SAN connectivity policy
                     mo_1 = VnicConnDef(
                         parent_mo_or_dn=mo,
