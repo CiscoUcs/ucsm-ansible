@@ -28,7 +28,11 @@ options:
   
   name:
     description:
-    - Name of the disk group policy 
+    - Name of the disk group policy
+    - When creating multiple disk group policies, disk group policy name, start index as suffix to name and
+      required number of policies can be specified as comma separated values.
+    - For example, name: my_grp, 1, 60 - in this example 60 disk group policies are created
+      starting with the name my_grp1 to my_grp60. 
 
   num_drives:
     description:
@@ -95,6 +99,28 @@ ucs_disk_group_policy_auto:
     
     ---
 
+ucs_disk_group_policy_auto:
+    hostname: 10.0.1.10
+    username: my_username
+    password: my_password
+    state: present
+    name: my_grp, name_start_index, num_policies
+    num_drives: 1
+    min_drive_size: 500
+
+    ---
+
+ucs_disk_group_policy_auto:
+    hostname: 10.0.1.10
+    username: my_username
+    password: my_password
+    state: absent
+    name: my_grp, name_start_index, num_policies
+    num_drives: 1
+    min_drive_size: 500
+
+    ---
+
     It's a best practice to use the -i option of ansible-playbook
     to specify an inventory file when configuring multiple hosts.
 
@@ -108,6 +134,17 @@ ucs_disk_group_policy_auto:
     state: "{{state}}"
     name: my_diskgrp
     num_drives: 4
+    min_drive_size: 500
+
+    ---
+
+ucs_disk_group_policy auto:
+    hostname: "{{ucs_ip}}"
+    username: "{{ucs_username}}"
+    password: "{{ucs_password}}"
+    state: "{{state}}"
+    name: my_grp, name_start_index, num_policies
+    num_drives: 1
     min_drive_size: 500
 
 '''
@@ -136,28 +173,43 @@ def main():
     ucs = UCSModule(module)
 
     from ucsmsdk.mometa.lstorage.LstorageDiskGroupQualifier import LstorageDiskGroupQualifier 
-    err = False
-    changed = False
-    mo_exists = False
 
-    try:
-        dn_base = 'org-root' 
-        dn = dn_base + '/disk-group-config-' + module.params['name'] 
+    num_policies = 1
+    name_start_index = 0
+   
+    name_list = module.params['name'].split(',') 
+    policy_name_prefix = name_list[0]
+    policy_name = policy_name_prefix   
+    if len( name_list ) == 3:
+        name_start_index = int( name_list[1] )
+        num_policies = int( name_list[2] )
 
-        existing_mo = ucs.login_handle.query_dn(dn + '/disk-group-qual')
-        if existing_mo:
-            # check top-level mo props
-            kwargs = dict(num_drives = module.params['num_drives'])
-            kwargs['drive_type'] = module.params['drive_type']
-            kwargs['use_jbod_disks'] = module.params['use_jbod_disks']
-            kwargs['use_remaining_disks'] = module.params['use_remaining_disks']
-            kwargs['num_ded_hot_spares'] = module.params['num_ded_hot_spares']
-            kwargs['num_glob_hot_spares'] = module.params['num_glob_hot_spares']
-            kwargs['min_drive_size'] = module.params['min_drive_size']
-            if existing_mo.check_prop_match(**kwargs):
-                mo_exists = True
+    for num in range( name_start_index, name_start_index + num_policies ):
+    
+        err = False
+        changed = False
+        mo_exists = False
+        if num_policies > 1:
+            policy_name = policy_name_prefix + str( num )
+
+        try:
+            dn_base = 'org-root' 
+            dn = dn_base + '/disk-group-config-' + policy_name 
+
+            existing_mo = ucs.login_handle.query_dn(dn + '/disk-group-qual')
+            if existing_mo:
+                # check top-level mo props
+                kwargs = dict(num_drives = module.params['num_drives'])
+                kwargs['drive_type'] = module.params['drive_type']
+                kwargs['use_jbod_disks'] = module.params['use_jbod_disks']
+                kwargs['use_remaining_disks'] = module.params['use_remaining_disks']
+                kwargs['num_ded_hot_spares'] = module.params['num_ded_hot_spares']
+                kwargs['num_glob_hot_spares'] = module.params['num_glob_hot_spares']
+                kwargs['min_drive_size'] = module.params['min_drive_size']
+                if existing_mo.check_prop_match(**kwargs):
+                    mo_exists = True
        
-        mo_dg_qual = LstorageDiskGroupQualifier(parent_mo_or_dn=dn,
+            mo_dg_qual = LstorageDiskGroupQualifier(parent_mo_or_dn=dn,
                                         num_drives=module.params['num_drives'],
                                         drive_type=module.params['drive_type'],
                                         use_jbod_disks=module.params['use_jbod_disks'],
@@ -166,24 +218,24 @@ def main():
                                         num_glob_hot_spares=module.params['num_glob_hot_spares'],
                                         min_drive_size=module.params['min_drive_size'])
 
-        if module.params['state'] == 'absent':
-            if mo_exists:
-                if not module.check_mode: 
-                    # delete mo if dn already exist
-                    ucs.login_handle.remove_mo(mo_dg_qual)
-                    ucs.login_handle.commit()
-                changed = True               
-        else:
-            if not mo_exists:
-                if not module.check_mode:
-                    # create mo if dn does not already exist
-                    ucs.login_handle.add_mo(mo_dg_qual, True)
-                    ucs.login_handle.commit()
-                changed = True
+            if module.params['state'] == 'absent':
+                if mo_exists:
+                    if not module.check_mode: 
+                        # delete mo if dn already exist
+                        ucs.login_handle.remove_mo(mo_dg_qual)
+                        ucs.login_handle.commit()
+                    changed = True               
+            else:
+                if not mo_exists:
+                    if not module.check_mode:
+                        # create mo if dn does not already exist
+                        ucs.login_handle.add_mo(mo_dg_qual, True)
+                        ucs.login_handle.commit()
+                    changed = True
 
-    except Exception as e:
-        err = True
-        ucs.result['msg'] = "setup error: %s " % str(e)
+        except Exception as e:
+            err = True
+            ucs.result['msg'] = "setup error: %s " % str(e)
 
     ucs.result['changed'] = changed
     if err:
