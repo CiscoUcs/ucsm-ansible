@@ -190,11 +190,11 @@ def main():
         template_type=dict(type='str', default='initial-template', choices=['initial-template', 'updating-template']),
         user_label=dict(type='str', default=''),
         vmedia_policy=dict(type='str', default=''),
+        storage_profile=dict(type='str', default=''),
         lan_connectivity_policy=dict(type='str', default=''),
         san_connectivity_policy=dict(type='str', default=''),
         server_pool=dict(type='str', default=''),
         server_pool_qualification=dict(type='str', default=''),
-        storage_profile=dict(type='str', default=''),
         power_state=dict(type='str', default='up', choices=['up', 'down']),
         state=dict(type='str', default='present', choices=['present', 'absent']),
     )
@@ -256,30 +256,59 @@ def main():
 
                 if mo.check_prop_match(**kwargs):
                     # top-level props match, check next level mo/props
-                    # LAN/SAN connectivity policies
-                    child_dn = dn + '/conn-def'
+                    # code below should discontinue checks once any mismatch is found
+
+                    # check storage profile 1st
+                    child_dn = dn + '/profile-binding'
                     mo_1 = ucs.login_handle.query_dn(child_dn)
                     if mo_1:
-                        kwargs = dict(lan_conn_policy_name=module.params['lan_connectivity_policy'])
-                        kwargs['san_conn_policy_name'] = module.params['san_connectivity_policy']
+                        kwargs = dict(storage_profile_name=module.params['storage_profile'])
                         if mo_1.check_prop_match(**kwargs):
-                            # power state
-                            child_dn = dn + '/power'
-                            mo_1 = ucs.login_handle.query_dn(child_dn)
-                            if mo_1:
-                                kwargs = dict(state=module.params['power_state'])
-                                if mo_1.check_prop_match(**kwargs):
-                                    # server pool
-                                    child_dn = dn + '/pn-req'
-                                    mo_1 = ucs.login_handle.query_dn(child_dn)
-                                    if mo_1:
-                                        kwargs = dict(name=module.params['server_pool'])
-                                        kwargs['qualifier'] = module.params['server_pool_qualification']
-                                        if mo_1.check_prop_match(**kwargs):
-                                            props_match = True
-                                    elif not module.params['server_pool']:
-                                        # no pn-req object and no server pool name provided
-                                        props_match = True
+                            props_match = True
+                    elif not module.params['storage_profile']:
+                        # no stroage profile mo or desired state
+                        props_match = True
+
+                    if props_match:
+                        props_match = False
+                        # LAN/SAN connectivity policies
+                        child_dn = dn + '/conn-def'
+                        mo_1 = ucs.login_handle.query_dn(child_dn)
+                        if mo_1:
+                            kwargs = dict(lan_conn_policy_name=module.params['lan_connectivity_policy'])
+                            kwargs['san_conn_policy_name'] = module.params['san_connectivity_policy']
+                            if mo_1.check_prop_match(**kwargs):
+                                props_match = True
+                        elif not module.params['lan_connectivity_policy'] and not module.params['san_connectivity_policy']:
+                            # no mo and no desired state
+                            props_match = True
+
+                    if props_match:
+                        props_match = False
+                        # power state
+                        child_dn = dn + '/power'
+                        mo_1 = ucs.login_handle.query_dn(child_dn)
+                        if mo_1:
+                            kwargs = dict(state=module.params['power_state'])
+                            if mo_1.check_prop_match(**kwargs):
+                                props_match = True
+                        elif not module.params['power_state']:
+                            # no mo and no desired state
+                            props_match = True
+
+                    if props_match:
+                        props_match = False
+                        # server pool
+                        child_dn = dn + '/pn-req'
+                        mo_1 = ucs.login_handle.query_dn(child_dn)
+                        if mo_1:
+                            kwargs = dict(name=module.params['server_pool'])
+                            kwargs['qualifier'] = module.params['server_pool_qualification']
+                            if mo_1.check_prop_match(**kwargs):
+                                props_match = True
+                        elif not module.params['server_pool']:
+                            # no pn-req object and no server pool name provided
+                            props_match = True
 
             if not props_match:
                 if not module.check_mode:
