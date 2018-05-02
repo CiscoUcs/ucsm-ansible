@@ -56,32 +56,31 @@ ucs_local_luns:
 # Servers settings
 ucs_boot_policies:
 # empty list will skip configuration in dCloud's environment
+ucs_host_firmware_packages:
+# empty list will skip configuration in dCloud's environment
 ucs_service_profile_templates:
 # use dCloud's existing boot policy and server pool
-- name: Docker-Host-FC-A
+- name: DEE-Ctrl
   template_type: updating-template
   uuid_pool: UUID-Pool
   lan_connectivity_policy: Cntr-FC-Boot
   boot_policy: Razor_Boot
   maintenance_policy: User_Ack_Policy
   server_pool: General-Server_Pool
-  power_state: up
-ucs_service_profiles_from_templates:
-- name: Docker-Host-01
-  source_template: Docker-Host-FC-A
-  user_label: UCP-Ctrl-1
-- name: Docker-Host-02
-  source_template: Docker-Host-FC-A
-  user_label: UCP-Ctrl-2
-- name: Docker-Host-03
-  source_template: Docker-Host-FC-A
-  user_label: DDC-DTR-1
-- name: Docker-Host-04
-  source_template: Docker-Host-FC-A
-  user_label: DDC-DTR-2
-- name: Docker-Host-05
-  source_template: Docker-Host-FC-A
-  user_label: UCP-Node-1
-- name: Docker-Host-06
-  source_template: Docker-Host-FC-A
-  user_label: UCP-Node-2
+  bios_policy: Docker
+- name: DEE-DTR
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  bios_policy: Docker
+- name: DEE-Wrk
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  bios_policy: Docker
