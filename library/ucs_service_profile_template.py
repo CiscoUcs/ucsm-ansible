@@ -127,6 +127,15 @@ options:
   user_label:
     description:
     - The User Label you want to assign to service profiles created from this template.
+  mgmt_interface_mode:
+    description:
+    - The Management Interface you want to assign to service profiles created from this template.
+  mgmt_vnet_name:
+    description:
+    - A VLAN selected from the associated VLAN group.
+  mgmt_inband_pool_name:
+    description:
+    - How the inband management IPv4 address is derived for the server associated with this service profile.
   org_dn:
     description:
     - Org dn (distinguished name)
@@ -196,6 +205,9 @@ def main():
         server_pool=dict(type='str', default=''),
         server_pool_qualification=dict(type='str', default=''),
         power_state=dict(type='str', default='up', choices=['up', 'down']),
+        mgmt_interface_mode=dict(type='str', default='', choices=['in-band']),
+        mgmt_vnet_name=dict(type='str', default=''),
+        mgmt_inband_pool_name=dict(type='str', default=''),
         state=dict(type='str', default='present', choices=['present', 'absent']),
     )
 
@@ -213,6 +225,9 @@ def main():
     from ucsmsdk.mometa.ls.LsRequirement import LsRequirement
     from ucsmsdk.mometa.ls.LsPower import LsPower
     from ucsmsdk.mometa.lstorage.LstorageProfileBinding import LstorageProfileBinding
+    from ucsmsdk.mometa.mgmt.MgmtInterface import MgmtInterface
+    from ucsmsdk.mometa.mgmt.MgmtVnet import MgmtVnet
+    from ucsmsdk.mometa.vnic.VnicIpV4MgmtPooledAddr import VnicIpV4MgmtPooledAddr
 
     changed = False
     try:
@@ -245,6 +260,7 @@ def main():
                 kwargs['local_disk_policy_name'] = module.params['local_disk_policy']
                 kwargs['maint_policy_name'] = module.params['maintenance_policy']
                 kwargs['mgmt_access_policy_name'] = module.params['ipmi_access_profile']
+                kwargs['mgmt_interface'] = module.params['mgmt_interface_mode']
                 kwargs['power_policy_name'] = module.params['power_control_policy']
                 kwargs['power_sync_policy_name'] = module.params['power_sync_policy']
                 kwargs['scrub_policy_name'] = module.params['scrub_policy']
@@ -337,11 +353,25 @@ def main():
                         usr_lbl=module.params['user_label'],
                         vmedia_policy_name=module.params['vmedia_policy'],
                     )
-
                     # Storage profile
                     mo_1 = LstorageProfileBinding(
                         parent_mo_or_dn=mo,
                         storage_profile_name=module.params['storage_profile'],
+                    )
+                    # Management Interface
+                    mo_1 = MgmtInterface(
+                        parent_mo_or_dn=mo,
+                        mode=module.params['mgmt_interface_mode'],
+                        ip_v4_state="pooled",
+                    )
+                    mo_2 = MgmtVnet(
+                        parent_mo_or_dn=mo_1,
+                        id="1",
+                        name=module.params['mgmt_vnet_name'],
+                    )
+                    mo_3 = VnicIpV4MgmtPooledAddr(
+                        parent_mo_or_dn=mo_2,
+                        name=module.params['mgmt_inband_pool_name'],
                     )
                     # LAN/SAN connectivity policy
                     mo_1 = VnicConnDef(
