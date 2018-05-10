@@ -38,19 +38,19 @@ options:
 
   slot_id:
     description:
-    - Specify the adapter slot id number.
+    - Specify the adapter slot id number. slot_id represents the SAS/SATA drives in the server.
     - For setting multiple slots ids, provide first slot id and total number of slots as
       comma separated values.
-    - For example, blade_id: 1, 8 - in this example 1 represents the first slot.
-    - and 8 represents the total number of slots on which the operation has to be performed.
+    - For example, slot_id: 1, 3 - in this example 1 represents the first slot.
+    - and 3 represents the total number of slots on which the operation has to be performed.
 
   disk_id:
     description:
     - Specify the disk id number.
     - For setting multiple disk ids, provide first disk id and total number of disks as
       comma separated values.
-    - For example, blade_id: 1, 8 - in this example 1 represents the first disk.
-    - and 8 represents the total number of disks on which the operation has to be performed.
+    - For example, disk_id: 1, 2 - in this example 1 represents the first disk.
+    - and 2 represents the total number of disks on which the operation has to be performed.
 
   disk_state:
     description:
@@ -70,7 +70,7 @@ ucs_storage_local_disk_blade:
     username: my_username
     password: my_password
     chassis_id: 2
-    blade_id: 5, 6
+    blade_id: 2, 6
     slot_id: 1
     disk_id: 1, 2
     disk_state: "jbod"
@@ -82,7 +82,7 @@ ucs_storage_local_disk_blade:
     username: my_username
     password: my_password
     chassis_id: 2
-    blade_id: 5, 6
+    blade_id: 2, 6
     slot_id: 1
     disk_id: 1, 2
     disk_state: "unconfigured-good"
@@ -100,7 +100,7 @@ ucs_storage_local_disk_blade:
     username: "{{ucs_username}}"
     password: "{{ucs_password}}"
     chassis_id: 2
-    blade_id: 5, 6
+    blade_id: 2, 6
     slot_id: 1
     disk_id: 1, 2
     #disk_state: "unconfigured-good"
