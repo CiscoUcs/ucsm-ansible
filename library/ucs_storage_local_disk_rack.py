@@ -25,23 +25,23 @@ options:
     - Specify the server id number.
     - For multiple server options, provide first server id and total number of servers as
       comma separated values.
-    - For example, blade_id: 1, 8 - in this example 1 represents the first server.
+    - For example, rack_id: 1, 8 - in this example 1 represents the first server.
     - and 8 represents the total number of servers on which the operation has to be performed.
 
   slot_id:
     description:
-    - Specify the adapter slot id number.
+    - Specify the adapter slot id number. slot_id represents the SAS/SATA drive slots in the server.
     - For setting multiple slots ids, provide first slot id and total number of slots as
       comma separated values.
-    - For example, blade_id: 1, 8 - in this example 1 represents the first slot.
-    - and 8 represents the total number of slots on which the operation has to be performed.
+    - For example, slot_id: 1, 2 - in this example 1 represents the first slot.
+    - and 2 represents the total number of slots on which the operation has to be performed.
 
   disk_id:
     description:
     - Specify the disk id number.
     - For setting multiple disk ids, provide first disk id and total number of disks as
       comma separated values.
-    - For example, blade_id: 1, 8 - in this example 1 represents the first disk.
+    - For example, disk_id: 1, 8 - in this example 1 represents the first disk.
     - and 8 represents the total number of disks on which the operation has to be performed.
   
   disk_state:
@@ -61,7 +61,7 @@ ucs_storage_local_disk_rack:
     hostname: 10.0.1.10 
     username: my_username 
     password: my_password 
-    rack_id: 5, 6
+    rack_id: 1, 3
     slot_id: 1
     disk_id: 1, 2
     disk_state: "unconfigured-good"
@@ -72,7 +72,7 @@ ucs_storage_local_disk_rack:
     hostname: 10.0.1.10
     username: my_username
     password: my_password
-    rack_id: 5, 6
+    rack_id: 1, 3
     slot_id: 1
     disk_id: 1, 2
     disk_state: "jbod"
@@ -89,7 +89,7 @@ ucs_storage_local_disk_rack:
     hostname: "{{ucs_ip}}"
     username: "{{ucs_username}}"
     password: "{{ucs_password}}"
-    rack_id: 5, 6
+    rack_id: 1, 3
     slot_id: 1
     disk_id: 1, 2
     #disk_state: "unconfigured-good"
