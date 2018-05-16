@@ -160,6 +160,35 @@ ucs_storage_local_disk_s_series:
 
     ---	
 
+- Using the check mode and retry options you can wait till the desired state is reached
+- For this, you need to run the task twice with the same parameters specified as shown in the example below
+- While the first one does the commit or updates the dn, the second one checks if the desired state is reached
+- You can increase the retries number based on number of chassis/ blades 
+
+ucs_storage_local_disk_s_series:
+    hostname: "{{ucs_ip}}"
+    username: "{{ucs_username}}"
+    password: "{{ucs_password}}"
+    chassis_id: 1
+    disk_id: 1, 56
+    blade_enc: False
+    disk_state: "jbod"
+ 
+ucs_storage_local_disk_s_series:
+    hostname: "{{ucs_ip}}"
+    username: "{{ucs_username}}"
+    password: "{{ucs_password}}"
+    chassis_id: 1
+    disk_id: 1, 56
+    blade_enc: False
+    disk_state: "jbod"
+check_mode: yes
+register: result
+until: result.changed == False
+retries: 120
+delay: 10
+
+
 '''
 
 RETURN = r'''
