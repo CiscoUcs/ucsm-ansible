@@ -309,15 +309,15 @@ def main():
                         if mo_1:
                             kwargs = dict(mode=module.params['mgmt_interface_mode'])
                             if mo_1.check_prop_match(**kwargs):
-                                child_dn = child_dn + '/network'
+                                child_dn = child_dn + '/ipv4-pooled-addr'
                                 mo_2 = ucs.login_handle.query_dn(child_dn)
                                 if mo_2:
-                                    kwargs = dict(mode=module.params['mgmt_vnet_name'])
+                                    kwargs = dict(mode=module.params['mgmt_inband_pool_name'])
                                     if mo_2.check_prop_match(**kwargs):
-                                        child_dn = child_dn + '/ipv4-pooled-addr'
+                                        child_dn = child_dn + '/network'
                                         mo_3 = ucs.login_handle.query_dn(child_dn)
                                         if mo_3:
-                                            kwargs = dict(mode=module.params['mgmt_inband_pool_name'])
+                                            kwargs = dict(mode=module.params['mgmt_vnet_name'])
                                             if mo_3.check_prop_match(**kwargs):
                                                 props_match = True
                         elif not module.params['mgmt_interface_mode']:
