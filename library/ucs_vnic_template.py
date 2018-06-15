@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
+ANSIBLE_METADATA = {'metadata_version': '1.2',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
@@ -280,10 +280,18 @@ def main():
                         for vlan in module.params['vlans_list']:
                             child_dn = dn + '/if-' + vlan['name']
                             mo_1 = ucs.login_handle.query_dn(child_dn)
-                            if mo_1:
-                                kwargs = dict(default_net=vlan['native'])
-                                if (mo_1.check_prop_match(**kwargs)):
-                                    props_match = True
+                            if vlan['state'] == 'absent':
+                                if mo_1:
+                                    props_match = False
+                                    break
+                            else:
+                                if mo_1:
+                                    kwargs = dict(default_net=vlan['native'])
+                                    if (mo_1.check_prop_match(**kwargs)):
+                                        props_match = True
+                                else:
+                                    props_match = False
+                                    break
 
             if not props_match:
                 if not module.check_mode:
@@ -321,11 +329,16 @@ def main():
 
                     if module.params.get('vlans_list'):
                         for vlan in module.params['vlans_list']:
-                            mo_1 = VnicEtherIf(
-                                parent_mo_or_dn=mo,
-                                name=vlan['name'],
-                                default_net=vlan['native'],
-                            )
+                            if vlan['state'] == 'absent':
+                                child_dn = dn + '/if-' + vlan['name']
+                                mo_1 = ucs.login_handle.query_dn(child_dn)
+                                ucs.login_handle.remove_mo(mo_1)
+                            else:
+                                mo_1 = VnicEtherIf(
+                                    parent_mo_or_dn=mo,
+                                    name=vlan['name'],
+                                    default_net=vlan['native'],
+                                )
 
                     ucs.login_handle.add_mo(mo, True)
                     ucs.login_handle.commit()
