@@ -297,7 +297,7 @@ def main():
                     else:
                         # check vlan props
                         for vlan in module.params['vlans_list']:
-                            child_dn = dn + '/if-' + vlan['name']
+                            child_dn = dn + '/if-' + str(vlan['name'])
                             mo_1 = ucs.login_handle.query_dn(child_dn)
                             if vlan['state'] == 'absent':
                                 if mo_1:
@@ -349,13 +349,13 @@ def main():
                     if module.params.get('vlans_list'):
                         for vlan in module.params['vlans_list']:
                             if vlan['state'] == 'absent':
-                                child_dn = dn + '/if-' + vlan['name']
+                                child_dn = dn + '/if-' + str(vlan['name'])
                                 mo_1 = ucs.login_handle.query_dn(child_dn)
                                 ucs.login_handle.remove_mo(mo_1)
                             else:
                                 mo_1 = VnicEtherIf(
                                     parent_mo_or_dn=mo,
-                                    name=vlan['name'],
+                                    name=str(vlan['name']),
                                     default_net=vlan['native'],
                                 )
 
