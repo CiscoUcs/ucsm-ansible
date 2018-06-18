@@ -41,7 +41,7 @@
     vlans_list:
     - name: default
       native: 'yes'
-    - name: finance
+    - name: 10
   check_mode: yes
   register: cm_vnic_templates_present
 
@@ -139,7 +139,7 @@
     vlans_list:
     - name: default
       native: 'yes'
-    - name: finance
+    - name: 10
       state: absent
   check_mode: yes
   register: cm_vnic_templates_change
