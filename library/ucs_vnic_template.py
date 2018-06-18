@@ -161,7 +161,7 @@ EXAMPLES = r'''
     vlans_list:
     - name: default
       native: 'yes'
-    - name: finance
+      state: present
 
 - name: Remove vNIC template
   ucs_vnic_template:
@@ -178,6 +178,18 @@ EXAMPLES = r'''
     password: password
     name: vNIC-A-B
     state: absent
+    
+- name: Remove VLAN from template
+  ucs_vnic_template:
+    hostname: 172.16.143.150
+    username: admin
+    password: password
+    name: vNIC-A-B
+    fabric: A-B
+    vlans_list:
+    - name: default
+      native: 'yes'
+      state: absent
 '''
 
 RETURN = r'''
