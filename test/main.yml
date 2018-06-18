@@ -1,0 +1,14 @@
+---
+- hosts: "{{ target }}"
+  connection: local
+  gather_facts: no
+  vars:
+    target: ucs
+  tasks:
+  # default values that can be overridden in inventory
+  - name: Set ucs_hostname
+    set_fact:
+      ucs_hostname: "{{ inventory_hostname }}"
+    when: ucs_hostname is not defined
+  - include: ucs_vnic_template.yml
+    tags: [ucs_vnic_template]

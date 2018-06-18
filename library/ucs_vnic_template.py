@@ -93,6 +93,11 @@ options:
     - "  Designates the VLAN as a native VLAN.  Only one VLAN in the list can be a native VLAN."
     - "  [choices: 'no', 'yes']"
     - "  [Default: 'no']"
+    - "- state"
+    - "  If present, will verify VLAN is present on template."
+    - "  If absent, will verify VLAN is absent on template."
+    - "  choices: [present, absent]"
+    - "  default: present"
   cdn_source:
     description:
     - CDN Source field.
@@ -178,7 +183,7 @@ EXAMPLES = r'''
     password: password
     name: vNIC-A-B
     state: absent
-    
+
 - name: Remove VLAN from template
   ucs_vnic_template:
     hostname: 172.16.143.150
@@ -262,6 +267,8 @@ def main():
                 for vlan in module.params['vlans_list']:
                     if not vlan.get('native'):
                         vlan['native'] = 'no'
+                    if not vlan.get('state'):
+                        vlan['state'] = 'present'
             # for target 'adapter', change to internal UCS Manager spelling 'adaptor'
             if module.params['target'] == 'adapter':
                 module.params['target'] = 'adaptor'
@@ -283,7 +290,7 @@ def main():
                     kwargs['nw_ctrl_policy_name'] = module.params['network_control_policy']
                     kwargs['pin_to_group_name'] = module.params['pin_group']
                     kwargs['stats_policy_name'] = module.params['stats_policy']
-                if (mo.check_prop_match(**kwargs)):
+                if mo.check_prop_match(**kwargs):
                     # top-level props match, check next level mo/props
                     if not module.params.get('vlans_list'):
                         props_match = True
@@ -299,7 +306,7 @@ def main():
                             else:
                                 if mo_1:
                                     kwargs = dict(default_net=vlan['native'])
-                                    if (mo_1.check_prop_match(**kwargs)):
+                                    if mo_1.check_prop_match(**kwargs):
                                         props_match = True
                                 else:
                                     props_match = False
