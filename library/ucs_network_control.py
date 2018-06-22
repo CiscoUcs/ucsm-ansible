@@ -119,7 +119,7 @@ from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_s
 def main():
     argument_spec = ucs_argument_spec
     argument_spec.update(
-        org_dn=dict(type='str', default='org-root'),     
+        org_dn=dict(type='str', default='org-root'),
         name=dict(type='str', required=True),
         descr=dict(type='str', default=''),
         cdp=dict(type='str', default='disabled'),
@@ -172,7 +172,7 @@ def main():
                 kwargs['mac_register_mode'] = module.params['mac_register_mode']
                 kwargs['lldp_receive'] = module.params['lldp_receive']
                 kwargs['lldp_transmit'] = module.params['lldp_transmit']
-                if (mo.check_prop_match(**kwargs)):
+                if mo.check_prop_match(**kwargs):
                     props_match = True
 
             if not props_match:
