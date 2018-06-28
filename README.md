@@ -6,9 +6,9 @@
 
 ## News
 
-Ansible 2.5 will ship with several UCS modules and we are working to include more in upcoming releases.  This repo represents the working copy of modules submitted to Ansible or in development for future submission.  This repo can be used to provide UCS Ansible modules before their inclusion in official Ansible releases.
+Ansible 2.5 is now available with several UCS modules and we are working to include more in upcoming releases.  This repo represents the working copy of modules submitted to Ansible or in development for future submission.  This repo can be used to provide UCS Ansible modules before their inclusion in official Ansible releases.
 
-Modules in the library directory that are prefixed with ucs (and not cisco) are submitted or in development.  utils/remote_management is the module_utils location for modules being actively maintained.
+Modules in the library directory that are prefixed with ucs (and not cisco) are submitted or in development for upcoming Ansible releases.  utils/remote_management is the module_utils location for modules being actively maintained.
 
 There is currently not support for scripted install/uninstall to avoid collision with Ansible hosted modules and ongoing maintenance.  You can specfiy this repo as a library and module_utils location with env variables or command line options (e.g., ANSIBLE_LIBRARY=./library ANSIBLE_MODULE_UTILS=./utils ansible-playbook ..).  Alternatively, your .ansible.cfg file can be updated to use this repo as the library and module_utils path with the following:
 ```
@@ -16,10 +16,11 @@ There is currently not support for scripted install/uninstall to avoid collision
 library = <path to ucsm-ansible clone>/library
 module_utils = <path to ucsm-ansible clone>/utils
 ```
-
-Modules submitted to Ansible are also used in roles now available on Ansible Galaxy: https://galaxy.ansible.com/list#/roles?autocomplete=ucs
+See the install section below for step-by-step install and usage instructions.
 
 Cisco's demo Cloud (dcloud.cisco.com) can be used to test and demo the Ansible modules and corresponding roles.  dCloud provides both a Hardware based environment (https://dcloud2-rtp.cisco.com/content/catalogue?search=unified%20computing%20system ) and an emulated environment (https://dcloud2-sjc.cisco.com/content/catalogue?search=ucs%20programmability ) that can be used with the UCS Ansible modules.
+
+Modules submitted to Ansible are also used in roles now available on Ansible Galaxy: https://galaxy.ansible.com/list#/roles?autocomplete=ucs
 
 ### Current Development Status
 
@@ -60,16 +61,25 @@ When developing ucs_ modules in this repository, here are a few helpful commands
   ansible-doc <module_name>
   ```
 
-### install
-- ansible must be installed
- ```
- sudo pip install ansible
- ```
-- you will also need the ucsmsdk.
-  - `sudo pip install ucsmsdk`
-  - If you would like the latest ucsmsdk from GitHub, here is an alternate install method:
-    - `sudo pip install git+https://github.com/CiscoUcs/ucsmsdk.git`
-  - It is a good idea to verify that the ucsmsdk can connect to the domains you want to manage with Ansible.  Here is an example connection test using python:
+### Install
+Ansible must be installed.  You can use pip to install:
+```
+sudo pip install ansible
+```
+- If you don't have pip installed, here's how to install pip:
+```
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
+```
+The UCSM Ansible modules depend on the UCSM Python SDK.  Here's how to install the ucsmsdk.
+```
+sudo pip install ucsmsdk
+```
+- If you would like the latest ucsmsdk from GitHub, here is an alternate install method:
+```
+sudo pip install git+https://github.com/CiscoUcs/ucsmsdk.git
+```
+It is a good idea to verify that the ucsmsdk can connect to the domains you want to manage with Ansible.  Here is an example connection test using python:
 ```
 # python
 Python 2.7.14 (default, Apr 27 2018, 14:31:56) 
@@ -80,15 +90,84 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> handle.login()
 True
 ```
-- clone this repository 
+#### Using Ansible modules from this repository
+Ansible 2.5 and later include several UCSM modules.  If you need more recent content you can clone and use this repository: 
 ```
 git clone https://github.com/ciscoucs/ucsm-ansible
 ```
-- Specfiy this repository as a library and module_utils location in your .ansible.cfg file (module_utils line is not needed for Ansible 2.5 and later)
+After cloning this repository to a local directory, you will need to specfiy the cloned repository as a library location in your .ansible.cfg file (you can optionally also provide a module_utils location but that is not needed for Ansible 2.5 and later).  Here is .ansible.cfg example content:
 ```
 [defaults]
 library = <path to ucsm-ansible clone>/library
 module_utils = <path to ucsm-ansible clone>/utils
+```
+Here's a full example of cloning this repository to /root/ucsm-ansible directory and configuring for use with Ansible:
+```
+[/root]# git clone https://github.com/ciscoucs/ucsm-ansible
+[/root]# cd ucsm-ansible
+[/root/ucsm-ansible]# vi ~/.ansible.cfg
+```
+Add the following lines to ~/.ansible.cfg
+```
+[defaults]
+library = /root/ucsm-ansible/library
+# not needed with 2.5 and later: module_utils = /root/ucsm-ansible/utils
+```
+  
+### Example usage
+Once Ansible is installed you can create inventory files and playbooks to manage your UCS domains.  Each module supports ansible-doc which includes example usage:
+```
+# ansible-doc ucs_vlans
+<snip>
+EXAMPLES:
+- name: Configure VLAN
+  ucs_vlans:
+    hostname: 172.16.143.150
+    username: admin
+    password: password
+    name: vlan2
+    id: '2'
+    native: 'yes'
+```
+This repository includes an example inventory file that can be edited with information for the UCSM domain you want to configure:
+```
+# vi inventory
+[ucs]
+ucs1 ucs_hostname=192.168.1.1 ucs_username=admin ucs_password=password ucs_state=present
+```
+An example_playbook.yml playbook is also included to test VLAN configuration on the UCSM domain given in the inventory file:
+```
+# vi example_playbook.yml 
+
+---
+# Example Playbook: VLAN configuration using the [ucs] hosts group
+- hosts: ucs
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Configure VLAN
+    ucs_vlans:
+      hostname: "{{ ucs_hostname }}"
+      username: "{{ ucs_username }}"
+      password: "{{ ucs_password }}"
+      state: "{{ ucs_state }}"
+      name: vlan2
+      id: '2'
+      native: 'no'
+```
+Ansible will use data from the inventory file for the "{{ ucs_... }}" variables above.  Multiple UCSM domains can be listed in the inventory file and Ansible will configure all the listed domains in parallel using host specific data in place of the "{{ ucs_... }}" variables.
+
+The ansible-playbook command can be used to run the above playbook and inventory file:
+```
+# ansible-playbook -i inventory example_playbook.yml
+
+PLAY [ucs] *********************************************************************
+
+TASK [Configure VLAN] **********************************************************
+changed: [ucs1]
+
+PLAY RECAP *********************************************************************
+ucs1                       : ok=1    changed=1    unreachable=0    failed=0   
 ```
 
 # Community:
