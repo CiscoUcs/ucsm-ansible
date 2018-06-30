@@ -31,35 +31,28 @@ Modules submitted to Ansible are also used in roles now available on Ansible Gal
 |                        | VLANs              | ucs_vlans   | in 2.5 |
 |                        | vNIC Templates     | ucs_vnic_template | in 2.5 |
 |                        | LAN Connectivity Policy | ucs_lan_connectivity | in 2.5 |
-|                        | Network Control Policy | TBD     | TBD    |
-|                        | Port Channels      | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
+|                        | Network Control Policy | ucs_network_control | planned for 2.7    |
+|                        | Port Channels      | use ucs_managed_objects | See lan/port_channels at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
 | SAN                    | WWNN Pools         | ucs_wwn_pool | in 2.5 |
 |                        | WWPN Pools         | ucs_wwn_pool | in 2.5 |
 |                        | VSANs              | ucs_vsans   | in 2.5 |
 |                        | vHBA Templates     | ucs_vhba_template | in 2.5 |
 |                        | SAN Connectivity Policy | ucs_san_connectivity | in 2.5 |
-| Server                 | UUID Suffix Pool   | ucs_uuid_pool | Planned for 2.6 |
-|                        | Server Pool        | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
-|                        | Server BIOS Policy | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
-|                        | FW/Power/Maintenance Polices | TBD | TBD  |
-|                        | Boot Policy        | TBD         | PoC: see https://github.com/dsoper2/ucsm-ansible |
-|                        | Service Profile Template | ucs_service_profile_template | Planned for 2.6 |
-|                        | Service Profile from Template | ucs_service_profile_from_template | Planned for 2.6 |
-|                        | Service Profile assoc/disassoc | ucs_service_profile_association | Planned for 2.6 |
-| Admin                  | NTP                | TBD         | PoC: cisco_ucs_ntp module |
-
+| Server                 | UUID Suffix Pool   | ucs_uuid_pool | in 2.7 |
+|                        | Server Pool        | use ucs_managed_objects | See servers/server_pools at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
+|                        | Server BIOS Policy | use ucs_managed_objects | See servers/bios_policies at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
+|                        | FW/Power/Maintenance Polices | use ucs_managed_objects | See servers/power_policies at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
+|                        | Boot Policy        | use ucs_managed_objects | See servers/boot_policies at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
+|                        | Service Profile Template | ucs_service_profile_template | Planned for 2.7 |
+|                        | Service Profile from Template | ucs_service_profile_from_template | Planned for 2.7 |
+|                        | Service Profile assoc/disassoc | ucs_service_profile_association | Planned for 2.7 |
+| Admin                  | NTP                | use ucs_managed_objects | See admin/ntp at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
+|                        | Timezone           | ucs_timezone | in 2.7 |
+| Chassis                | Zoning, Profiles, etc. | see ucs_chassis_ modules | Planned for 2.7 |
+| Storage                | Local disk, Profiles, etc. | see ucs_storage_ modules | Planned for 2.7 |
 ### Ansible Development Notes
 
-ucs_ modules in development follow processes documented at http://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html.  The modules support ansible-doc, and when submitted to Ansible they must pass Ansible CI testing and have integration tests.
-
-When developing ucs_ modules in this repository, here are a few helpful commands to sanity check the code and documentation (replace module_name with your module (e.g., ucs_vlans)).  Ansible modules won't generally be pylint or pycodestyle (PEP8) clean without disabling several of the checks:
-  ```
-  pylint --disable=invalid-name,no-member,too-many-nested-blocks,redefined-variable-type,too-many-statements,too-many-branches,broad-except,line-too-long,missing-docstring,wrong-import-position,too-many-locals <module_name>.py
-  
-  pycodestyle --max-line-length 160 --config /dev/null --ignore E402 <module_name>.py
-  
-  ansible-doc <module_name>
-  ```
+See https://github.com/CiscoUcs/ucsm-ansible/blob/master/Development.md for details.
 
 ### Install
 Ansible must be installed.  You can use pip to install:
