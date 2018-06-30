@@ -169,7 +169,6 @@ def main():
                 kwargs['descr'] = module.params['descr']
                 kwargs['mac_register_mode'] = module.params['mac_register_mode']
                 kwargs['uplink_fail_action'] = module.params['uplink_fail_action']
-                kwargs['mac_register_mode'] = module.params['mac_register_mode']
                 kwargs['lldp_receive'] = module.params['lldp_receive']
                 kwargs['lldp_transmit'] = module.params['lldp_transmit']
                 if mo.check_prop_match(**kwargs):
