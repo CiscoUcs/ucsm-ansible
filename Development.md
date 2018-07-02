@@ -35,6 +35,7 @@ ansible-test sanity --test pylint <module name>
 ansible-test sanity --test validate-modules <module name>
 ansible-test sanity --test no-underscore-variable <module name>
 ansible-test sanity --test import --python 2.7 <module name>
+ansible-test sanity --test docs-build <module name>
 ```
 - Note that you can append --requirements to any ansible-test line to install required modules
 7. Create and run integration tests.  See test/integration/targets/ucs_uuid_pool as an example
