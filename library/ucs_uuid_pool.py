@@ -16,7 +16,7 @@ module: ucs_uuid_pool
 short_description: Configures server UUID pools on Cisco UCS Manager
 description:
 - Configures server UUID pools and UUID blocks on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
+- Examples can be used with the L(UCS Platform Emulator,https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -42,10 +42,9 @@ options:
   prefix:
     description:
     - UUID prefix used for the range of server UUIDs.
-    - "Using the default value will result in the system derived prefix being used (equivalent to selecting 'derived' option in UI)."
-    - "If the user provides a value other than the default, the user provided prefix will be used (equivalent to selecting 'other' option in UI)."
+    - "If no value is provided, the system derived prefix will be used (equivalent to selecting 'derived' option in UI)."
+    - "If the user provides a value, the user provided prefix will be used (equivalent to selecting 'other' option in UI)."
     - A user provided value should be in the format XXXXXXXX-XXXX-XXXX.
-    default: derived
   order:
     description:
     - The Assignment Order field.
@@ -71,7 +70,7 @@ requirements:
 author:
 - David Soper (@dsoper2)
 - CiscoUcs (@CiscoUcs)
-version_added: '2.5'
+version_added: '2.7'
 '''
 
 EXAMPLES = r'''
@@ -109,7 +108,7 @@ def main():
         name=dict(type='str', required=True),
         description=dict(type='str', aliases=['descr'], default=''),
         order=dict(type='str', default='default', choices=['default', 'sequential']),
-        prefix=dict(type='str', default='derived'),
+        prefix=dict(type='str', default=''),
         first_uuid=dict(type='str'),
         last_uuid=dict(type='str'),
         state=dict(default='present', choices=['present', 'absent'], type='str'),
@@ -126,7 +125,7 @@ def main():
     from ucsmsdk.mometa.uuidpool.UuidpoolPool import UuidpoolPool
     from ucsmsdk.mometa.uuidpool.UuidpoolBlock import UuidpoolBlock
 
-    changed = False
+    ucs.result['changed'] = False
     try:
         mo_exists = False
         props_match = False
@@ -141,13 +140,14 @@ def main():
                 if not module.check_mode:
                     ucs.login_handle.remove_mo(mo)
                     ucs.login_handle.commit()
-                changed = True
+                ucs.result['changed'] = True
         else:
             if mo_exists:
                 # check top-level mo props
                 kwargs = dict(assignment_order=module.params['order'])
                 kwargs['descr'] = module.params['description']
-                kwargs['prefix'] = module.params['prefix']
+                if module.params['prefix']:
+                    kwargs['prefix'] = module.params['prefix']
                 if mo.check_prop_match(**kwargs):
                     # top-level props match, check next level mo/props
                     if module.params['last_uuid'] and module.params['first_uuid']:
@@ -163,6 +163,8 @@ def main():
             if not props_match:
                 if not module.check_mode:
                     # create if mo does not already exist
+                    if not module.params['prefix']:
+                        module.params['prefix'] = 'derived'
                     mo = UuidpoolPool(
                         parent_mo_or_dn=module.params['org_dn'],
                         name=module.params['name'],
@@ -180,13 +182,12 @@ def main():
 
                     ucs.login_handle.add_mo(mo, True)
                     ucs.login_handle.commit()
-                changed = True
+                ucs.result['changed'] = True
 
     except Exception as e:
         err = True
         ucs.result['msg'] = "setup error: %s " % str(e)
 
-    ucs.result['changed'] = changed
     if err:
         module.fail_json(**ucs.result)
     module.exit_json(**ucs.result)
