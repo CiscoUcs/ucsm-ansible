@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
@@ -95,6 +96,7 @@ options:
     description:
     - The secondary DNS server that this block of IPv6 addresses should access.
     default: '::'
+  ip
   org_dn:
     description:
     - Org dn (distinguished name)
@@ -104,11 +106,12 @@ requirements:
 author:
 - David Soper (@dsoper2)
 - CiscoUcs (@CiscoUcs)
+- Brett Johnson (@sdbrett)
 version_added: '2.5'
 '''
 
 EXAMPLES = r'''
-- name: Configure IPv4 address pools
+- name: Configure IPv4 address pools - Depreciated
   ucs_ip_pool:
     hostname: 172.16.143.150
     username: admin
@@ -120,7 +123,7 @@ EXAMPLES = r'''
     subnet_mask: 255.255.255.0
     default_gw: 192.168.0.1
     primary_dns: 172.16.143.136
-- name: Configure IPv6 address pools
+- name: Configure IPv6 address pools - Depreciated
   ucs_ip_pool:
     hostname: 172.16.143.150
     username: admin
@@ -129,6 +132,38 @@ EXAMPLES = r'''
     ipv6_first_addr: fe80::1cae:7992:d7a1:ed07
     ipv6_last_addr: fe80::1cae:7992:d7a1:edfe
     ipv6_default_gw: fe80::1cae:7992:d7a1:ecff
+
+- name: Configure IPv4 and IPv6 address pool
+  ucs_ip_pool:
+    name: ip-pool-B
+    hostname: 172.16.143.150
+    username: admin
+    password: password
+    ip_blocks:
+    - first_addr: 192.168.10.1
+      last_addr: 192.168.10.20
+      subnet_mask: 255.255.255.128
+      default_gw: 192.168.10.2
+    - first_addr: 192.168.11.1
+      last_addr: 192.168.11.20
+      subnet_mask: 255.255.255.128
+    - first_addr: 122.168.11.1
+      last_addr: 122.168.11.20
+      subnet_mask: 255.255.255.128
+    - first_addr: 132.168.11.1
+      last_addr: 132.168.11.20
+      subnet_mask: 255.255.255.128
+      absent
+    ipv6_blocks:
+    - ipv6_first_addr: fe80::1cae:7992:d7a1:ed07
+      ipv6_last_addr: fe80::1cae:7992:d7a1:edfe
+      ipv6_default_gw: fe80::1cae:7992:d7a1:ecff
+      state: absent
+    - ipv6_first_addr: fe80::2cae:7992:d7a1:ed07
+      ipv6_last_addr: fe80::2cae:7992:d7a1:edfe
+      ipv6_default_gw: fe80::2cae:7992:d7a1:ecff
+
+
 
 - name: Remove IPv4 address pools
   ucs_ip_pool:
@@ -150,11 +185,109 @@ RETURN = r'''
 #
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_spec
+
+def match_existing_ipv4_blocks(ucs, dn, ipv4_blocks):
+    for ipv4_block in ipv4_blocks:
+        # ipv4 block specified, check properties
+        mo_1 = get_ip_block(ucs, dn, ipv4_block['first_addr'], ipv4_block['last_addr'], 'v4')
+        if ipv4_block['state'] == 'absent':
+            if mo_1:
+                return False
+        elif mo_1:
+            kwargs = dict(subnet=ipv4_block['subnet_mask'])
+            kwargs['def_gw'] = ipv4_block['default_gw']
+            kwargs['prim_dns'] = ipv4_block['primary_dns']
+            kwargs['sec_dns'] = ipv4_block['secondary_dns']
+            if mo_1.check_prop_match(**kwargs):
+                # ipv4 block exists and properties match
+                return True
+        else:
+            return False
+    return True
+
+
+def match_existing_ipv6_blocks(ucs, dn, ipv6_blocks):
+    for ipv6_block in ipv6_blocks:
+        # ipv6 block specified, check properties
+        mo_1 = get_ip_block(ucs, dn, ipv6_block['ipv6_first_addr'], ipv6_block['ipv6_last_addr'], 'v6')
+        if ipv6_block['state'] == 'absent':
+            if mo_1:
+                return False
+        elif mo_1:
+            kwargs = dict(prefix=ipv6_block['ipv6_prefix'])
+            kwargs['def_gw'] = ipv6_block['ipv6_default_gw']
+            kwargs['prim_dns'] = ipv6_block['ipv6_primary_dns']
+            kwargs['sec_dns'] = ipv6_block['ipv6_secondary_dns']
+            if mo_1.check_prop_match(**kwargs):
+                # ipv6 block exists and properties match
+                return True
+        else:
+            return False
+    return True
+
+
+def remove_ip_block(ucs, dn, first_addr, last_addr, ip_version):
+    mo_1 = get_ip_block(ucs, dn, first_addr, last_addr, ip_version)
+    if mo_1:
+        ucs.login_handle.remove_mo(mo_1)
+
+
+def update_ip_block(mo, ip_block, ip_version):
+    if ip_version == 'v6':
+        from ucsmsdk.mometa.ippool.IppoolIpV6Block import IppoolIpV6Block
+        return IppoolIpV6Block(parent_mo_or_dn=mo,
+                               to=ip_block['ipv6_last_addr'],
+                               r_from=ip_block['ipv6_first_addr'],
+                               prefix=ip_block['ipv6_prefix'],
+                               def_gw=ip_block['ipv6_default_gw'],
+                               prim_dns=ip_block['ipv6_primary_dns'],
+                               sec_dns=ip_block['ipv6_secondary_dns']
+                               )
+    else:
+        from ucsmsdk.mometa.ippool.IppoolBlock import IppoolBlock
+        return IppoolBlock(parent_mo_or_dn=mo,
+                           to=ip_block['last_addr'],
+                           r_from=ip_block['first_addr'],
+                           subnet=ip_block['subnet_mask'],
+                           def_gw=ip_block['default_gw'],
+                           prim_dns=ip_block['primary_dns'],
+                           sec_dns=ip_block['secondary_dns']
+                           )
+
+
+def get_ip_block(ucs, pool_dn, first_addr, last_addr, ip_version):
+    if ip_version == 'v6':
+        dn_type = '/v6block-'
+    else:
+        dn_type = '/block-'
+
+    block_dn = pool_dn + dn_type + first_addr + '-' + last_addr
+    return ucs.login_handle.query_dn(block_dn)
 
 
 def main():
+    from ansible.module_utils.basic import AnsibleModule
+    from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_spec
+
+    ipv4_configuration_spec = dict(
+        first_addr=dict(type='str'),
+        last_addr=dict(type='str'),
+        subnet_mask=dict(type='str', default='255.255.255.0'),
+        default_gw=dict(type='str', default='0.0.0.0'),
+        primary_dns=dict(type='str', default='0.0.0.0'),
+        secondary_dns=dict(type='str', default='0.0.0.0'),
+        state=dict(type='str', default='present', choices=['present', 'absent']),
+    )
+    ipv6_configuration_spec = dict(
+        ipv6_first_addr=dict(type='str'),
+        ipv6_last_addr=dict(type='str'),
+        ipv6_prefix=dict(type='str', default='64'),
+        ipv6_default_gw=dict(type='str', default='::'),
+        ipv6_primary_dns=dict(type='str', default='::'),
+        ipv6_secondary_dns=dict(type='str', default='::'),
+        state=dict(type='str', default='present', choices=['present', 'absent']),
+    )
+
     argument_spec = ucs_argument_spec
     argument_spec.update(
         org_dn=dict(type='str', default='org-root'),
@@ -174,6 +307,8 @@ def main():
         ipv6_primary_dns=dict(type='str', default='::'),
         ipv6_secondary_dns=dict(type='str', default='::'),
         state=dict(type='str', default='present', choices=['present', 'absent']),
+        ipv4_blocks=dict(type='list', default=None, elements='dict', options=ipv4_configuration_spec),
+        ipv6_blocks=dict(type='list', default=None, elements='dict', options=ipv6_configuration_spec),
     )
 
     module = AnsibleModule(
@@ -192,7 +327,9 @@ def main():
     changed = False
     try:
         mo_exists = False
-        props_match = False
+        props_match = True
+        ipv4_props_match = True
+        ipv6_props_match = True
         # dn is <org_dn>/ip-pool-<name>
         dn = module.params['org_dn'] + '/ip-pool-' + module.params['name']
 
@@ -207,46 +344,55 @@ def main():
                     ucs.login_handle.commit()
                 changed = True
         else:
+            if not mo_exists:
+                props_match = False
             if mo_exists:
                 # check top-level mo props
                 kwargs = dict(assignment_order=module.params['order'])
                 kwargs['descr'] = module.params['descr']
-                if (mo.check_prop_match(**kwargs)):
+                if mo.check_prop_match(**kwargs):
                     # top-level props match, check next level mo/props
-                    if module.params['last_addr'] and module.params['first_addr']:
+                    if module.params['ipv4_blocks'] and module.params['first_addr']:
+                        raise Exception("Cannot use ip_blocks with first_addr and last_addr arguments")
+                    if module.params['ipv4_blocks']:
+                        ipv4_props_match = match_existing_ipv4_blocks(ucs, dn, module.params['ipv4_blocks'])
+                    elif module.params['last_addr'] and module.params['first_addr']:
+                        AnsibleModule.deprecate(module, "Inline IP block setting", "2.7")
                         # ipv4 block specified, check properties
-                        block_dn = dn + '/block-' + module.params['first_addr'] + '-' + module.params['last_addr']
-                        mo_1 = ucs.login_handle.query_dn(block_dn)
+                        mo_1 = get_ip_block(ucs, dn, module.params['first_addr'], module.params['last_addr'], 'v4')
                         if mo_1:
                             kwargs = dict(subnet=module.params['subnet_mask'])
                             kwargs['def_gw'] = module.params['default_gw']
                             kwargs['prim_dns'] = module.params['primary_dns']
                             kwargs['sec_dns'] = module.params['secondary_dns']
-                            if (mo_1.check_prop_match(**kwargs)):
+                            if not mo_1.check_prop_match(**kwargs):
                                 # ipv4 block exists and properties match
-                                props_match = True
-                    else:
-                        # no ipv4 block specified, but top-level props matched
-                        props_match = True
+                                ipv4_props_match = False
+                        else:
+                            ipv4_props_match = False
 
                     # only check ipv6 props if the top-level and ipv4 props matched
-                    if props_match and module.params['ipv6_last_addr'] and module.params['ipv6_first_addr']:
+                    if module.params['ipv6_blocks'] and module.params['ipv6_first_addr']:
+                        raise Exception("Cannot use ip_blocks with first_addr and last_addr arguments")
+                    if module.params['ipv6_blocks']:
+                        ipv6_props_match = match_existing_ipv6_blocks(ucs, dn, module.params['ipv6_blocks'])
+                    elif props_match and module.params['ipv6_last_addr'] and module.params['ipv6_first_addr']:
                         # ipv6 block specified, check properties
-                        block_dn = dn + '/v6block-' + module.params['ipv6_first_addr'].lower() + '-' + module.params['ipv6_last_addr'].lower()
+                        block_dn = dn + '/v6block-' + module.params['ipv6_first_addr'].lower() + '-' + module.params[
+                            'ipv6_last_addr'].lower()
                         mo_1 = ucs.login_handle.query_dn(block_dn)
                         if mo_1:
                             kwargs = dict(prefix=module.params['ipv6_prefix'])
                             kwargs['def_gw'] = module.params['ipv6_default_gw']
                             kwargs['prim_dns'] = module.params['ipv6_primary_dns']
                             kwargs['sec_dns'] = module.params['ipv6_secondary_dns']
-                            if (mo_1.check_prop_match(**kwargs)):
+                            if not mo_1.check_prop_match(**kwargs):
                                 # ipv6 block exists and properties match
-                                props_match = True
+                                ipv6_props_match = False
                         else:
-                            # no ipv6 block specified, but previous checks matched
-                            props_match = True
+                            ipv6_props_match = False
 
-            if not props_match:
+            if not props_match or not ipv4_props_match or not ipv6_props_match:
                 if not module.check_mode:
                     # create if mo does not already exist
                     mo = IppoolPool(
@@ -255,9 +401,14 @@ def main():
                         descr=module.params['descr'],
                         assignment_order=module.params['order'],
                     )
-
-                    if module.params['last_addr'] and module.params['first_addr']:
-                        mo_1 = IppoolBlock(
+                    if module.params['ipv4_blocks']:
+                        for ipv4_block in module.params['ipv4_blocks']:
+                            if ipv4_block['state'] == 'absent':
+                                remove_ip_block(ucs, dn, ipv4_block['first_addr'], ipv4_block['last_addr'], 'v4')
+                            else:
+                                update_ip_block(mo, ipv4_block, 'v4')
+                    elif module.params['last_addr'] and module.params['first_addr']:
+                        IppoolBlock(
                             parent_mo_or_dn=mo,
                             to=module.params['last_addr'],
                             r_from=module.params['first_addr'],
@@ -266,9 +417,15 @@ def main():
                             prim_dns=module.params['primary_dns'],
                             sec_dns=module.params['secondary_dns'],
                         )
-
-                    if module.params['ipv6_last_addr'] and module.params['ipv6_first_addr']:
-                        mo_1 = IppoolIpV6Block(
+                    if module.params['ipv6_blocks']:
+                        for ipv6_block in module.params['ipv6_blocks']:
+                            if ipv6_block['state'] == 'absent':
+                                remove_ip_block(ucs, dn, ipv6_block['ipv6_first_addr'], ipv6_block['ipv6_last_addr'],
+                                                'v6')
+                            else:
+                                update_ip_block(mo, ipv6_block, 'v6')
+                    elif module.params['ipv6_last_addr'] and module.params['ipv6_first_addr']:
+                        IppoolIpV6Block(
                             parent_mo_or_dn=mo,
                             to=module.params['ipv6_last_addr'],
                             r_from=module.params['ipv6_first_addr'],
