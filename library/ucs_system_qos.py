@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 
-from ansible.module_utils.basic import *
-
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
-
-
 
 DOCUMENTATION = '''
 ---
@@ -46,9 +42,8 @@ options:
         choices: ['drop", "no-drop']
         required: false
 requirements: ['ucsmsdk']
-author: "Brett Johnson (@brettjohnson008)"
+author: "Brett Johnson (@sdbrett)"
 '''
-
 
 EXAMPLES = '''
 - name:
@@ -65,41 +60,23 @@ EXAMPLES = '''
 '''
 
 
-def _argument_mo():
-    return dict(
-                priority=dict(required=True, type='str'),
-                cos=dict(required=False, type='str'),
-                weight=dict(required=False, type='str'),
-                admin_state=dict(required=False, type='str'),
-                mtu=dict(required=False, type='str'),
-                multicast_optimize=dict(required=False, type='str'),
-                drop=dict(required=False, type='str', default='no-drop'),
-    )
+# TODO Add ranges for cos, weight and mtu
 
 
-def _argument_custom():
-    return dict(
-        admin_state=dict(choices=['enabled', 'disabled'],
-                   type='str'),
-    )
-
-
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_spec
-
-## TODO Add ranges for cos, weight and mtu
 def main():
+    from ansible.module_utils.basic import AnsibleModule
+    from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_spec
+
     argument_spec = ucs_argument_spec
     argument_spec.update(
-        priority=dict(required=True, type='str', choices=["best-effort", "bronze", "fc", "gold","platinum", "silver"]),
+        priority=dict(required=True, type='str', choices=["best-effort", "bronze", "fc", "gold", "platinum", "silver"]),
         cos=dict(required=False, type='str'),
         weight=dict(required=False, type='str', default=''),
         admin_state=dict(required=False, type='str', default='', choices=['disabled', 'enabled']),
         drop=dict(required=False, type='str', default='no-drop', choices=['drop', 'no-drop']),
         mtu=dict(required=False, type='str', default=''),
-        multicast_optimize=dict(required=False, type='str', default='', choices=['false', 'no', 'true', 'yes']),
+        multicast_optimize=dict(required=False, type='str', default='no', choices=['false', 'no', 'true', 'yes']),
     )
-
 
     module = AnsibleModule(
         argument_spec,
@@ -119,47 +96,47 @@ def main():
             kwargs = dict(weight=module.params['weight'])
             kwargs['mtu'] = module.params['mtu']
             kwargs['multicast_optimize'] = module.params['multicast_optimize']
-            if (mo.check_prop_match(**kwargs)):
+            if mo.check_prop_match(**kwargs):
                 props_match = True
             else:
                 if not module.check_mode:
-                    mo.weight=module.params['weight']
-                    mo.mtu=module.params['mtu']
-                    mo.multicast_optimize= module.params['multicast_optimize']
+                    mo.weight = module.params['weight']
+                    mo.mtu = module.params['mtu']
+                    mo.multicast_optimize = module.params['multicast_optimize']
                     ucs.login_handle.add_mo(mo, True)
                     ucs.login_handle.commit()
-            changed = True
+                changed = True
         elif module.params['priority'] == 'fc':
             kwargs = dict(weight=module.params['weight'])
             kwargs['cos'] = module.params['cos']
-            if (mo.check_prop_match(**kwargs)):
+            if mo.check_prop_match(**kwargs):
                 props_match = True
             else:
                 if not module.check_mode:
-                    mo.weight=module.params['weight']
+                    mo.weight = module.params['weight']
                     mo.cos = module.params['cos']
                     ucs.login_handle.add_mo(mo, True)
                     ucs.login_handle.commit()
                 changed = True
-                
+
         else:
             kwargs = dict(weight=module.params['weight'])
             kwargs['priority'] = module.params['priority']
             kwargs['mtu'] = module.params['mtu']
             kwargs['cos'] = module.params['cos']
             kwargs['drop'] = module.params['drop']
-            kwargs['admin_state']=module.params['admin_state']
+            kwargs['admin_state'] = module.params['admin_state']
             kwargs['multicast_optimize'] = module.params['multicast_optimize']
-        if (mo.check_prop_match(**kwargs)):
+        if mo.check_prop_match(**kwargs):
             props_match = True
         else:
             if not module.check_mode:
-                mo.weight=module.params['weight']
-                mo.mtu=module.params['mtu']
-                mo.cos=module.params['cos']
-                mo.drop=module.params['drop']
-                mo.admin_state=module.params['admin_state']
-                mo.multicast_optimize=module.params['multicast_optimize']
+                mo.weight = module.params['weight']
+                mo.mtu = module.params['mtu']
+                mo.cos = module.params['cos']
+                mo.drop = module.params['drop']
+                mo.admin_state = module.params['admin_state']
+                mo.multicast_optimize = module.params['multicast_optimize']
 
                 ucs.login_handle.add_mo(mo, True)
                 ucs.login_handle.commit()
