@@ -20,7 +20,7 @@ See the install section below for step-by-step install and usage instructions.
 
 Cisco's demo Cloud (dcloud.cisco.com) can be used to test and demo the Ansible modules and corresponding roles.  dCloud provides both a Hardware based environment (https://dcloud2-rtp.cisco.com/content/catalogue?search=unified%20computing%20system ) and an emulated environment (https://dcloud2-sjc.cisco.com/content/catalogue?search=ucs%20programmability ) that can be used with the UCS Ansible modules.
 
-Modules submitted to Ansible are also used in roles now available on Ansible Galaxy: https://galaxy.ansible.com/list#/roles?autocomplete=ucs
+Modules submitted to Ansible are also used in roles now available on Ansible Galaxy: https://galaxy.ansible.com/ciscoucs/ucs
 
 ### Current Development Status
 
@@ -32,21 +32,21 @@ Modules submitted to Ansible are also used in roles now available on Ansible Gal
 |                        | vNIC Templates     | ucs_vnic_template | in 2.5 |
 |                        | LAN Connectivity Policy | ucs_lan_connectivity | in 2.5 |
 |                        | Network Control Policy | ucs_network_control | planned for 2.7    |
-|                        | Port Channels      | use ucs_managed_objects | See lan/port_channels at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
+|                        | Port Channels      | use ucs_managed_objects | See lan/port_channels at  https://galaxy.ansible.com/ciscoucs/ucs |
 | SAN                    | WWNN Pools         | ucs_wwn_pool | in 2.5 |
 |                        | WWPN Pools         | ucs_wwn_pool | in 2.5 |
 |                        | VSANs              | ucs_vsans   | in 2.5 |
 |                        | vHBA Templates     | ucs_vhba_template | in 2.5 |
 |                        | SAN Connectivity Policy | ucs_san_connectivity | in 2.5 |
 | Server                 | UUID Suffix Pool   | ucs_uuid_pool | in 2.7 |
-|                        | Server Pool        | use ucs_managed_objects | See servers/server_pools at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
-|                        | Server BIOS Policy | use ucs_managed_objects | See servers/bios_policies at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
-|                        | FW/Power/Maintenance Polices | use ucs_managed_objects | See servers/power_policies at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
-|                        | Boot Policy        | use ucs_managed_objects | See servers/boot_policies at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
+|                        | Server Pool        | use ucs_managed_objects | See servers/server_pools at  https://galaxy.ansible.com/ciscoucs/ucs |
+|                        | Server BIOS Policy | use ucs_managed_objects | See servers/bios_policies at  https://galaxy.ansible.com/ciscoucs/ucs |
+|                        | FW/Power/Maintenance Polices | use ucs_managed_objects | See servers/power_policies at  https://galaxy.ansible.com/ciscoucs/ucs |
+|                        | Boot Policy        | use ucs_managed_objects | See servers/boot_policies at  https://galaxy.ansible.com/ciscoucs/ucs |
 |                        | Service Profile Template | ucs_service_profile_template | Planned for 2.7 |
 |                        | Service Profile from Template | ucs_service_profile_from_template | Planned for 2.7 |
 |                        | Service Profile assoc/disassoc | ucs_service_profile_association | Planned for 2.7 |
-| Admin                  | NTP                | use ucs_managed_objects | See admin/ntp at  https://galaxy.ansible.com/list#/roles?autocomplete=ucs |
+| Admin                  | NTP                | use ucs_managed_objects | See admin/ntp at  https://galaxy.ansible.com/ciscoucs/ucs |
 |                        | Timezone           | ucs_timezone | in 2.7 |
 | Chassis                | Zoning, Profiles, etc. | see ucs_chassis_ modules | Planned for 2.7 |
 | Storage                | Local disk, Profiles, etc. | see ucs_storage_ modules | Planned for 2.7 |
