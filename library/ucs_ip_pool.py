@@ -358,7 +358,7 @@ def main():
         # Depreciation checking and error handling
 
         if module.params['last_addr'] and module.params['first_addr']:
-            AnsibleModule.deprecate(module, "Inline IP block setting", "2.7")
+            AnsibleModule.deprecate(module, "Inline IP block setting", "2.9")
         if module.params['ipv6_last_addr'] and module.params['ipv6_first_addr']:
             AnsibleModule.deprecate(module, "Inline IP block setting", "2.7")
         if module.params['ipv4_blocks'] and module.params['first_addr']:
