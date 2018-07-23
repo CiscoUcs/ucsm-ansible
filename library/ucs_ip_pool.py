@@ -33,7 +33,7 @@ options:
     - "You cannot use spaces or any special characters other than - (hyphen), \"_\" (underscore), : (colon), and . (period)."
     - You cannot change this name after the IP address pool is created.
     required: yes
-  descrption:
+  description:
     description:
     - The user-defined description of the IP address pool.
     - Enter up to 256 characters.
@@ -250,7 +250,6 @@ def remove_ip_block(ucs, dn, ip_block, ip_version):
 
 
 def update_ip_block(ucs, mo, ip_block, ip_version):
-
     remove_ip_block(ucs, mo.dn, ip_block, ip_version)
     if not ip_block['state'] == 'absent':
         if ip_version == 'v6':
