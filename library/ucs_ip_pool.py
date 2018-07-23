@@ -250,6 +250,7 @@ def remove_ip_block(ucs, dn, ip_block, ip_version):
 
 
 def update_ip_block(ucs, mo, ip_block, ip_version):
+
     remove_ip_block(ucs, mo.dn, ip_block, ip_version)
     if not ip_block['state'] == 'absent':
         if ip_version == 'v6':
@@ -357,7 +358,7 @@ def main():
         # Depreciation checking and error handling
 
         if module.params['last_addr'] and module.params['first_addr']:
-            AnsibleModule.deprecate(module, "Inline IP block setting", "2.9")
+            AnsibleModule.deprecate(module, "Inline IP block setting", "2.7")
         if module.params['ipv6_last_addr'] and module.params['ipv6_first_addr']:
             AnsibleModule.deprecate(module, "Inline IP block setting", "2.7")
         if module.params['ipv4_blocks'] and module.params['first_addr']:
