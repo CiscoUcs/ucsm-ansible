@@ -1,2 +1,2 @@
 [ucs]
-ucs1 ucs_hostname=192.168.99.100 ucs_username=admin ucs_password=password ucs_state=present
+ucs1 ucs_hostname=192.168.1.1 ucs_username=admin ucs_password=password ucs_state=present
