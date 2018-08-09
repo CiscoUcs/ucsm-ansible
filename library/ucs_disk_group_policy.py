@@ -88,11 +88,6 @@ options:
     - Option applies when configuration mode is automatic. Specifies whether you can use all the remaining disks in the disk group or not.
     choices: ['yes', 'no']
     default: 'no'
-  use_jbod_disks:
-    description:
-    - Option applies when configuration mode is automatic.
-    choices: ['yes', 'no']
-    default: 'no'
   manual_disks:
     description:
     - List of manually configured disks. Options are only used when you choose manual configuration_mode.
@@ -233,7 +228,6 @@ def configure_disk_policy(ucs, module, dn):
                     parent_mo_or_dn=mo,
                     num_drives=module.params['num_drives'],
                     drive_type=module.params['drive_type'],
-                    use_jbod_disks=module.params['use_jbod_disks'],
                     use_remaining_disks=module.params['use_remaining_disks'],
                     num_ded_hot_spares=module.params['num_ded_hot_spares'],
                     num_glob_hot_spares=module.params['num_glob_hot_spares'],
@@ -280,7 +274,6 @@ def check_disk_policy_props(ucs, module, mo, dn):
             if mo_1:
                 kwargs = dict(num_drives=module.params['num_drives'])
                 kwargs['drive_type'] = module.params['drive_type']
-                kwargs['use_jbod_disks'] = module.params['use_jbod_disks']
                 kwargs['use_remaining_disks'] = module.params['use_remaining_disks']
                 kwargs['num_ded_hot_spares'] = module.params['num_ded_hot_spares']
                 kwargs['num_glob_hot_spares'] = module.params['num_glob_hot_spares']
@@ -370,7 +363,6 @@ def main():
         num_ded_hot_spares=dict(type='str', default='unspecified'),
         num_glob_hot_spares=dict(type='str', default='unspecified'),
         drive_type=dict(type='str', default='unspecified', choices=['unspecified', 'HDD', 'SSD']),
-        use_jbod_disks=dict(type='str', default='no', choices=['yes', 'no']),
         use_remaining_disks=dict(type='str', default='no', choices=['yes', 'no']),
         min_drive_size=dict(type='str', default='unspecified'),
         manual_disks=dict(type='list', elements='dict', options=manual_disk),
