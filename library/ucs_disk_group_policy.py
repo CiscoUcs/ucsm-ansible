@@ -297,7 +297,8 @@ def check_disk_policy_props(ucs, module, mo, dn):
         if props_match:
             if module.params['virtual_drive']:
                 props_match = check_virtual_drive_props(ucs, module, dn)
-
+    else:
+        props_match = False
     return props_match
 
 
