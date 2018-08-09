@@ -63,7 +63,8 @@ options:
     - "Allow or deny forged transmits:"
     - "allow - Allow forged transmits."
     - "deny — Deny forged transmits."
-    choices: [allow, deny]
+    - "no-config - Do not configure this setting, use with UCS Mini"
+    choices: [allow, deny, no-config]
     default: 'deny'
   lldp_transmit:
     description:
@@ -87,7 +88,7 @@ options:
 requirements:
 - ucsmsdk
 author:
-- Brett Johnson (@brettjohnson008)
+- Brett Johnson (@sdbrett)
 '''
 
 EXAMPLES = r'''
@@ -125,7 +126,7 @@ def main():
         cdp=dict(type='str', default='disabled'),
         mac_register_mode=dict(type='str', default='only-native-vlan', choices=['all-host-vlan', 'only-native-vlan']),
         uplink_fail_action=dict(type='str', default='link-down', choices=['link-down', 'warning']),
-        forge=dict(type='str', default='deny', choices=['allow', 'deny']),
+        forge=dict(type='str', default='deny', choices=['allow', 'deny', 'no-config']),
         lldp_transmit=dict(type='str', default='disabled', choices=['disabled', 'enabled']),
         lldp_receive=dict(type='str', default='disabled', choices=['disabled', 'enabled']),
         state=dict(type='str', default='present', choices=['present', 'absent']),
@@ -186,11 +187,12 @@ def main():
                                           cdp=module.params['cdp'],
                                           uplink_fail_action=module.params['uplink_fail_action'],
                                           descr=module.params['descr'])
-                    DpsecMac(parent_mo_or_dn=mo,
-                             forge=module.params['forge'],
-                             policy_owner="local",
-                             name="",
-                             descr="")
+                    if not module.params['forge'] == 'no-config':
+                        DpsecMac(parent_mo_or_dn=mo,
+                                 forge=module.params['forge'],
+                                 policy_owner="local",
+                                 name="",
+                                 descr="")
 
                     ucs.login_handle.add_mo(mo, True)
                     ucs.login_handle.commit()
