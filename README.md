@@ -6,16 +6,11 @@
 
 ## News
 
-Ansible 2.5 is now available with several UCS modules and we are working to include more in upcoming releases.  This repo represents the working copy of modules submitted to Ansible or in development for future submission.  This repo can be used to provide UCS Ansible modules before their inclusion in official Ansible releases.
+Ansible 2.5 and later are now available with several UCS modules, and we are working to include more in upcoming releases.  This repo represents the working copy of modules submitted to Ansible or in development for future submission.  This repo can be used to provide UCS Ansible modules before their inclusion in official Ansible releases.
 
-Modules in the library directory that are prefixed with ucs (and not cisco) are submitted or in development for upcoming Ansible releases.  utils/remote_management is the module_utils location for modules being actively maintained.
+Modules in the library directory are submitted or in development for upcoming Ansible releases.  module_utils/remote_management is the module_utils location for modules being actively maintained.
 
-There is currently not support for scripted install/uninstall to avoid collision with Ansible hosted modules and ongoing maintenance.  You can specfiy this repo as a library and module_utils location with env variables or command line options (e.g., ANSIBLE_LIBRARY=./library ANSIBLE_MODULE_UTILS=./utils ansible-playbook ..).  Alternatively, your .ansible.cfg file can be updated to use this repo as the library and module_utils path with the following:
-```
-[defaults]
-library = <path to ucsm-ansible clone>/library
-module_utils = <path to ucsm-ansible clone>/utils
-```
+There is currently not support for scripted install/uninstall to avoid collision with Ansible hosted modules and ongoing maintenance.  
 See the install section below for step-by-step install and usage instructions.
 
 Cisco's demo Cloud (dcloud.cisco.com) can be used to test and demo the Ansible modules and corresponding roles.  dCloud provides both a Hardware based environment (https://dcloud2-rtp.cisco.com/content/catalogue?search=unified%20computing%20system ) and an emulated environment (https://dcloud2-sjc.cisco.com/content/catalogue?search=ucs%20programmability ) that can be used with the UCS Ansible modules.
@@ -31,7 +26,7 @@ Modules submitted to Ansible are also used in roles now available on Ansible Gal
 |                        | VLANs              | ucs_vlans   | in 2.5 |
 |                        | vNIC Templates     | ucs_vnic_template | in 2.5 |
 |                        | LAN Connectivity Policy | ucs_lan_connectivity | in 2.5 |
-|                        | Network Control Policy | ucs_network_control | planned for 2.7    |
+|                        | Network Control Policy | ucs_network_control | planned for 2.8    |
 |                        | Port Channels      | use ucs_managed_objects | See lan/port_channels at  https://galaxy.ansible.com/ciscoucs/ucs |
 | SAN                    | WWNN Pools         | ucs_wwn_pool | in 2.5 |
 |                        | WWPN Pools         | ucs_wwn_pool | in 2.5 |
@@ -43,13 +38,13 @@ Modules submitted to Ansible are also used in roles now available on Ansible Gal
 |                        | Server BIOS Policy | use ucs_managed_objects | See servers/bios_policies at  https://galaxy.ansible.com/ciscoucs/ucs |
 |                        | FW/Power/Maintenance Polices | use ucs_managed_objects | See servers/power_policies at  https://galaxy.ansible.com/ciscoucs/ucs |
 |                        | Boot Policy        | use ucs_managed_objects | See servers/boot_policies at  https://galaxy.ansible.com/ciscoucs/ucs |
-|                        | Service Profile Template | ucs_service_profile_template | Planned for 2.7 |
-|                        | Service Profile from Template | ucs_service_profile_from_template | Planned for 2.7 |
-|                        | Service Profile assoc/disassoc | ucs_service_profile_association | Planned for 2.7 |
+|                        | Service Profile Template | ucs_service_profile_template | Planned for 2.8 |
+|                        | Service Profile from Template | ucs_service_profile_from_template | Planned for 2.8 |
+|                        | Service Profile assoc/disassoc | ucs_service_profile_association | Planned for 2.8 |
 | Admin                  | NTP                | use ucs_managed_objects | See admin/ntp at  https://galaxy.ansible.com/ciscoucs/ucs |
 |                        | Timezone           | ucs_timezone | in 2.7 |
-| Chassis                | Zoning, Profiles, etc. | see ucs_chassis_ modules | Planned for 2.7 |
-| Storage                | Local disk, Profiles, etc. | see ucs_storage_ modules | Planned for 2.7 |
+| Chassis                | Zoning, Profiles, etc. | see ucs_chassis_ modules | Planned for 2.8 |
+| Storage                | Local disk, Profiles, etc. | see ucs_storage_ modules | Planned for 2.8 |
 ### Ansible Development Notes
 
 See https://github.com/CiscoUcs/ucsm-ansible/blob/master/Development.md for details.
@@ -88,23 +83,10 @@ Ansible 2.5 and later include several UCSM modules.  If you need more recent con
 ```
 git clone https://github.com/ciscoucs/ucsm-ansible
 ```
-After cloning this repository to a local directory, you will need to specfiy the cloned repository as a library location in your .ansible.cfg file (you can optionally also provide a module_utils location but that is not needed for Ansible 2.5 and later).  Here is .ansible.cfg example content:
+After cloning this repository to a local directory Ansible will find the repo's library directory as a modules path for any playbooks residing in the ucsm-ansible directory.  If Ansible reports that it cannot find a module from the library directory, you will need to specfiy the cloned repository as a library location in your .ansible.cfg file.  Here is .ansible.cfg example content:
 ```
 [defaults]
 library = <path to ucsm-ansible clone>/library
-module_utils = <path to ucsm-ansible clone>/utils
-```
-Here's a full example of cloning this repository to /root/ucsm-ansible directory and configuring for use with Ansible:
-```
-[/root]# git clone https://github.com/ciscoucs/ucsm-ansible
-[/root]# cd ucsm-ansible
-[/root/ucsm-ansible]# vi ~/.ansible.cfg
-```
-Add the following lines to ~/.ansible.cfg
-```
-[defaults]
-library = /root/ucsm-ansible/library
-# not needed with 2.5 and later: module_utils = /root/ucsm-ansible/utils
 ```
   
 ### Example usage
