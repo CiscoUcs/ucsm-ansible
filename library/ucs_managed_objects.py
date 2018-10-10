@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metatdata_version': '1.1',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
@@ -17,30 +17,43 @@ short_description: Configures Managed Objects on Cisco UCS Manager
 description:
 - Configures Managed Objects on Cisco UCS Manager.
 - The Python SDK module, Python class within the module (UCSM Class), and all properties must be directly specified.
-- More information on the UCSM Python SDK and how to directly configure Managed Objects is available at
-  U(http://ucsmsdk.readthedocs.io/).
+- More information on the UCSM Python SDK and how to directly configure Managed Objects is available at L(UCSM Python SDK,http://ucsmsdk.readthedocs.io/).
 - Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
+  state:
+    description:
+    - If C(present), will verify that the Managed Objects are present and will create if needed.
+    - If C(absent), will verify that the Managed Objects are absent and will delete if needed.
+    choices: [ absent, present ]
+    default: present
   objects:
     description:
-    - 'List of managed objects to configure.  Each managed object must have the following:'
-    - '- module: Name of the Python SDK module implementing the required class.'
-    - '- class: Name of the Python class that will be used to configure the Managed Object.'
-    - '- properties: Properties to configure on the Managed Object.  See the UCSM Python SDK for information on properties for each class.'
-    - 'Objects can optionally contain a list of "children", and each child object is required to have the above options.'
-    - Note that the parent_mo_or_dn property for child objects is automatically set as the list of children is configured.
-    - Either objects or json_config_file must be specified.
-  json_config_file:
-    description:
-    - 'Filename (absolute path) of a JSON configuration file.  The JSON file should have the same fields described in the objects option.'
-    - Either objects or json_config_file must be specified.
+    - List of managed objects to configure.  Each managed object has suboptions the specify the Python SDK module, class, and properties to configure.
+    suboptions:
+      module:
+        description:
+        - Name of the Python SDK module implementing the required class.
+        required: yes
+      class_name:
+        description:
+        - Name of the Python class that will be used to configure the Managed Object.
+        required: yes
+      properties:
+        description:
+        - List of properties to configure on the Managed Object.  See the UCSM Python SDK for information on properties for each class.
+        required: yes
+      children:
+        description:
+        - Optional list of child objects.  Each child has its own module, class, and properties suboptions.
+        - The parent_mo_or_dn property for child objects is automatically set as the list of children is configured.
+    required: yes
 requirements:
 - ucsmsdk
 author:
 - David Soper (@dsoper2)
 - CiscoUcs (@CiscoUcs)
-version_added: '2.6'
+version_added: '2.8'
 '''
 
 EXAMPLES = r'''
@@ -125,12 +138,23 @@ EXAMPLES = r'''
           ]
       }
 
-- name: Configure Boot Policy using a JSON configuration file
+- name: Remove Boot Policy Using JSON objects list
   ucs_managed_objects:
     hostname: 172.16.143.150
     username: admin
     password: password
-    json_config_file: /ucs-config/python/ucsm/boot_policy.json
+    objects:
+    - {
+          "module": "ucsmsdk.mometa.lsboot.LsbootPolicy",
+          "class": "LsbootPolicy",
+          "properties": {
+              "parent_mo_or_dn": "org-root",
+              "name": "Python_SDS"
+          }
+      }
+    state: absent
+
+
 '''
 
 RETURN = r'''
@@ -168,14 +192,22 @@ def traverse_objects(module, ucs, managed_object, mo=''):
         if existing_mo:
             # check mo props
             kwargs = dict(managed_object['properties'])
+            # remove parent info and passwords because those aren't presented in the actual props
             kwargs.pop('parent_mo_or_dn', None)
+            kwargs.pop('pwd', None)
+            kwargs.pop('password', None)
             if existing_mo.check_prop_match(**kwargs):
                 props_match = True
 
         if not props_match:
             if not module.check_mode:
-                ucs.login_handle.add_mo(mo, modify_present=True)
-                ucs.login_handle.commit()
+                try:
+                    ucs.login_handle.add_mo(mo, modify_present=True)
+                    ucs.login_handle.commit()
+                except Exception as e:
+                    ucs.result['err'] = True
+                    ucs.result['msg'] = "setup error: %s " % str(e)
+
             ucs.result['changed'] = True
 
     if managed_object.get('children'):
@@ -186,44 +218,38 @@ def traverse_objects(module, ucs, managed_object, mo=''):
 
 
 def main():
+    object_dict = dict(
+        module=dict(type='str', required=True),
+        class_name=dict(type='str', aliases=['class'], required=True),
+        properties=dict(type='dict', required=True),
+        children=dict(type='list'),
+    )
     argument_spec = ucs_argument_spec
     argument_spec.update(
-        objects=dict(type='list'),
-        json_config_file=dict(type='str'),
+        objects=dict(type='list', elements='dict', options=object_dict, required=True),
         state=dict(type='str', choices=['present', 'absent'], default='present'),
     )
 
     module = AnsibleModule(
         argument_spec,
         supports_check_mode=True,
-        required_one_of=[
-            ['objects', 'json_config_file'],
-        ],
-        mutually_exclusive=[
-            ['objects', 'json_config_file'],
-        ],
     )
     ucs = UCSModule(module)
 
-    err = False
+    ucs.result['err'] = False
     # note that all objects specified in the object list report a single result (including a single changed).
     ucs.result['changed'] = False
-    try:
-        if module.params.get('objects'):
-            objects = module.params['objects']
-        else:
-            # either objects or json_config_file will be specified, so if there is no objects option use a config file
-            with open(module.params['json_config_file']) as f:
-                objects = json.load(f)['objects']
+    if module.params.get('objects'):
+        objects = module.params['objects']
+    else:
+        # either objects or json_config_file will be specified, so if there is no objects option use a config file
+        with open(module.params['json_config_file']) as f:
+            objects = json.load(f)['objects']
 
-        for managed_object in objects:
-            traverse_objects(module, ucs, managed_object)
+    for managed_object in objects:
+        traverse_objects(module, ucs, managed_object)
 
-    except Exception as e:
-        err = True
-        ucs.result['msg'] = "setup error: %s " % str(e)
-
-    if err:
+    if ucs.result['err']:
         module.fail_json(**ucs.result)
     module.exit_json(**ucs.result)
 
