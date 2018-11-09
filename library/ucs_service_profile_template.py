@@ -64,6 +64,9 @@ options:
   lan_connectivity_policy:
     description:
     - The name of the LAN connectivity policy you want to associate with service profiles created from this template.
+  iqn_pool:
+    description:
+    - The name of the IQN pool (initiator) you want to apply to all iSCSI vNICs for service profiles created from this template.
   san_connectivity_policy:
     description:
     - The name of the SAN connectivity policy you want to associate with service profiles created from this template.
@@ -130,6 +133,7 @@ options:
   mgmt_interface_mode:
     description:
     - The Management Interface you want to assign to service profiles created from this template.
+    choices: ['', in-band]
   mgmt_vnet_name:
     description:
     - A VLAN selected from the associated VLAN group.
@@ -145,7 +149,7 @@ requirements:
 author:
 - David Soper (@dsoper2)
 - CiscoUcs (@CiscoUcs)
-version_added: '2.5'
+version_added: '2.8'
 '''
 
 EXAMPLES = r'''
@@ -154,16 +158,25 @@ EXAMPLES = r'''
     hostname: 172.16.143.150
     username: admin
     password: password
-    name: test-sp
+    name: DEE-Ctrl
+    template_type: updating-template
+    uuid_pool: UUID-Pool
+    storage_profile: DEE-StgProf
     lan_connectivity_policy: Cntr-FC-Boot
+    iqn_pool: iSCSI-Boot-A
     san_connectivity_policy: Cntr-FC-Boot
+    boot_policy: DEE-vMedia
+    maintenance_policy: default
+    server_pool: Container-Pool
+    host_firmware_package: 3.1.2b
+    bios_policy: Docker
 
 - name: Remove Service Profile Template
   ucs_service_profile_template:
     hostname: 172.16.143.150
     username: admin
     password: password
-    name: test-sp
+    name: DEE-Ctrl
     state: absent
 '''
 
@@ -173,6 +186,264 @@ RETURN = r'''
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_spec
+
+
+def configure_service_profile_template(ucs, module):
+    from ucsmsdk.mometa.ls.LsServer import LsServer
+    from ucsmsdk.mometa.vnic.VnicConnDef import VnicConnDef
+    from ucsmsdk.mometa.vnic.VnicIScsiNode import VnicIScsiNode
+    from ucsmsdk.mometa.ls.LsRequirement import LsRequirement
+    from ucsmsdk.mometa.ls.LsPower import LsPower
+    from ucsmsdk.mometa.lstorage.LstorageProfileBinding import LstorageProfileBinding
+    from ucsmsdk.mometa.mgmt.MgmtInterface import MgmtInterface
+    from ucsmsdk.mometa.mgmt.MgmtVnet import MgmtVnet
+    from ucsmsdk.mometa.vnic.VnicIpV4MgmtPooledAddr import VnicIpV4MgmtPooledAddr
+
+    if not module.check_mode:
+        try:
+            # create if mo does not already exist
+            mo = LsServer(
+                parent_mo_or_dn=module.params['org_dn'],
+                bios_profile_name=module.params['bios_policy'],
+                boot_policy_name=module.params['boot_policy'],
+                descr=module.params['description'],
+                ext_ip_state='pooled',
+                ext_ip_pool_name=module.params['mgmt_ip_pool'],
+                # graphics_card_policy_name=module.params['graphics_card_policy'],
+                host_fw_policy_name=module.params['host_firmware_package'],
+                ident_pool_name=module.params['uuid_pool'],
+                kvm_mgmt_policy_name=module.params['kvm_mgmt_policy'],
+                local_disk_policy_name=module.params['local_disk_policy'],
+                maint_policy_name=module.params['maintenance_policy'],
+                mgmt_access_policy_name=module.params['ipmi_access_profile'],
+                name=module.params['name'],
+                power_policy_name=module.params['power_control_policy'],
+                power_sync_policy_name=module.params['power_sync_policy'],
+                scrub_policy_name=module.params['scrub_policy'],
+                sol_policy_name=module.params['sol_policy'],
+                stats_policy_name=module.params['threshold_policy'],
+                type=module.params['template_type'],
+                usr_lbl=module.params['user_label'],
+                vmedia_policy_name=module.params['vmedia_policy'],
+            )
+
+            if module.params['storage_profile']:
+                # Storage profile
+                mo_1 = LstorageProfileBinding(
+                    parent_mo_or_dn=mo,
+                    storage_profile_name=module.params['storage_profile'],
+                )
+
+            if module.params['mgmt_interface_mode']:
+                # Management Interface
+                mo_1 = MgmtInterface(
+                    parent_mo_or_dn=mo,
+                    mode=module.params['mgmt_interface_mode'],
+                    ip_v4_state='pooled',
+                )
+                mo_2 = MgmtVnet(
+                    parent_mo_or_dn=mo_1,
+                    id='1',
+                    name=module.params['mgmt_vnet_name'],
+                )
+                VnicIpV4MgmtPooledAddr(
+                    parent_mo_or_dn=mo_2,
+                    name=module.params['mgmt_inband_pool_name'],
+                )
+
+            # LAN/SAN connectivity policy
+            mo_1 = VnicConnDef(
+                parent_mo_or_dn=mo,
+                lan_conn_policy_name=module.params['lan_connectivity_policy'],
+                san_conn_policy_name=module.params['san_connectivity_policy'],
+            )
+
+            if module.params['iqn_pool']:
+                # IQN pool
+                mo_1 = VnicIScsiNode(
+                    parent_mo_or_dn=mo,
+                    iqn_ident_pool_name=module.params['iqn_pool']
+                )
+
+            # power state
+            admin_state = 'admin-' + module.params['power_state']
+            mo_1 = LsPower(
+                parent_mo_or_dn=mo,
+                state=admin_state,
+            )
+
+            if module.params['server_pool']:
+                # server pool
+                mo_1 = LsRequirement(
+                    parent_mo_or_dn=mo,
+                    name=module.params['server_pool'],
+                    qualifier=module.params['server_pool_qualification'],
+                )
+
+            ucs.login_handle.add_mo(mo, True)
+            ucs.login_handle.commit()
+        except Exception as e:  # generic Exception handling because SDK can throw a variety of exceptions
+            ucs.result['msg'] = "setup error: %s " % str(e)
+            module.fail_json(**ucs.result)
+
+    ucs.result['changed'] = True
+
+
+def check_storage_profile_props(ucs, module, dn):
+    props_match = False
+
+    child_dn = dn + '/profile-binding'
+    mo_1 = ucs.login_handle.query_dn(child_dn)
+    if mo_1:
+        kwargs = dict(storage_profile_name=module.params['storage_profile'])
+        if mo_1.check_prop_match(**kwargs):
+            props_match = True
+    elif not module.params['storage_profile']:
+        # no stroage profile mo or desired state
+        props_match = True
+
+    return props_match
+
+
+def check_connectivity_policy_props(ucs, module, dn):
+    props_match = False
+
+    child_dn = dn + '/conn-def'
+    mo_1 = ucs.login_handle.query_dn(child_dn)
+    if mo_1:
+        kwargs = dict(lan_conn_policy_name=module.params['lan_connectivity_policy'])
+        kwargs['san_conn_policy_name'] = module.params['san_connectivity_policy']
+        if mo_1.check_prop_match(**kwargs):
+            props_match = True
+    elif not module.params['lan_connectivity_policy'] and not module.params['san_connectivity_policy']:
+        # no mo and no desired state
+        props_match = True
+
+    return props_match
+
+
+def check_iqn_pool_props(ucs, module, dn):
+    props_match = False
+
+    child_dn = dn + '/iscsi-node'
+    mo_1 = ucs.login_handle.query_dn(child_dn)
+    if mo_1:
+        kwargs = dict(iqn_ident_pool_name=module.params['iqn_pool'])
+        if mo_1.check_prop_match(**kwargs):
+            props_match = True
+    elif not module.params['iqn_pool']:
+        # no mo and no desired state
+        props_match = True
+
+    return props_match
+
+
+def check_inband_management_props(ucs, module, dn):
+    props_match = False
+
+    child_dn = dn + '/iface-in-band'
+    mo_1 = ucs.login_handle.query_dn(child_dn)
+    if mo_1:
+        kwargs = dict(mode=module.params['mgmt_interface_mode'])
+        if mo_1.check_prop_match(**kwargs):
+            child_dn = child_dn + '/network'
+            mo_2 = ucs.login_handle.query_dn(child_dn)
+            if mo_2:
+                kwargs = dict(name=module.params['mgmt_vnet_name'])
+                if mo_2.check_prop_match(**kwargs):
+                    child_dn = child_dn + '/ipv4-pooled-addr'
+                    mo_3 = ucs.login_handle.query_dn(child_dn)
+                    if mo_3:
+                        kwargs = dict(name=module.params['mgmt_inband_pool_name'])
+                        if mo_3.check_prop_match(**kwargs):
+                            props_match = True
+    elif not module.params['mgmt_interface_mode']:
+        # no mo and no desired state
+        props_match = True
+
+    return props_match
+
+
+def check_power_props(ucs, module, dn):
+    props_match = False
+
+    child_dn = dn + '/power'
+    mo_1 = ucs.login_handle.query_dn(child_dn)
+    if mo_1:
+        kwargs = dict(state=module.params['power_state'])
+        if mo_1.check_prop_match(**kwargs):
+            props_match = True
+    elif not module.params['power_state']:
+        # no mo and no desired state
+        props_match = True
+
+    return props_match
+
+
+def check_server_pool(ucs, module, dn):
+    props_match = False
+
+    child_dn = dn + '/pn-req'
+    mo_1 = ucs.login_handle.query_dn(child_dn)
+    if mo_1:
+        kwargs = dict(name=module.params['server_pool'])
+        kwargs['qualifier'] = module.params['server_pool_qualification']
+        if mo_1.check_prop_match(**kwargs):
+            props_match = True
+    elif not module.params['server_pool']:
+        # no pn-req object and no server pool name provided
+        props_match = True
+
+    return props_match
+
+
+def check_serivce_profile_templates_props(ucs, module, mo, dn):
+    props_match = False
+
+    # check top-level mo props
+    kwargs = dict(bios_profile_name=module.params['bios_policy'])
+    kwargs['boot_policy_name'] = module.params['boot_policy']
+    kwargs['descr'] = module.params['description']
+    kwargs['ext_ip_pool_name'] = module.params['mgmt_ip_pool']
+    # kwargs['graphics_card_policy_name'] = module.params['graphics_card_policy']
+    kwargs['host_fw_policy_name'] = module.params['host_firmware_package']
+    kwargs['ident_pool_name'] = module.params['uuid_pool']
+    kwargs['kvm_mgmt_policy_name'] = module.params['kvm_mgmt_policy']
+    kwargs['local_disk_policy_name'] = module.params['local_disk_policy']
+    kwargs['maint_policy_name'] = module.params['maintenance_policy']
+    kwargs['mgmt_access_policy_name'] = module.params['ipmi_access_profile']
+    kwargs['power_policy_name'] = module.params['power_control_policy']
+    kwargs['power_sync_policy_name'] = module.params['power_sync_policy']
+    kwargs['scrub_policy_name'] = module.params['scrub_policy']
+    kwargs['sol_policy_name'] = module.params['sol_policy']
+    kwargs['stats_policy_name'] = module.params['threshold_policy']
+    kwargs['type'] = module.params['template_type']
+    kwargs['usr_lbl'] = module.params['user_label']
+    kwargs['vmedia_policy_name'] = module.params['vmedia_policy']
+
+    if mo.check_prop_match(**kwargs):
+        # top-level props match, check next level mo/props
+        # code below should discontinue checks once any mismatch is found
+
+        # check storage profile 1st
+        props_match = check_storage_profile_props(ucs, module, dn)
+
+        if props_match:
+            props_match = check_connectivity_policy_props(ucs, module, dn)
+
+        if props_match:
+            props_match = check_iqn_pool_props(ucs, module, dn)
+
+        if props_match:
+            props_match = check_inband_management_props(ucs, module, dn)
+
+        if props_match:
+            props_match = check_power_props(ucs, module, dn)
+
+        if props_match:
+            props_match = check_server_pool(ucs, module, dn)
+
+    return props_match
 
 
 def main():
@@ -201,6 +472,7 @@ def main():
         vmedia_policy=dict(type='str', default=''),
         storage_profile=dict(type='str', default=''),
         lan_connectivity_policy=dict(type='str', default=''),
+        iqn_pool=dict(type='str', default=''),
         san_connectivity_policy=dict(type='str', default=''),
         server_pool=dict(type='str', default=''),
         server_pool_qualification=dict(type='str', default=''),
@@ -216,223 +488,28 @@ def main():
         supports_check_mode=True,
     )
     ucs = UCSModule(module)
+    # UCSModule creation above verifies ucsmsdk is present and exits on failure.
+    # Additional imports are done below or in called functions.
 
-    err = False
+    ucs.result['changed'] = False
+    props_match = False
+    # dn is <org_dn>/ls-<name>
+    dn = module.params['org_dn'] + '/ls-' + module.params['name']
 
-    # UCSModule creation above verifies ucsmsdk is present and exits on failure.  Additional imports are done below.
-    from ucsmsdk.mometa.ls.LsServer import LsServer
-    from ucsmsdk.mometa.vnic.VnicConnDef import VnicConnDef
-    from ucsmsdk.mometa.ls.LsRequirement import LsRequirement
-    from ucsmsdk.mometa.ls.LsPower import LsPower
-    from ucsmsdk.mometa.lstorage.LstorageProfileBinding import LstorageProfileBinding
-    from ucsmsdk.mometa.mgmt.MgmtInterface import MgmtInterface
-    from ucsmsdk.mometa.mgmt.MgmtVnet import MgmtVnet
-    from ucsmsdk.mometa.vnic.VnicIpV4MgmtPooledAddr import VnicIpV4MgmtPooledAddr
-
-    changed = False
-    try:
-        mo_exists = False
-        props_match = False
-        dn = module.params['org_dn'] + '/ls-' + module.params['name']
-
-        mo = ucs.login_handle.query_dn(dn)
-        if mo:
-            mo_exists = True
-
+    mo = ucs.login_handle.query_dn(dn)
+    if mo:
         if module.params['state'] == 'absent':
             # mo must exist but all properties do not have to match
-            if mo_exists:
-                if not module.check_mode:
-                    ucs.login_handle.remove_mo(mo)
-                    ucs.login_handle.commit()
-                changed = True
-        else:
-            if mo_exists:
-                # check top-level mo props
-                kwargs = dict(bios_profile_name=module.params['bios_policy'])
-                kwargs['boot_policy_name'] = module.params['boot_policy']
-                kwargs['descr'] = module.params['description']
-                kwargs['ext_ip_pool_name'] = module.params['mgmt_ip_pool']
-                # kwargs['graphics_card_policy_name'] = module.params['graphics_card_policy']
-                kwargs['host_fw_policy_name'] = module.params['host_firmware_package']
-                kwargs['ident_pool_name'] = module.params['uuid_pool']
-                kwargs['kvm_mgmt_policy_name'] = module.params['kvm_mgmt_policy']
-                kwargs['local_disk_policy_name'] = module.params['local_disk_policy']
-                kwargs['maint_policy_name'] = module.params['maintenance_policy']
-                kwargs['mgmt_access_policy_name'] = module.params['ipmi_access_profile']
-                kwargs['power_policy_name'] = module.params['power_control_policy']
-                kwargs['power_sync_policy_name'] = module.params['power_sync_policy']
-                kwargs['scrub_policy_name'] = module.params['scrub_policy']
-                kwargs['sol_policy_name'] = module.params['sol_policy']
-                kwargs['stats_policy_name'] = module.params['threshold_policy']
-                kwargs['type'] = module.params['template_type']
-                kwargs['usr_lbl'] = module.params['user_label']
-                kwargs['vmedia_policy_name'] = module.params['vmedia_policy']
+            if not module.check_mode:
+                ucs.login_handle.remove_mo(mo)
+                ucs.login_handle.commit()
+            ucs.result['changed'] = True
+        else:  # state == 'present'
+            props_match = check_serivce_profile_templates_props(ucs, module, mo, dn)
 
-                if mo.check_prop_match(**kwargs):
-                    # top-level props match, check next level mo/props
-                    # code below should discontinue checks once any mismatch is found
+    if module.params['state'] == 'present' and not props_match:
+        configure_service_profile_template(ucs, module)
 
-                    # check storage profile 1st
-                    child_dn = dn + '/profile-binding'
-                    mo_1 = ucs.login_handle.query_dn(child_dn)
-                    if mo_1:
-                        kwargs = dict(storage_profile_name=module.params['storage_profile'])
-                        if mo_1.check_prop_match(**kwargs):
-                            props_match = True
-                    elif not module.params['storage_profile']:
-                        # no stroage profile mo or desired state
-                        props_match = True
-
-                    if props_match:
-                        props_match = False
-                        # LAN/SAN connectivity policies
-                        child_dn = dn + '/conn-def'
-                        mo_1 = ucs.login_handle.query_dn(child_dn)
-                        if mo_1:
-                            kwargs = dict(lan_conn_policy_name=module.params['lan_connectivity_policy'])
-                            kwargs['san_conn_policy_name'] = module.params['san_connectivity_policy']
-                            if mo_1.check_prop_match(**kwargs):
-                                props_match = True
-                        elif not module.params['lan_connectivity_policy'] and not module.params['san_connectivity_policy']:
-                            # no mo and no desired state
-                            props_match = True
-
-                    if props_match:
-                        props_match = False
-                        # inband management policies
-                        child_dn = dn + '/iface-in-band'
-                        mo_1 = ucs.login_handle.query_dn(child_dn)
-                        if mo_1:
-                            kwargs = dict(mode=module.params['mgmt_interface_mode'])
-                            if mo_1.check_prop_match(**kwargs):
-                                child_dn = child_dn + '/network'
-                                mo_2 = ucs.login_handle.query_dn(child_dn)
-                                if mo_2:
-                                    kwargs = dict(name=module.params['mgmt_vnet_name'])
-                                    if mo_2.check_prop_match(**kwargs):
-                                        child_dn = child_dn + '/ipv4-pooled-addr'
-                                        mo_3 = ucs.login_handle.query_dn(child_dn)
-                                        if mo_3:
-                                            kwargs = dict(name=module.params['mgmt_inband_pool_name'])
-                                            if mo_3.check_prop_match(**kwargs):
-                                                props_match = True
-                        elif not module.params['mgmt_interface_mode']:
-                            # no mo and no desired state
-                            props_match = True
-
-                    if props_match:
-                        props_match = False
-                        # power state
-                        child_dn = dn + '/power'
-                        mo_1 = ucs.login_handle.query_dn(child_dn)
-                        if mo_1:
-                            kwargs = dict(state=module.params['power_state'])
-                            if mo_1.check_prop_match(**kwargs):
-                                props_match = True
-                        elif not module.params['power_state']:
-                            # no mo and no desired state
-                            props_match = True
-
-                    if props_match:
-                        props_match = False
-                        # server pool
-                        child_dn = dn + '/pn-req'
-                        mo_1 = ucs.login_handle.query_dn(child_dn)
-                        if mo_1:
-                            kwargs = dict(name=module.params['server_pool'])
-                            kwargs['qualifier'] = module.params['server_pool_qualification']
-                            if mo_1.check_prop_match(**kwargs):
-                                props_match = True
-                        elif not module.params['server_pool']:
-                            # no pn-req object and no server pool name provided
-                            props_match = True
-
-            if not props_match:
-                if not module.check_mode:
-                    # create if mo does not already exist
-                    mo = LsServer(
-                        parent_mo_or_dn=module.params['org_dn'],
-                        bios_profile_name=module.params['bios_policy'],
-                        boot_policy_name=module.params['boot_policy'],
-                        descr=module.params['description'],
-                        ext_ip_state='pooled',
-                        ext_ip_pool_name=module.params['mgmt_ip_pool'],
-                        # graphics_card_policy_name=module.params['graphics_card_policy'],
-                        host_fw_policy_name=module.params['host_firmware_package'],
-                        ident_pool_name=module.params['uuid_pool'],
-                        kvm_mgmt_policy_name=module.params['kvm_mgmt_policy'],
-                        local_disk_policy_name=module.params['local_disk_policy'],
-                        maint_policy_name=module.params['maintenance_policy'],
-                        mgmt_access_policy_name=module.params['ipmi_access_profile'],
-                        name=module.params['name'],
-                        power_policy_name=module.params['power_control_policy'],
-                        power_sync_policy_name=module.params['power_sync_policy'],
-                        scrub_policy_name=module.params['scrub_policy'],
-                        sol_policy_name=module.params['sol_policy'],
-                        stats_policy_name=module.params['threshold_policy'],
-                        type=module.params['template_type'],
-                        usr_lbl=module.params['user_label'],
-                        vmedia_policy_name=module.params['vmedia_policy'],
-                    )
-
-                    if module.params['storage_profile']:
-                        # Storage profile
-                        mo_1 = LstorageProfileBinding(
-                            parent_mo_or_dn=mo,
-                            storage_profile_name=module.params['storage_profile'],
-                        )
-
-                    if module.params['mgmt_interface_mode']:
-                        # Management Interface
-                        mo_1 = MgmtInterface(
-                            parent_mo_or_dn=mo,
-                            mode=module.params['mgmt_interface_mode'],
-                            ip_v4_state='pooled',
-                        )
-                        mo_2 = MgmtVnet(
-                            parent_mo_or_dn=mo_1,
-                            id='1',
-                            name=module.params['mgmt_vnet_name'],
-                        )
-                        mo_3 = VnicIpV4MgmtPooledAddr(
-                            parent_mo_or_dn=mo_2,
-                            name=module.params['mgmt_inband_pool_name'],
-                        )
-
-                    # LAN/SAN connectivity policy
-                    mo_1 = VnicConnDef(
-                        parent_mo_or_dn=mo,
-                        lan_conn_policy_name=module.params['lan_connectivity_policy'],
-                        san_conn_policy_name=module.params['san_connectivity_policy'],
-                    )
-
-                    # power state
-                    admin_state = 'admin-' + module.params['power_state']
-                    mo_1 = LsPower(
-                        parent_mo_or_dn=mo,
-                        state=admin_state,
-                    )
-
-                    if module.params['server_pool']:
-                        # server pool
-                        mo_1 = LsRequirement(
-                            parent_mo_or_dn=mo,
-                            name=module.params['server_pool'],
-                            qualifier=module.params['server_pool_qualification'],
-                        )
-
-                    ucs.login_handle.add_mo(mo, True)
-                    ucs.login_handle.commit()
-                changed = True
-
-    except Exception as e:
-        err = True
-        ucs.result['msg'] = "setup error: %s " % str(e)
-
-    ucs.result['changed'] = changed
-    if err:
-        module.fail_json(**ucs.result)
     module.exit_json(**ucs.result)
 
 
