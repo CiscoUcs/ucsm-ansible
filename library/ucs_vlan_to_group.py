@@ -13,7 +13,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = r'''
 ---
 module: ucs_vlan_to_group
-short_description: Add VLANs to a VLAN Group
+short_description: Add VLANs to a VLAN Group. Requires VLAN and VLAN Group to already be created on UCS prior to running module.
 description:
 - Add VLANs to VLAN Groups on Cisco UCS Manager.
 options:
@@ -96,28 +96,59 @@ def main():
     
     changed = False
     try:
-        mo_exists = False
-        props_match = False
+        dngroup1_exists = False
+        dnvlan1_exists = False
+        dnpooled1_exists = False
+        
+        #dn = fabric/lan/net-group-VLANGROUP
+        #Check for VLAN Group
+        dngroup = 'fabric/lan/net-group-' + module.params['vlangroup']
+        dngroup1 = ucs.login_handle.query_dn(dngroup)
 
+        #dn = fabric/lan/net-VLANNAME
+        #Check for VLAN
+        dnvlan = 'fabric/lan/net-' + module.params['vlanname']
+        dnvlan1 = ucs.login_handle.query_dn(dnvlan)
+
+        #dn = fabric/lan/net-group-VLANGROUP/net-VLANNAME
+        #Check for VLAN within VLAN Group
+        dnpooled = 'fabric/lan/net-group-' + module.params['vlangroup'] + '/net-' + module.params['vlanname']
+        dnpooled1 = ucs.login_handle.query_dn(dnpooled)
+
+        #Configuration MOs. Couldn't really get this to work off the DNs, so I built additional objects.
         mo = FabricNetGroup(parent_mo_or_dn="fabric/lan", name=module.params['vlangroup'])
         mo_1 = FabricPooledVlan(parent_mo_or_dn=mo, name=module.params['vlanname'])
-        
-        if mo:
-            mo_exists = True
+
+        if not dngroup1:
+            #Error out if the VLAN Group is missing
+            err = True
+            ucs.result['msg'] = module.params['vlangroup'] + " VLAN Group not configured in UCS"
+
+        if not dnvlan1:
+            #Error out if VLAN is missing
+            err = True
+            ucs.result['msg'] = module.params['vlanname'] + " VLAN not configured in UCS. Use ucs_vlans module to create the VLAN first"
+
+        if dnpooled1:
+            dnpooled1_exists = True
 
         if module.params['state'] == 'absent':
-            if mo_exists:
+            if dnpooled1_exists:
                 if not module.check_mode:
                     ucs.login_handle.remove_mo(mo_1)
                     ucs.login_handle.commit()
                 changed = True
 
         if module.params['state'] == 'present':
-            if mo_exists:
+            if dnpooled1_exists:
+                if not module.check_mode:
+                    changed = False
+            if not dnpooled1_exists:
                 if not module.check_mode:
                     ucs.login_handle.add_mo(mo, True)
                     ucs.login_handle.commit()
                 changed = True
+
 
     except Exception as e:
         err = True
