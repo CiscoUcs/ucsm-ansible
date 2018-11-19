@@ -46,7 +46,7 @@ version_added: '2.8'
 
 EXAMPLES = r'''
 - name: Configure VLAN
-  ucs_vlans:
+  ucs_vlan_to_group:
     hostname: 1.1.1.1
     username: admin
     password: password
@@ -54,7 +54,7 @@ EXAMPLES = r'''
     vlanname: VLANNAME
     state: present
 - name: Remove VLAN
-  ucs_vlans:
+  ucs_vlan_to_group:
     hostname: 1.1.1.1
     username: admin
     password: password
