@@ -204,12 +204,7 @@ def traverse_objects(module, ucs, managed_object, mo=''):
 
         if not props_match:
             if not module.check_mode:
-                try:
-                    ucs.login_handle.add_mo(mo, modify_present=True)
-                except Exception as e:
-                    ucs.result['err'] = True
-                    ucs.result['msg'] = "setup error: %s " % str(e)
-
+                ucs.login_handle.add_mo(mo, modify_present=True)
             ucs.result['changed'] = True
 
     if managed_object.get('children'):
@@ -241,7 +236,6 @@ def main():
         module.fail_json(msg='import_module is required for this module')
     ucs = UCSModule(module)
 
-    ucs.result['err'] = False
     # note that all objects specified in the object list report a single result (including a single changed).
     ucs.result['changed'] = False
 
@@ -249,10 +243,13 @@ def main():
         traverse_objects(module, ucs, managed_object)
         # single commit for object and any children
         if not module.check_mode and ucs.result['changed']:
-            ucs.login_handle.commit()
+            try:
+                ucs.login_handle.commit()
+            except Exception as e:
+                # generic Exception because UCSM can throw a variety of exceptions
+                ucs.result['msg'] = "setup error: %s " % str(e)
+                module.fail_json(**ucs.result)
 
-    if ucs.result['err']:
-        module.fail_json(**ucs.result)
     module.exit_json(**ucs.result)
 
 
