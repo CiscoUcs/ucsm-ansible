@@ -134,7 +134,7 @@ def main():
         ipmi_over_lan=module.params['ipmi_over_lan']
     )
 
-    if module.params['description'] != None:
+    if module.params['description'] is not None:
         kwargs['descr'] = module.params['description']
 
     try:
@@ -156,7 +156,7 @@ def main():
 
         # Object exists but should not, that is a change
         if mo and requested_state == 'absent':
-                changed = True
+            changed = True
 
         # Apply state if not check_mode
         if changed and not module.check_mode:
@@ -166,12 +166,12 @@ def main():
                 kwargs['parent_mo_or_dn'] = module.params['org_dn']
                 kwargs['name'] = module.params['name']
                 kwargs['ipmi_over_lan'] = module.params['ipmi_over_lan']
-                if module.params['description'] != None:
+                if module.params['description'] is not None:
                     kwargs['descr'] = module.params['description']
 
                 mo = AaaEpAuthProfile(**kwargs)
                 ucs.login_handle.add_mo(mo, modify_present=True)
-            
+
             try:
                 ucs.login_handle.commit()
             except Exception as e:
