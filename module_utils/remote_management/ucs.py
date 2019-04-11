@@ -29,7 +29,7 @@
 
 import traceback
 
-from ansible.module_utils.basic import missing_required_lib
+# from ansible.module_utils.basic import missing_required_lib
 
 UCSMSDK_IMP_ERR = None
 try:
@@ -56,7 +56,8 @@ class UCSModule():
         self.module = module
         self.result = {}
         if not HAS_UCSMSDK:
-            self.module.fail_json(msg=missing_required_lib('ucsmsdk'), exception=UCSMSDK_IMP_ERR)
+            # self.module.fail_json(msg=missing_required_lib('ucsmsdk'), exception=UCSMSDK_IMP_ERR)
+            self.module.fail_json(msg='ucsmsdk is required for this module')
         self.login()
 
     def __del__(self):
