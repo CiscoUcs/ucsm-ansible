@@ -303,6 +303,9 @@ def main():
                                 if mo_1:
                                     props_match = False
                                     break
+                                else:
+                                    # Expected to be absent
+                                    props_match = True
                             else:
                                 if mo_1:
                                     kwargs = dict(default_net=vlan['native'])
@@ -351,7 +354,8 @@ def main():
                             if vlan['state'] == 'absent':
                                 child_dn = dn + '/if-' + str(vlan['name'])
                                 mo_1 = ucs.login_handle.query_dn(child_dn)
-                                ucs.login_handle.remove_mo(mo_1)
+                                if mo_1:
+                                    ucs.login_handle.remove_mo(mo_1)
                             else:
                                 mo_1 = VnicEtherIf(
                                     parent_mo_or_dn=mo,
