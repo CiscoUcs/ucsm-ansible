@@ -1,0 +1,39 @@
+---
+#
+# For use with the CiscoUcs.ucs role published to Ansible Galaxy:
+#   https://galaxy.ansible.com/list#/roles?autocomplete=ucs
+#
+# Several examples provided below.  Customize for your desired configuration as needed.
+#
+- hosts: "{{ group | default('ucs') }}"
+  connection: local
+  gather_facts: false
+  tasks:
+    # CiscoUcs roles use ucs_hostname, ucs_username, ucs_password, and ucs_state variables in each task
+    - set_fact:
+        ucs_hostname: "{{ inventory_hostname }}"
+      when: ucs_hostname is not defined
+      tags: ['lan', 'vlan']
+    - set_fact:
+        ucs_username: "{{ username | default('admin') }}"
+        ucs_password: "{{ password }}"
+        ucs_state: "{{ state | default('present') }}"
+      when: ucs_password is not defined
+      tags: ['lan', 'vlan']
+    - block:
+        # Example 1: Complete UCS config using defaults/main.yml values from all subdirs in the role
+        - import_role:
+            name: CiscoUcs.ucs
+        # Example 2: LAN config only using defaults/main.yml values in all lan subdirs for the role
+        - import_role:
+            name: CiscoUcs.ucs/lan
+          tags: ['never', 'lan']
+        # Example 3: VLAN config only from the lan/vlans subdir of the role. ucs_vlans variables specified directly in the playbook
+        - import_role:
+            name: CiscoUcs.ucs/lan/vlans
+          vars:
+            ucs_vlans:
+              - name: Native-VLAN
+                id: '2'
+                native: 'no'
+          tags: ['never', 'vlan']

@@ -6,10 +6,10 @@
   tasks:
   - name: Configure VLAN
     ucs_vlans:
-      hostname: "{{ ucs_hostname }}"
-      username: "{{ ucs_username }}"
-      password: "{{ ucs_password }}"
-      state: "{{ ucs_state }}"
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username | default(omit) }}"
+      password: "{{ password }}"
+      state: "{{ state | default(omit) }}"
       name: vlan2
       id: '2'
       native: 'no'
