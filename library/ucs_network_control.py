@@ -124,7 +124,7 @@ def main():
         name=dict(type='str', required=True),
         descr=dict(type='str', default=''),
         cdp=dict(type='str', default='disabled'),
-        mac_register_mode=dict(type='str', default='only-native-vlan', choices=['all-host-vlan', 'only-native-vlan']),
+        mac_register_mode=dict(type='str', default='only-native-vlan', choices=['all-host-vlans', 'only-native-vlan']),
         uplink_fail_action=dict(type='str', default='link-down', choices=['link-down', 'warning']),
         forge=dict(type='str', default='deny', choices=['allow', 'deny', 'no-config']),
         lldp_transmit=dict(type='str', default='disabled', choices=['disabled', 'enabled']),
