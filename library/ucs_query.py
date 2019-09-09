@@ -47,7 +47,7 @@ requirements:
 author:
     - John McDonough (@movinalot)
     - CiscoUcs (@CiscoUcs)
-version_added: "2.8"
+version_added: "2.10"
 '''
 
 EXAMPLES = r'''
@@ -84,10 +84,8 @@ EXAMPLES = r'''
     delegate_to: localhost
 '''
 
-RETURN = '''
-objects:
-    description: results JSON encodded
-    type: dict
+RETURN = r'''
+#
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -166,6 +164,7 @@ def main():
     if err:
         module.fail_json(**ucs.result)
 
+    ucs.result['changed'] = False
     module.exit_json(**ucs.result)
 
 
