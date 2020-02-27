@@ -16,7 +16,6 @@ module: ucs_disk_group_policy_auto
 short_description: Creates and deletes auto disk group policy on Cisco UCS Manager
 description:
 - Creates and deletes auto disk group policy on Cisco UCS Manager
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -29,10 +28,8 @@ options:
   name:
     description:
     - Name of the disk group policy
-    - When creating multiple disk group policies, disk group policy name, start index as suffix to name and
-      required number of policies can be specified as comma separated values.
-    - For example, name: my_grp, 1, 60 - in this example 60 disk group policies are created
-      starting with the name my_grp1 to my_grp60. 
+    - When creating multiple disk group policies, disk group policy name, start index as suffix to name and required number of policies can be specified as comma separated values.
+    - "For example, name: my_grp, 1, 60 - in this example 60 disk group policies are created starting with the name my_grp1 to my_grp60."
 
   num_drives:
     description:
@@ -48,14 +45,14 @@ options:
 
   drive_type:
     description:
-    - This can be one of the following:
+    - This can be one of the following
       - Unspecified—Selects the first available drive type, and applies that to all drives in the group.
       - HDD—Hard disk drive
       - SDD—Solid state drive
 
   use_jbod_disks:
     description:
-    - This can be one of the following:
+    - This can be one of the following
       - Yes
       - No
 

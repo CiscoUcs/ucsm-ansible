@@ -21,24 +21,23 @@ version_added: "2.6"
 
 description:
     - Configures Configures vNIC order for service profiles and templates on Cisco UCS Manager
-    - Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 
 options:
     sp_name:
         description: DN of the service profile
-    - vnics:
+    vnics:
         description: List of vNIC order properties
-        name:
-            description: Name of the vNIC
-        admin_vcon:
-            description: Name of the virtual connection
-            choices: ["1",2","3","4","any"]
-        order:
-            description: vNIC connection order
-            choices: ["unspecified", "0-256"]
-        transport:
-            description: transport medium
-            choices: ["ethernet", "fc"]
+    name:
+        description: Name of the vNIC
+    admin_vcon:
+        description: Name of the virtual connection
+        choices: ["1",2","3","4","any"]
+    order:
+        description: vNIC connection order
+        choices: ["unspecified", "0-256"]
+    transport:
+        description: transport medium
+        choices: ["ethernet", "fc"]
     org_dn:
         description: root org dn
 extends_documentation_fragment:

@@ -17,7 +17,6 @@ module: ucs_server_maintenance
 short_description: Creates Server Maintenance Policy on Cisco UCS Manager
 description:
 - Configures Server Maintenance Policy on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -42,12 +41,12 @@ options:
     - "You can use any characters or spaces except the following:"
     - "` (accent mark), \ (backslash), ^ (carat), \" (double quote), = (equal sign), > (greater than), < (less than), or ' (single quote)."
     aliases: [ descr ]
-   uptime_disr:
-	description:
-	- When a Server profile is associated with a Server, or when changes are made to a Server profile that is already associated with a Server, you must reboot the Server to complete the process. 
-	- The Reboot Policy field determines when the reboot occurs for Server associated with any Server profiles that include this maintenance policy. 
-	- This can only be the following:
-	- User Ack—The user must reboot the Server manually after the Server profile association is complete or changes are made.
+  uptime_disr:
+    description:
+    - When a Server profile is associated with a Server, or when changes are made to a Server profile that is already associated with a Server, you must reboot the Server to complete the process. 
+    - The Reboot Policy field determines when the reboot occurs for Server associated with any Server profiles that include this maintenance policy. 
+    - This can only be the following
+    - User Ack—The user must reboot the Server manually after the Server profile association is complete or changes are made.
 requirements:
 - ucsmsdk
 author:

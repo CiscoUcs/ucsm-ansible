@@ -16,7 +16,6 @@ module: ucs_chassis_profile_association
 short_description: Configures Chassis Profile Association on Cisco UCS Manager
 description:
 - Configures Chassis Profile Association (change association or disassociate) on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:

@@ -16,6 +16,7 @@ module: ucs_vlan_to_group
 short_description: Add VLANs to a VLAN Group. Requires VLAN and VLAN Group to already be created on UCS prior to running module.
 description:
 - Add VLANs to VLAN Groups on Cisco UCS Manager.
+extends_documentation_fragment: ucs
 options:
   state:
     description:

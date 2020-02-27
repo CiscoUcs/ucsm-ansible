@@ -16,7 +16,6 @@ module: ucs_chassis_connection
 short_description: Configures Chassis Connection Policy on Cisco UCS Manager
 description:
 - Configures Chassis Connection Policy on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -44,8 +43,8 @@ options:
   sioc_connectivity:
     description:
     - The server SIOC connectivity that should be used for UCS S-Series.
-	- "single-server-single-sioc - The data path is configured through one SIOC when the chassis has single server and single SIOC or dual server and dual SIOCs."
-	- "single-server-dual-sioc - When enabled, you can configure the data path through both the primary and auxiliary SIOCs when the chassis has single server and dual SIOCs."
+    - "single-server-single-sioc - The data path is configured through one SIOC when the chassis has single server and single SIOC or dual server and dual SIOCs."
+    - "single-server-dual-sioc - When enabled, you can configure the data path through both the primary and auxiliary SIOCs when the chassis has single server and dual SIOCs."
     default: 'single-server-single-sioc'
 requirements:
 - ucsmsdk

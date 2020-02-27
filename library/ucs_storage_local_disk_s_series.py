@@ -16,50 +16,45 @@ module: ucs_storage_local_disk_s_series.py
 short_description: Sets the drive to either unconfigured good or jbod in UCS Manager for S-Series servers.
 description:
 - Sets the disk state from jobd to unconfigured good or vice versa in Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
 
   chassis_id:
     description:
     - Specify the chassis id number.
-    - For setting the disk state in multiple chassis at a time, provide first chassis id and total number of chassis as
-      comma separated values.
-    - For example, chassis_id: 1, 10 - in this example 1 represents the first chassis.
+    - For setting the disk state in multiple chassis at a time, provide first chassis id and total number of chassis as comma separated values.
+    - "For example, chassis_id: 1, 10 - in this example 1 represents the first chassis."
     - and 10 represents the total number of chassis on which the operation has to be performed.
 
   blade_id:
     description:
     - Specify the server id number.
-    - For multiple server options, provide first server id and total number of servers as
-      comma separated values.
-    - For example, blade_id: 1, 2 - in this example 1 represents the first server.
+    - For multiple server options, provide first server id and total number of servers as comma separated values.
+    - "For example, blade_id: 1, 2 - in this example 1 represents the first server."
     - and 2 represents the total number of servers on which the operation has to be performed.
-	
+
   blade_enc:
     description:
     - This parameter takes true or false as the value.
     - When set to true, it expects the enc_id to be either 3 or 4 or both.
     - When set to false, it defaults the enc_id to 1.
-    - enc_id: 1 represents the chassis storage enclosure and this can take the value from 1 to 56 as it supports 56 disks.
-    - enc_id: 3 or 4 represents the server storage enclosures. enc_id: 3 is for boot disks and enc_id: 4 supports NVMe disks.
-  
+    - enc_id 1 represents the chassis storage enclosure and this can take the value from 1 to 56 as it supports 56 disks.
+    - enc_id 3 or 4 represents the server storage enclosures. enc_id 3 is for boot disks and enc_id 4 supports NVMe disks.
+
   enc_id:
     description:
     - Specify the storage enc id number.
     - This field is required when the blade_enc is true.
-    - For setting multiple enclosure ids, provide first enclosure id and total number of enclosures as
-      comma separated values.
-    - For example, enc_id: 3 - in this example 3 represents the first storage enclosure in the blade server.
-    - Note: enc_id is always 1 for chassis storage enclosure, hence there is no need to specifically set this value.
+    - For setting multiple enclosure ids, provide first enclosure id and total number of enclosures as comma separated values.
+    - "For example, enc_id 3 - in this example 3 represents the first storage enclosure in the blade server."
+    - Note enc_id is always 1 for chassis storage enclosure, hence there is no need to specifically set this value.
     - However, for server specific storage enclosures the enc_id can either be 3 or 4.
 
   disk_id:
     description:
     - Specify the disk id number.
-    - For setting multiple disk ids, provide first disk id and total number of disks as
-      comma separated values.
-    - For example, disk_id: 1, 2 - in this example 1 represents the first disk.
+    - For setting multiple disk ids, provide first disk id and total number of disks as comma separated values.
+    - "For example, disk_id: 1, 2 - in this example 1 represents the first disk."
     - and 2 represents the total number of disks on which the operation has to be performed.
     
   disk_state:

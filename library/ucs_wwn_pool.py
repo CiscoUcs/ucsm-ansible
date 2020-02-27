@@ -16,7 +16,6 @@ module: ucs_wwn_pool
 short_description: Configures WWNN or WWPN pools on Cisco UCS Manager
 description:
 - Configures WWNNs or WWPN pools on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -59,7 +58,7 @@ options:
     - This is the From field in the UCS Manager Add WWN Blocks menu.
   last_addr:
     description:
-    - The last initiator in the Worlde Wide Name (WWN) block.
+    - The last initiator in the World Wide Name (WWN) block.
     - This is the To field in the UCS Manager Add WWN Blocks menu.
     - For WWxN pools, the pool size must be a multiple of ports-per-node + 1.
     - For example, if there are 7 ports per node, the pool size must be a multiple of 8.

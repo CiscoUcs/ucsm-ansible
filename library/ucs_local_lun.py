@@ -16,7 +16,6 @@ module: ucs_local_lun
 short_description: Creates and deletes local luns via storage profile on Cisco UCS Manager
 description:
 - Creates and deletes local luns via storage profile on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -29,16 +28,16 @@ options:
   name:
     description:
     - The name of the local LUN.
-      This name can be between 1 and 10 alphanumeric characters. 
-      Special characters other than -, _, : , and . Name cannot be changed after the object has been saved.
+    - This name can be between 1 and 10 alphanumeric characters. 
+    - "Special characters other than -, _, : , and . Name cannot be changed after the object has been saved."
     - When creating multiple LUNs, name, start index as suffix to name and required number of LUNs can be specified as 
-      comma separated values. 
-    - For example, name: my_lun, 1, 60 - in this example 60 LUNs are created starting with the name my_lun1 to my_lun60.
+    - comma separated values. 
+    - "For example, name: my_lun, 1, 60 - in this example 60 LUNs are created starting with the name my_lun1 to my_lun60."
 
   size:
     description:
     - Size of this LUN in GB. The size can range from 1 to 10240 GB.
-    - Note: You do not need to specify a LUN size while claiming an orphaned LUN.
+    - Note You do not need to specify a LUN size while claiming an orphaned LUN.
 
   auto_deploy:
     description:
@@ -48,7 +47,7 @@ options:
     description:
     - Specifies that this LUN can be expanded to use the entire available disk group.
     - For each service profile, only one LUN can use this option.
-    - Note: Expand To Available option is not supported for already deployed LUN.
+    - Note Expand To Available option is not supported for already deployed LUN.
 
   disk_policy_name:
     description:

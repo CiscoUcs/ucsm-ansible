@@ -16,7 +16,6 @@ module: ucs_chassis_sas
 short_description: Creates Chassis SAS Expander Policy on Cisco UCS Manager
 description:
 - Configures Chassis SAS Expander Policy on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -42,11 +41,11 @@ options:
     - "` (accent mark), \ (backslash), ^ (carat), \" (double quote), = (equal sign), > (greater than), < (less than), or ' (single quote)."
     aliases: [ descr ]
   sas_policy:
-	description:
-	- Disabled: Connection Management is disabled in this policy and the Sas Expander uses only 6G speeds even if 12G is available.
-	- Enabled: Connection Management is enabled in this policy and it intelligently shifts between 6G and 12 G speeds based on availability. Once 6G-12G Mixed Mode is enabled, you cannot downgrade to any release earlier than 3.2(3a). To downgrade, disable this mode.
-    - No Change (Default): Pre-existing configuration is retained.
-	- Note: Enabling or disabling 6G-12G Mixed Mode causes system reboot.
+    description:
+    - Disabled - Connection Management is disabled in this policy and the Sas Expander uses only 6G speeds even if 12G is available.
+    - Enabled - Connection Management is enabled in this policy and it intelligently shifts between 6G and 12 G speeds based on availability. Once 6G-12G Mixed Mode is enabled, you cannot downgrade to any release earlier than 3.2(3a). To downgrade, disable this mode.
+    - No Change (Default) - Pre-existing configuration is retained.
+    - Note Enabling or disabling 6G-12G Mixed Mode causes system reboot.
 requirements:
 - ucsmsdk
 author:

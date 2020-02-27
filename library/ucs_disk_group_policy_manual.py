@@ -16,7 +16,6 @@ module: ucs_disk_group_policy_manual
 short_description: Creates and deletes manual disk group policy on Cisco UCS Manager
 description:
 - Creates and deletes manual disk group policy on Cisco UCS Manager
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -29,7 +28,7 @@ options:
   name:
     description:
     - Name of the disk group policy 
-   
+
   disk_list:
     description:
     - List of disks 
@@ -40,7 +39,7 @@ options:
 
   role:
     description:
-    - The role of the disk. This can be one of the following:
+    - The role of the disk. This can be one of the following
       - Normal
       - Ded Hot Spare
       - Glob Hot Spare
@@ -49,7 +48,7 @@ options:
     description:
     - The Span ID of the specific disk.
   
-  requirements:
+requirements:
 - ucsmsdk
 
 author:

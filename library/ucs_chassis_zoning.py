@@ -16,7 +16,6 @@ module: ucs_chassis_zoning
 short_description: Configures Chassis Disk Zoning on Cisco UCS Manager
 description:
 - Configures Chassis Disk ZOning on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -29,7 +28,7 @@ options:
     description:
     - The name of the Disk Zoning Policy.
     - This name can be between 1 and 32 alphanumeric characters.
-    - You cannot use spaces or any special characters other than - (hyphen), \"_\" (underscore), : (colon), and . (period).
+    - "You cannot use spaces or any special characters other than - (hyphen), \"_\" (underscore), : (colon), and . (period)."
     - You cannot change this name after the Disk Zoning Policy is created.
     required: yes
   descrption:
@@ -45,38 +44,37 @@ options:
     choices: [checked, unchecked]
     default: unchecked
   ownership:
-	description:
-	- The slot ownership value. This can be one of the following:
-	choices: [unassigned, dedicated, shared, chassis-global-spare]
-	required: yes
-	default: unassigned
-	
-	Choice dedicated:
-	server_id:
-	- The ID of the server that the disk is assigned.
-	choices: [1, 2]
-	default: ''
-	controller_id:
-	- The ID of the controller that the disk is assigned.
-	choices: [1, 2]
-	default: ''
-	controller type:
-	- The type for the controller. If the disk is either dedicated or shared, the controller type is always SAS.
-	default: SAS
-	
-	Choice Shared or Chassis Global Hot Spare
-	default: ''
-  drive_path: -> future implementation
-	description:
-	- The disk path the disk is connected to.
-	choices: [PATH-BOTH, PATH-0, PATH-1]
-	default: PATH-BOTH
+    description:
+    - The slot ownership value. This can be one of the following
+    choices: [unassigned, dedicated, shared, chassis-global-spare]
+    required: yes
+    default: unassigned
+    
+  server_id:
+    description:
+    - The ID of the server that the disk is assigned.
+    choices: [1, 2]
+    default: ''
+  controller_id:
+    description:
+    - The ID of the controller that the disk is assigned.
+    choices: [1, 2]
+    default: ''
+  controller type:
+    description:
+    - The type for the controller. If the disk is either dedicated or shared, the controller type is always SAS.
+    default: SAS
+  drive_path:
+    description:
+    - The disk path the disk is connected to.
+    choices: [PATH-BOTH, PATH-0, PATH-1]
+    default: PATH-BOTH
   slot_range:
     description:
     - The slot number for the disk
-	- Valid input (1-60, comma(,), hyphen(-) and no negative numbers)
+    - Valid input (1-60, comma(,), hyphen(-) and no negative numbers)
     required: yes
-	default: ''
+    default: ''
 requirements:
 - ucsmsdk
 author:
@@ -95,7 +93,7 @@ EXAMPLES = r'''
     ownership: dedicated
     server_id: 1
     controller_id: 1
-	slot_range: 1-4,9-28
+    slot_range: 1-4,9-28
 - name: Configure chassis disk zoning
   ucs_chassis_zoning:
     hostname: 172.16.143.150
@@ -104,7 +102,7 @@ EXAMPLES = r'''
     name: S3260_2
     ownership: shared
     drive_path: path_0
-	slot_range: 1-28
+    slot_range: 1-28
 - name: Remove chassis disk zoning policy
   ucs_chassis_zoning:
     hostname: 172.16.143.150

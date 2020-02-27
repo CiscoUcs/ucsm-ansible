@@ -16,7 +16,6 @@ module: ucs_vnic_template
 short_description: Configures vNIC templates on Cisco UCS Manager
 description:
 - Configures vNIC templates on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -303,9 +302,6 @@ def main():
                                 if mo_1:
                                     props_match = False
                                     break
-                                else:
-                                    # Expected to be absent
-                                    props_match = True
                             else:
                                 if mo_1:
                                     kwargs = dict(default_net=vlan['native'])
@@ -354,8 +350,7 @@ def main():
                             if vlan['state'] == 'absent':
                                 child_dn = dn + '/if-' + str(vlan['name'])
                                 mo_1 = ucs.login_handle.query_dn(child_dn)
-                                if mo_1:
-                                    ucs.login_handle.remove_mo(mo_1)
+                                ucs.login_handle.remove_mo(mo_1)
                             else:
                                 mo_1 = VnicEtherIf(
                                     parent_mo_or_dn=mo,

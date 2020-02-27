@@ -18,7 +18,6 @@ short_description: Manages UCS Organizations for UCS Manager
 
 description:
   - Manages UCS Organizations for UCS Manager.
-  - Examples can be used with the UCS Platform Emulator U(https://cs.co/ucspe).
 
 extends_documentation_fragment: ucs
 
@@ -33,7 +32,7 @@ options:
 
     org_name:
         description:
-        - The name of the orgranization.
+        - The name of the organization.
         - Enter up to 16 characters.
         - "You can use any characters or spaces except the following:"
         - "` (accent mark), \ (backslash), ^ (carat), \" (double quote), = (equal sign), > (greater than), < (less than), or ' (single quote)."

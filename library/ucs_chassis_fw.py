@@ -16,7 +16,6 @@ module: ucs_chassis_fw
 short_description: Configures Chassis Firmware Policy on Cisco UCS Manager
 description:
 - Configures Chassis Firmware Policy on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -48,18 +47,18 @@ options:
   service_pack:
     description:
     - The version of the service pack that will be applied to the Cisco UCS S3260 chassis.
-	- Setting Service Pack to <not set> removes the service pack from the chassis firmware package.
+    - Setting Service Pack to <not set> removes the service pack from the chassis firmware package.
     default: ''
   excluded_components:
     description:
     - Components that should be excluded from the firmware package.
-	- "iocard - Chassis Adaptor"
+    - "iocard - Chassis Adaptor"
     - "chassis-board-controller - Chassis Board Controller"
     - "cmc - Chassis Management Controller"
     - "local-disk - Local Disk"
     - "sas-expander - SAS Expander"
-	- "unspecified - no exclude"
-    default:local-disk
+    - "unspecified - no exclude"
+    default: local-disk
 requirements:
 - ucsmsdk
 author:

@@ -16,7 +16,6 @@ module: ucs_chassis_profile_template
 short_description: Configures Chassis Profile Templates on Cisco UCS Manager
 description:
 - Configures Chassis Profile Templates on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -49,7 +48,7 @@ options:
   maintenance_policy:
     description:
     - The name of the chassis maintenance policy you want to associate with chassis profiles created from this template.
-	default: no maintenance policy
+    default: no maintenance policy
   firmware_package:
     description:
     - The name of the firmware package version you want to use with chassis profiles created from this template.
@@ -61,11 +60,11 @@ options:
   sas_expander_policy:
     description:
     - The name of the sas expander configuration policy you want to associate with chassis profiles created from this template.
-	default: no sas expander configuration policy
-  disk_zoning_policy: no disk zoning policy
+    default: no sas expander configuration policy
+  disk_zoning_policy:
     description:
     - The name of the disk zoning policy you want to associate with chassis profiles created from this template.
-	default: no disk zoning policy
+    default: no disk zoning policy
 requirements:
 - ucsmsdk
 author:
