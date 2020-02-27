@@ -16,32 +16,28 @@ module: ucs_storage_local_disk_rack.py
 short_description: Sets the drive to either unconfigured good or jbod in UCS Manager
 description:
 - Sets the disk state from jobd to unconfigured good or vice versa in Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
    
   rack_id:
     description:
     - Specify the server id number.
-    - For multiple server options, provide first server id and total number of servers as
-      comma separated values.
-    - For example, rack_id: 1, 8 - in this example 1 represents the first server.
+    - For multiple server options, provide first server id and total number of servers as comma separated values.
+    - "For example, rack_id: 1, 8 - in this example 1 represents the first server."
     - and 8 represents the total number of servers on which the operation has to be performed.
 
   slot_id:
     description:
     - Specify the adapter slot id number. slot_id represents the SAS/SATA drive slots in the server.
-    - For setting multiple slots ids, provide first slot id and total number of slots as
-      comma separated values.
-    - For example, slot_id: 1, 2 - in this example 1 represents the first slot.
+    - For setting multiple slots ids, provide first slot id and total number of slots as comma separated values.
+    - "For example, slot_id: 1, 2 - in this example 1 represents the first slot."
     - and 2 represents the total number of slots on which the operation has to be performed.
 
   disk_id:
     description:
     - Specify the disk id number.
-    - For setting multiple disk ids, provide first disk id and total number of disks as
-      comma separated values.
-    - For example, disk_id: 1, 8 - in this example 1 represents the first disk.
+    - For setting multiple disk ids, provide first disk id and total number of disks as comma separated values.
+    - "For example, disk_id: 1, 8 - in this example 1 represents the first disk."
     - and 8 represents the total number of disks on which the operation has to be performed.
   
   disk_state:

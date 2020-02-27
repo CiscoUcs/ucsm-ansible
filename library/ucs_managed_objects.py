@@ -18,7 +18,6 @@ description:
 - Configures Managed Objects on Cisco UCS Manager.
 - The Python SDK module, Python class within the module (UCSM Class), and all properties must be directly specified.
 - More information on the UCSM Python SDK and how to directly configure Managed Objects is available at L(UCSM Python SDK,http://ucsmsdk.readthedocs.io/).
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -161,14 +160,19 @@ RETURN = r'''
 #
 '''
 
+import traceback
+
+IMPORT_IMP_ERR = None
 try:
     from importlib import import_module
     HAS_IMPORT_MODULE = True
-except ImportError:
+except Exception:
+    IMPORT_IMP_ERR = traceback.format_exc()
     HAS_IMPORT_MODULE = False
 
 from copy import deepcopy
-from ansible.module_utils.basic import AnsibleModule
+import json
+from ansible.module_utils.basic import AnsibleModule, missing_required_lib
 from ansible.module_utils.remote_management.ucs import UCSModule, ucs_argument_spec
 
 
@@ -190,6 +194,7 @@ def traverse_objects(module, ucs, managed_object, mo=''):
         if existing_mo:
             if not module.check_mode:
                 ucs.login_handle.remove_mo(existing_mo)
+                ucs.login_handle.commit()
             ucs.result['changed'] = True
     else:
         if existing_mo:
@@ -204,7 +209,13 @@ def traverse_objects(module, ucs, managed_object, mo=''):
 
         if not props_match:
             if not module.check_mode:
-                ucs.login_handle.add_mo(mo, modify_present=True)
+                try:
+                    ucs.login_handle.add_mo(mo, modify_present=True)
+                    ucs.login_handle.commit()
+                except Exception as e:
+                    ucs.result['err'] = True
+                    ucs.result['msg'] = "setup error: %s " % str(e)
+
             ucs.result['changed'] = True
 
     if managed_object.get('children'):
@@ -233,23 +244,18 @@ def main():
     )
 
     if not HAS_IMPORT_MODULE:
-        module.fail_json(msg='import_module is required for this module')
+        module.fail_json(msg=missing_required_lib('importlib'), exception=IMPORT_IMP_ERR)
     ucs = UCSModule(module)
 
+    ucs.result['err'] = False
     # note that all objects specified in the object list report a single result (including a single changed).
     ucs.result['changed'] = False
 
     for managed_object in module.params['objects']:
         traverse_objects(module, ucs, managed_object)
-        # single commit for object and any children
-        if not module.check_mode and ucs.result['changed']:
-            try:
-                ucs.login_handle.commit()
-            except Exception as e:
-                # generic Exception because UCSM can throw a variety of exceptions
-                ucs.result['msg'] = "setup error: %s " % str(e)
-                module.fail_json(**ucs.result)
 
+    if ucs.result['err']:
+        module.fail_json(**ucs.result)
     module.exit_json(**ucs.result)
 
 

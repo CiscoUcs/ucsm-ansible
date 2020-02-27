@@ -16,7 +16,6 @@ module: ucs_chassis_maintenance
 short_description: Creates Chassis Maintenance Policy on Cisco UCS Manager
 description:
 - Configures Chassis Maintenance Policy on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -42,11 +41,11 @@ options:
     - "` (accent mark), \ (backslash), ^ (carat), \" (double quote), = (equal sign), > (greater than), < (less than), or ' (single quote)."
     aliases: [ descr ]
   reboot_policy:
-	description:
-	- When a chassis profile is associated with a chassis, or when changes are made to a chassis profile that is already associated with a chassis, you must reboot the chassis to complete the process. 
-	- The Reboot Policy field determines when the reboot occurs for chassis associated with any chassis profiles that include this maintenance policy. 
-	- This can only be the following:
-	- User Ack—The user must reboot the chassis manually after the chassis profile association is complete or changes are made.
+    description:
+    - When a chassis profile is associated with a chassis, or when changes are made to a chassis profile that is already associated with a chassis, you must reboot the chassis to complete the process. 
+    - The Reboot Policy field determines when the reboot occurs for chassis associated with any chassis profiles that include this maintenance policy. 
+    - This can only be the following
+    - User Ack—The user must reboot the chassis manually after the chassis profile association is complete or changes are made.
 requirements:
 - ucsmsdk
 author:

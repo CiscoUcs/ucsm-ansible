@@ -16,7 +16,6 @@ module: ucs_chassis_profile_from_template
 short_description: Configures Chassis Profiles from templates on Cisco UCS Manager
 description:
 - Configures Chassis Profile created from templates on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:

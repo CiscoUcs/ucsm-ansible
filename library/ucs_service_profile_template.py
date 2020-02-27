@@ -16,7 +16,6 @@ module: ucs_service_profile_template
 short_description: Configures Service Profile Templates on Cisco UCS Manager
 description:
 - Configures Service Profile Templates on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:
@@ -85,7 +84,7 @@ options:
     - The name of the server pool you want to associate with this service profile template.
   server_pool_qualification:
     description:
-    - The name of the server pool policy qualificaiton you want to use for this service profile template.
+    - The name of the server pool policy qualification you want to use for this service profile template.
   power_state:
     description:
     - The power state to be applied when a service profile created from this template is associated with a server.
@@ -103,14 +102,9 @@ options:
   sol_policy:
     description:
     - The name of the Serial over LAN (SoL) policy you want to associate with service profiles created from this template.
-  mgmt_ip_state:
-    description:
-    - The state for the Outband Management IP pool you want to use with service profiles created from this template.
-    choices: [none, pooled]
-    default: pooled
   mgmt_ip_pool:
     description:
-    - The name of the Outband Management IP pool you want to use with service profiles created from this template.
+    - The name of the management IP pool you want to use with service profiles created from this template.
     default: ext-mgmt
   power_control_policy:
     description:
@@ -212,7 +206,7 @@ def configure_service_profile_template(ucs, module):
                 bios_profile_name=module.params['bios_policy'],
                 boot_policy_name=module.params['boot_policy'],
                 descr=module.params['description'],
-                ext_ip_state=module.params['mgmt_ip_state'],
+                ext_ip_state='pooled',
                 ext_ip_pool_name=module.params['mgmt_ip_pool'],
                 # graphics_card_policy_name=module.params['graphics_card_policy'],
                 host_fw_policy_name=module.params['host_firmware_package'],
@@ -304,7 +298,7 @@ def check_storage_profile_props(ucs, module, dn):
         if mo_1.check_prop_match(**kwargs):
             props_match = True
     elif not module.params['storage_profile']:
-        # no stroage profile mo or desired state
+        # no storage profile mo or desired state
         props_match = True
 
     return props_match
@@ -409,7 +403,6 @@ def check_serivce_profile_templates_props(ucs, module, mo, dn):
     kwargs = dict(bios_profile_name=module.params['bios_policy'])
     kwargs['boot_policy_name'] = module.params['boot_policy']
     kwargs['descr'] = module.params['description']
-    kwargs['ext_ip_state'] = module.params['mgmt_ip_state']
     kwargs['ext_ip_pool_name'] = module.params['mgmt_ip_pool']
     # kwargs['graphics_card_policy_name'] = module.params['graphics_card_policy']
     kwargs['host_fw_policy_name'] = module.params['host_firmware_package']
@@ -460,7 +453,6 @@ def main():
         bios_policy=dict(type='str', default=''),
         boot_policy=dict(type='str', default='default'),
         description=dict(type='str', aliases=['descr'], default=''),
-        mgmt_ip_state=dict(type='str', default='pooled'),
         mgmt_ip_pool=dict(type='str', default='ext-mgmt'),
         graphics_card_policy=dict(type='str', default=''),
         host_firmware_package=dict(type='str', default=''),

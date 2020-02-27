@@ -16,7 +16,6 @@ module: ucs_network_control
 short_description: Confgures network control policies on Cisco UCS Manager
 description:
 - Configures Confgures network control policies on Cisco UCS Manager.
-- Examples can be used with the UCS Platform Emulator U(https://communities.cisco.com/ucspe).
 extends_documentation_fragment: ucs
 options:
   state:

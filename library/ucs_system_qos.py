@@ -11,6 +11,7 @@ short_description: Configures system QoS settings
 version_added: 0.9.0.0
 description:
    -  Configures system QoS settings
+extends_documentation_fragment: ucs
 options:
     priority:
         description: Priority to configure
@@ -22,15 +23,15 @@ options:
         required: false
     cos:
         description: CoS setting
-        choices: ['any', '[0-6]']
+        choices: ['any', '0-6']
         required: true
     weight:
         description: CoS profile weight
-        choices: ['best-effort', "none", "0-10"]
+        choices: ['best-effort', 'none', '0-10']
         required: false
     mtu:
         description: MTU size
-        choices: ['fc", "normal', '0-4294967295']
+        choices: ['fc', 'normal', '0-4294967295']
         required: false
     multicast_optimize:
         description: Set multicast optimization options
@@ -38,8 +39,8 @@ options:
         required: false
     drop:
         description: Set multicast optimization options
-        default='no-drop'
-        choices: ['drop", "no-drop']
+        default: 'no-drop'
+        choices: ['drop', 'no-drop']
         required: false
 requirements: ['ucsmsdk']
 author: "Brett Johnson (@sdbrett)"
