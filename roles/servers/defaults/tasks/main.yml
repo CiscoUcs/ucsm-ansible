@@ -10,11 +10,10 @@
   ucs_ip_pool:
     <<: *login_info
     name: ext-mgmt
-    ipv4_blocks:
-      - first_addr: 198.18.0.20
-        last_addr: 198.18.0.40
-        subnet_mask: 255.255.255.0
-        default_gw: 198.18.0.1
+    first_addr: 198.18.0.20
+    last_addr: 198.18.0.40
+    subnet_mask: 255.255.255.0
+    default_gw: 198.18.0.1
   tags: ip_pool
 - name: "Configure default MAC Pool"
   ucs_mac_pool:
