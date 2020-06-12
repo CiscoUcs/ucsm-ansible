@@ -8,7 +8,7 @@
 
 Note that active development for Ansible modules has moved to the Ansible collection maintained at https://galaxy.ansible.com/cisco/ucs. More information on collections can be found at https://docs.ansible.com/ansible/latest/user_guide/collections_using.html.
 
-Ansible 2.10 and later releases move all Cisco modules (UCS, ACI, etc.) into collecitons.
+Ansible 2.10 and later releases move all Cisco modules (UCS, ACI, etc.) into collections.  Ansible 2.10 will maintain backward compatibility with existing use of modules in Core (e.g., you can still can ucs_vlans with 2.10), but later releases will require use of the Galaxy hosted collections (e.g., eventually you must use cisco.ucs.ucs_vlans).
 
 ### Archived Information
 
