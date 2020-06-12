@@ -6,12 +6,11 @@
 
 ## News
 
-Ansible 2.5 and later features several UCS modules, and we are working to include more in upcoming releases.  This repo represents the working copy of modules submitted to Ansible or in development for future submission.  This repo can be used to provide UCS Ansible modules before their inclusion in official Ansible releases.
+Note that active development for Ansible modules has moved to the Ansible collection maintained at https://galaxy.ansible.com/cisco/ucs. More information on collections can be found at https://docs.ansible.com/ansible/latest/user_guide/collections_using.html.
 
-Modules in the library directory are submitted or in development for upcoming Ansible releases.  module_utils/remote_management is the module_utils location for modules being actively maintained.
+Ansible 2.10 and later releases move all Cisco modules (UCS, ACI, etc.) into collecitons.
 
-There is currently not support for scripted install/uninstall to avoid collision with Ansible hosted modules and ongoing maintenance.  
-See the install section below for step-by-step install and usage instructions.
+### Archived Information
 
 Cisco's demo Cloud (dcloud.cisco.com) can be used to test and demo the Ansible modules and corresponding roles.  dCloud provides both a Hardware based environment (https://dcloud2-rtp.cisco.com/content/catalogue?search=unified%20computing%20system ) and an emulated environment (https://dcloud2-sjc.cisco.com/content/catalogue?search=ucs%20programmability ) that can be used with the UCS Ansible modules.
 
