@@ -124,7 +124,7 @@ def main():
         org_dn=dict(type='str', default='org-root'),
         name=dict(type='str'),
         purpose=dict(type='str', choices=['node', 'port']),
-        descr=dict(type='str'),
+        descr=dict(type='str', default='', aliases=['description', 'descrption']),
         order=dict(type='str', default='default', choices=['default', 'sequential']),
         first_addr=dict(type='str'),
         last_addr=dict(type='str'),
